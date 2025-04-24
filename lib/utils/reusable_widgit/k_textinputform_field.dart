@@ -1,0 +1,131 @@
+import 'package:flutter/material.dart';
+import '../constants/k_colors.dart';
+
+class KTextInputFormField extends StatelessWidget {
+  final String? labelText;
+  final String? hintText;
+  final String? initValue;
+  final TextEditingController? controller;
+  final TextInputType keyboardType;
+  final bool? obscureText;
+  final String? Function(String?)? validator;
+  final String? Function(String?)? onChange;
+  final bool? readOnly;
+  final Icon? prefixIcon;
+  final IconButton? suffixIcon;
+
+  // New optional flags
+  final bool useMaxLines;
+  final int? maxLines;
+
+  final bool useMaxLength;
+  final int? maxLength;
+
+  final bool isRequired; // New flag for required fields
+
+  // Newly added font customization
+  final double? fontSize;
+  final FontWeight? fontWeight;
+
+  const KTextInputFormField({
+    super.key,
+    required this.labelText,
+    required this.hintText,
+    this.initValue,
+    this.controller,
+    this.keyboardType = TextInputType.text,
+    this.obscureText = false,
+    this.validator,
+    this.onChange,
+    this.readOnly = false,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.useMaxLines = false,
+    this.maxLines = 1,
+    this.useMaxLength = false,
+    this.maxLength = 1000,
+    this.isRequired = false, // Default: false
+    this.fontSize, // New optional fontSize
+    this.fontWeight, // New optional fontWeight
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      style: TextStyle(
+        fontFamily: "Poppins",
+        fontWeight: fontWeight ?? FontWeight.w400,
+        fontSize: fontSize ?? 14.0, // Default to 14 if not provided
+        color: Colors.black,
+      ),
+      initialValue: initValue,
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: (obscureText ?? false) && (maxLines == 1),
+      maxLines: useMaxLines ? maxLines : 1,
+      maxLength: useMaxLength ? maxLength : null,
+      validator: validator ??
+          (isRequired ? (value) => value?.isEmpty ?? true ? "This field is required" : null : null),
+      onChanged: onChange,
+      readOnly: readOnly ?? false,
+      decoration: InputDecoration(
+        alignLabelWithHint: true,
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        label: isRequired
+            ? RichText(
+          text: TextSpan(
+            text: labelText ?? '',
+            style: TextStyle(
+              fontFamily: "Poppins",
+              fontWeight: fontWeight ?? FontWeight.w400,
+              fontSize: fontSize ?? 14.0,
+              color: KColors.appSecondaryGrey,
+            ),
+            children: const [
+              TextSpan(
+                text: " *",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        )
+            : Text(
+          labelText ?? '',
+          style: TextStyle(
+            fontFamily: "Poppins",
+            fontWeight: fontWeight ?? FontWeight.w400,
+            fontSize: fontSize ?? 14.0,
+            color: KColors.appSecondaryGrey,
+          ),
+        ),
+        hintText: hintText,
+        hintStyle: TextStyle(
+          fontFamily: "Poppins",
+          fontWeight: fontWeight ?? FontWeight.w400,
+          fontSize: fontSize ?? 14.0,
+          color: KColors.appSecondaryGrey,
+        ),
+        prefixIcon: prefixIcon,
+        suffixIcon: suffixIcon,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(
+            color: Colors.grey,
+            width: 1.0,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(
+            color: Colors.blue,
+            width: 1.0,
+          ),
+        ),
+        contentPadding: const EdgeInsets.only(left: 20, top: 10, bottom: 10, right: 10),
+      ),
+    );
+  }
+}
