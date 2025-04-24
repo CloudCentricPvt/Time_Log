@@ -96,7 +96,7 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
   void initState() {
     fetchLogs();
 
-    /// time log List of card.......
+    /// time log List of card........
     super.initState();
   }
 
