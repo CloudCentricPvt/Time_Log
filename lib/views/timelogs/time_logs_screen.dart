@@ -107,6 +107,7 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
       MaterialPageRoute(builder: (context) => CreateTimeLog()),
     );
 
+
     if (result == true) {
       fetchLogs(); // Reload data when returning from CreateTimeLog screen
     }
