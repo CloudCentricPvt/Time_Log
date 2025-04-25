@@ -77,7 +77,5 @@ class ChangePasswordController{
       KShowInfo.showInfoMessage(context, "An error occurred: $e");
 
     }
-
   }
-
 }
