@@ -26,6 +26,7 @@ class TimeLogController {
       String? hours,
       String? minutes,
       String? description) async {
+
     if (projectName == null || projectName.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -45,11 +46,21 @@ class TimeLogController {
       );
       return;
     }
-    if (hrsController.text.trim().isEmpty &&
-        minController.text.trim().isEmpty) {
+
+    if (hrsController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Please enter Hours and Minutes."),
+          content: Text("Please enter Hours."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (minController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter  Minutes."),
           backgroundColor: Colors.red,
         ),
       );

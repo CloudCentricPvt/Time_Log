@@ -65,12 +65,12 @@ class LoginController {
         // Check for success
         if (response['code'] == 200 && response['status'] == true) {
           var user = response['users']?[0];
-          String userID = user?['User_Name__c'] ?? '';
+          String userName = user?['User_Name__c'] ?? '';
           bool isActive = user?['Is_Active__c'] ?? false;
           await storage.write('Is_Active', isActive);
           String employeeID = user?['Id'].toString() ?? '';
 
-          storage.write('User_Id', userID);
+          storage.write('User_Id', userName);
           storage.write('EMP_ID', employeeID);
           var ss = storage.read('Is_Active');
           print('#SSSSS: $ss');

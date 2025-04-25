@@ -41,6 +41,9 @@ dependencies:
   http: ^1.0.0
   shared_preferences: ^2.2.2
   intl: ^0.20.2
+  location: ^5.0.3
+
+
 
 
 

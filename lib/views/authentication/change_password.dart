@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:time_log/utils/constants/k_loader.dart';
 
 import '../../controllers/change_password_controller.dart';
 import '../../utils/constants/k_colors.dart';
@@ -21,6 +22,7 @@ class _ChangePasswordState extends State<ChangePassword> {
   bool _isCurrentPasswordObscure = true;
   bool _isNewPasswordObscure = true;
   bool _isConfirmPasswordObscure = true;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -119,13 +121,21 @@ class _ChangePasswordState extends State<ChangePassword> {
                 ),
               ),
               KSizedBox.h20,
-              CustomElevatedButton(
-                width: 260,
-                height: 45,
-                text: 'UPDATE PASSWORD',
-                onPressed: () async {
-                  await _changePassProfileController.changePassword(context);
-                },
+              Center(
+                child: _isLoading ? const KLoader() : CustomElevatedButton(
+                  width: 260,
+                  height: 45,
+                  text: 'UPDATE PASSWORD',
+                  onPressed: () async {
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    await _changePassProfileController.changePassword(context,_changePassProfileController.currentPassController.text,_changePassProfileController.newPassController.text,_changePassProfileController.confirmPassController.text);
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  },
+                ),
               )
             ],
           ),
