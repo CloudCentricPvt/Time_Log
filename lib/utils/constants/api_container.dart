@@ -14,6 +14,7 @@ class KApiEndPoints {
   static String checkOut = "${KApiContainer.BASE_URL}apexrest/CheckOut";
   static String allTimeLogs = "${KApiContainer.BASE_URL}apexrest/FilledTimeLogEntries";
   static String createTimeLog = "${KApiContainer.BASE_URL}apexrest/CreateTimeLog";
+  static String changPassWord = "${KApiContainer.BASE_URL}apexrest/ChangePassword";
 
 
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:location/location.dart';
 import 'package:time_log/utils/constants/k_asstes.dart';
 import 'package:time_log/utils/constants/k_date_dialog.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
@@ -28,6 +29,8 @@ class _CreateTimelogState extends State<CreateTimeLog> {
   String? selectedProject;
   String? selectedTask;
   bool _isLoading = false;
+  double lat = 0.000;
+  double long = 0.000;
 
 
   final List<String> projectItems = [
@@ -49,6 +52,7 @@ class _CreateTimelogState extends State<CreateTimeLog> {
   @override
   void initState() {
     super.initState();
+    _getUserLocation();
   }
 
   @override
@@ -255,5 +259,55 @@ class _CreateTimelogState extends State<CreateTimeLog> {
         ),
       ),
     );
+  }
+
+  void _getUserLocation() async {
+    Location location = Location();
+    bool _serviceEnable;
+    PermissionStatus _permissionGranted;
+    _serviceEnable = await location.serviceEnabled();
+    if(!_serviceEnable){
+      _serviceEnable = await  location.requestService();
+      if(!_serviceEnable){
+        normalConfirmationDialog('Location is Disable App want to access  your location','Please Enable your Location','Enable Location');
+        return;
+      }
+    }
+    _permissionGranted = await location.hasPermission();
+    if(_permissionGranted == PermissionStatus.denied){
+      _permissionGranted = await location.requestPermission();
+
+      if(_permissionGranted != PermissionStatus.granted){
+        normalConfirmationDialog('Denied the location permission, please go to setting and give access','Location permission denied','Open Setting');
+        print('Location_Service:');
+        return;
+      }
+    }
+    location.onLocationChanged.listen((LocationData CurrentLocation) async {
+      
+      print('Location: ${CurrentLocation.latitude},${CurrentLocation.longitude}');
+      setState(() {
+        lat = CurrentLocation.latitude!;
+        long = CurrentLocation.longitude!;
+
+        print('#Location:${CurrentLocation.latitude}');
+      });
+
+    });
+  }
+  normalConfirmationDialog(String confirmation, String? title, String? buttonText){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('data')
+
+          ],
+        ),
+      );
+
+    });
+
   }
 }

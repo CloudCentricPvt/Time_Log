@@ -1,7 +1,7 @@
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:time_log/controllers/check_in_check_out_controller.dart';
-import 'package:time_log/utils/constants/k_get_location.dart';
 import 'package:time_log/utils/reusable_widgit/k_elevated_button.dart';
 import 'package:time_log/utils/reusable_widgit/k_upcoming_holidays.dart';
 import '../../utils/constants/k_drawer_menu.dart';
@@ -10,6 +10,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../utils/constants/k_loader.dart';
 import '../../utils/constants/k_nav_header.dart';
 import '../../utils/reusable_widgit/k_upcoming_events.dart';
+
 
 class CheckInCheckOut extends StatefulWidget {
   const CheckInCheckOut({super.key});
@@ -22,23 +23,13 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
   final CheckInCheckOutController _controller = CheckInCheckOutController();
   String lat = '25.36522';
   String long = '21.35855';
+  double lat1 = 0.0;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    //getLocation(); // Call on init
-    getCurrentLocation();
-  }
-
-  void getCurrentLocation() async {
-    final location = await KGetLocation.getLocation();
-    if (location != null) {
-      print(
-          "Latitude: ${location['latitude']}, Longitude: ${location['longitude']}");
-    } else {
-      print("Could not get location");
-    }
+    //getLocation();
   }
 
   final List<Map<String, dynamic>> upcomingBirthdayAnniversary = [
@@ -124,44 +115,11 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
     },
   ];
 
-  /*Future<void> getLocation() async {
-    try {
-      Position position = await _determinePosition();
-      setState(() {
-        lat = position.latitude as String;
-        long = position.latitude as String;
-      });
-    } catch (e) {
-      setState(() {
-        lat = "Error: $e";
-      });
-    }
+ /* void getLocation() async {
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
+    //lat1 = position.latitude;
   }*/
 
-  /* Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error('Location permissions are permanently denied.');
-    }
-
-    return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-  }*/
 
   @override
   Widget build(BuildContext context) {
