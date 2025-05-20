@@ -1,16 +1,23 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:material_dialogs/widgets/buttons/icon_button.dart';
+import 'package:time_log/models/annual_leave_details_res.dart';
 import 'package:time_log/utils/constants/k_asstes.dart';
+import 'package:time_log/utils/constants/k_loader.dart';
 import 'package:time_log/utils/reusable_widgit/k_size_box.dart';
-
+import 'package:time_log/views/leaves/request_comp_off_screen.dart';
+import 'package:time_log/views/leaves/request_work_from_home.dart';
+import '../../models/dashboard_res.dart';
+import '../../models/upcoming_leaves_res.dart';
+import '../../utils/constants/check_internet.dart';
 import '../../utils/constants/k_colors.dart';
 import '../../utils/constants/k_drawer_menu.dart';
+import '../../utils/constants/k_fonts.dart';
 import '../../utils/constants/k_nav_header.dart';
+import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_circular_progress.dart';
-import '../../utils/reusable_widgit/k_upcoming_holidays.dart';
-
+import 'apply_leave.dart';
 class LeaveScreen extends StatefulWidget {
   const LeaveScreen({super.key});
 
@@ -19,39 +26,36 @@ class LeaveScreen extends StatefulWidget {
 }
 
 class _LeaveScreenState extends State<LeaveScreen> {
+  final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
+  bool _isLoading = false;
+  String leaveBal = '';
+  String totalLeaveBal = '';
+  String casualLeave = '';
+  String sickLeave = '';
+  String earnLeave = '';
+  String compOff = '';
+  int usedLeave1 = 0;
 
-  final List<Map<String, dynamic>> leaveBalances = [
-    {
-      "month": "MARCH",
-      "date": "02",
-      "type": "EL",
-      "color": Colors.purple,
-    },
-    {
-      "month": "APRIL",
-      "date": "07",
-      "type": "CL",
-      "color": Colors.purple,
-    },
-    {
-      "month": "MAY",
-      "date": "18",
-      "type": "COMP OFF",
-      "color": Colors.purple,
-    },
-    {
-      "month": "JUN",
-      "date": "25",
-      "type": "COMP OFF",
-      "color": Colors.purple,
-    },
+  ///--- Total Leave
+  String tEL = '';
+  String tCL = '';
+  String tSL = '';
+  String tCompOff = '';
 
-  ];
+  /// --- calculate Percentage
+  double leaveP = 0.0;
+  double clP = 0.0;
+  double slP = 0.0;
+  double elP = 0.0;
+  double compOffP = 0.0;
+  List<UpcomingLeave> leaveList = [];
+  List<Holiday> upcomingHolidays = [];
+
   final List<Map<String, dynamic>> holidays = [
     {
       "title": "HOLI",
       "consumed":
-      "this week is holi the offical selebration in company at 4:00 PM",
+          "this week is holi the offical selebration in company at 4:00 PM",
       "date": "#Fridat, 14 March 2025",
       "color": KColors.appSecondary,
       "icons": "assets/images/profile_img.jpeg",
@@ -86,8 +90,157 @@ class _LeaveScreenState extends State<LeaveScreen> {
     },
   ];
 
+  @override
+  void initState() {
+    _checkInternetConnection();
+    super.initState();
+  }
 
 
+  /// --- check internet connection
+  void _checkInternetConnection() async {
+    bool connected = await _checkInternet.isConnected();
+    if (!connected) {
+      // Show no internet dialog or handle no connectivity case
+      KMaterialDialogs.noInternetFound(
+        context,
+        IconsButton(
+          onPressed: () {
+            Navigator.pop(context);
+            // Maybe retry or do something else
+          },
+          text: 'Okay',
+          color: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          iconColor: Colors.white,
+        ),
+        "No Internet Connection",
+        "Please check your internet connection and try again.",
+      );
+      return; // Stop further API calls
+    }
+    fetchAnnualLeaveDetails();
+    fetchLeaveList();
+    fetUpcomingHolidays();
+  }
+
+
+  ///--- go back then Reload Leave list.
+  Future<void>_goBackToApplyLeaveScreen() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ApplyLeave()),
+    );
+    print("Result from ApplyLeave: $result");  // Check if the result is true
+
+    if (result == true) {
+      fetchAnnualLeaveDetails();
+    }
+  }
+
+  Future<void> _goBackToWFHLeaveScreen() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RequestWorkFromHome()),
+    );
+
+    if (result == true) {
+      fetchAnnualLeaveDetails();
+    }
+  }
+
+  Future<void> _goBackToCompOffLeaveScreen() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RequestCompOFF()),
+    );
+
+    if (result == true) {
+      fetchAnnualLeaveDetails();
+    }
+  }
+
+
+  Future<void> fetchAnnualLeaveDetails() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await getAnnualLeaveDetails(context);
+
+      if (response is AnnualLeaveDetailsResponse) {
+        final data = response.data;
+
+        // Extract the leave details
+        final leaveBalance = data.leaveBalance;
+        final totalLeave = data.totalLeave;
+        final usedLeave = data.usedLeave;
+        final casualLeaveBal = data.casualLeaveBal;
+        final sickLeaveBal = data.sickLeaveBal;
+        final compOffLeaveBal = data.compOffLeaveBal;
+        final elLeaveBal = data.elLeaveBal;
+        final calendarYear = data.calendarYear;
+
+        /// --- access total leave
+        final totalCL = data.totalCasualLeave;
+        final totalSL = data.totalSickLeave;
+        final totalCompOff = data.totalCompOffLeave;
+        final totalEL = data.totalElLeave;
+
+        setState(() {
+          totalLeaveBal = (totalLeave % 1 == 0)
+              ? totalLeave.toInt().toString()
+              : totalLeave.toString();
+          leaveBal = (leaveBalance % 1 == 0)
+              ? leaveBalance.toInt().toString()
+              : leaveBalance.toString();
+          casualLeave = (casualLeaveBal % 1 == 0)
+              ? casualLeaveBal.toInt().toString()
+              : casualLeaveBal.toString();
+          usedLeave1 = usedLeave;
+          sickLeave = (sickLeaveBal % 1 == 0)
+              ? sickLeaveBal.toInt().toString()
+              : sickLeaveBal.toString();
+          earnLeave = (elLeaveBal % 1 == 0)
+              ? elLeaveBal.toInt().toString()
+              : elLeaveBal.toString();
+          compOff = (compOffLeaveBal % 1 == 0)
+              ? compOffLeaveBal.toInt().toString()
+              : compOffLeaveBal.toString();
+
+          /// ---- find out total assign leave
+          tCL = (totalCL % 1 == 0)
+              ? totalCL.toInt().toString()
+              : totalCL.toString();
+          tSL = (totalSL % 1 == 0)
+              ? totalSL.toInt().toString()
+              : totalSL.toString();
+          tEL = (totalEL % 1 == 0)
+              ? totalEL.toInt().toString()
+              : totalEL.toString();
+          tCompOff = (totalCompOff % 1 == 0)
+              ? totalCompOff.toInt().toString()
+              : totalCompOff.toString();
+
+          _isLoading = false;
+        });
+
+        calculatePercentage();
+
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        print("Error: Response is not of type AnnualLeaveDetailsResponse.");
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print("Error in fetchAnnualLeaveDetails: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +257,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
         showProfileIcon: false, // Hide Profile Icon
       ),
       drawer: CustomDrawerMenu(context: context),
-      body: SingleChildScrollView(
+      body: _isLoading? KLoader():SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -129,22 +282,22 @@ class _LeaveScreenState extends State<LeaveScreen> {
 
                     Center(
                       child: KCircularProgressBar.circularIndicator(
-                        percent: 0.75,
-                        value: '15',
+                        percent: leaveP,
+                        value: leaveBal ?? '',
                         valueTextSize: 28,
                         label: 'Leave balance',
                         radius: 60.0,
                       ),
                     ),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         Column(
                           children: [
-                            Text('Total Leaves'),
+                            const Text('Total Leaves'),
                             Text(
-                              '21',
-                              style: TextStyle(
+                              totalLeaveBal.toString() ?? '',
+                              style: const TextStyle(
                                   fontSize: 16,
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.w700),
@@ -154,7 +307,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
                         Column(
                           children: [
                             Text('Leave Used'),
-                            Text('06',
+                            Text(usedLeave1.toString() ?? '',
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontFamily: 'Poppins',
@@ -173,8 +326,8 @@ class _LeaveScreenState extends State<LeaveScreen> {
                           Expanded(
                               child: KCircularProgressBar.circularIndicator(
                                   progressColor: KColors.purpleColor,
-                                  percent: 0.75,
-                                  value: '09',
+                                  percent: (clP ?? 0) > 0 ? clP : 0,
+                                  value: casualLeave.toString(),
                                   valueTextSize: 18,
                                   radius: 34.0,
                                   bottomLabel: 'Casual Leave',
@@ -182,8 +335,8 @@ class _LeaveScreenState extends State<LeaveScreen> {
                           Expanded(
                               child: KCircularProgressBar.circularIndicator(
                                   progressColor: KColors.greenColor,
-                                  percent: 0.75,
-                                  value: '15',
+                                  percent: (slP ?? 0) > 0 ? slP : 0,
+                                  value: sickLeave.toString() ?? '',
                                   valueTextSize: 18,
                                   radius: 34.0,
                                   bottomLabel: 'Sick Leave',
@@ -191,8 +344,8 @@ class _LeaveScreenState extends State<LeaveScreen> {
                           Expanded(
                               child: KCircularProgressBar.circularIndicator(
                                   progressColor: KColors.orangeColor,
-                                  percent: 0.75,
-                                  value: '03',
+                                  percent: (elP ?? 0) > 0 ? elP : 0,
+                                  value: earnLeave.toString() ?? '',
                                   valueTextSize: 18,
                                   radius: 34.0,
                                   bottomLabel: 'Earn Leave',
@@ -200,8 +353,8 @@ class _LeaveScreenState extends State<LeaveScreen> {
                           Expanded(
                               child: KCircularProgressBar.circularIndicator(
                                   progressColor: KColors.pinkColor,
-                                  percent: 0.75,
-                                  value: '05',
+                                  percent: (compOffP ?? 0) > 0 ? compOffP : 0.0,
+                                  value: compOff.toString() ?? '',
                                   valueTextSize: 18,
                                   radius: 34.0,
                                   bottomLabel: 'Comp Off',
@@ -222,7 +375,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
                                 color: KColors.appPrimary),
                           ),
                         ),
-                        onTap: (){
+                        onTap: () {
                           Navigator.pushNamed(context, '/balance_leave_screen');
                         },
                       ),
@@ -232,7 +385,6 @@ class _LeaveScreenState extends State<LeaveScreen> {
               ),
 
               /// ---- Design Apply section
-
               Row(
                 children: [
                   Expanded(
@@ -241,9 +393,10 @@ class _LeaveScreenState extends State<LeaveScreen> {
                       child: KFeatureCard(
                         iconAsset: KAssets.applyLeave,
                         title: 'Apply Leaves',
-                        onTap: () {
-                          Navigator.pushNamed(context, '/apply_leave_screen');
-                        },
+                          onTap: () async {
+                            //Navigator.pushReplacementNamed(context, '/apply_leave_screen');
+                            await _goBackToApplyLeaveScreen();
+                          }
                       ),
                     ),
                   ),
@@ -254,8 +407,9 @@ class _LeaveScreenState extends State<LeaveScreen> {
                       child: KFeatureCard(
                         iconAsset: KAssets.requestWFH,
                         title: 'Request WFH',
-                        onTap: () {
-                          Navigator.pushNamed(context, '/request_wfh_screen');
+                        onTap: () async {
+                          //Navigator.pushNamed(context, '/request_wfh_screen');
+                          await _goBackToWFHLeaveScreen();
                         },
                       ),
                     ),
@@ -267,7 +421,10 @@ class _LeaveScreenState extends State<LeaveScreen> {
                       child: KFeatureCard(
                         iconAsset: KAssets.requestCompOFF,
                         title: 'Comp Off',
-                        onTap: () {Navigator.pushNamed(context, '/comp_off_screen');},
+                        onTap: () async{
+                          //Navigator.pushNamed(context, '/comp_off_screen');
+                          await _goBackToCompOffLeaveScreen();
+                        },
                       ),
                     ),
                   ),
@@ -277,7 +434,9 @@ class _LeaveScreenState extends State<LeaveScreen> {
                       child: KFeatureCard(
                         iconAsset: KAssets.holidaysList,
                         title: 'Holidays List',
-                        onTap: () {Navigator.pushNamed(context, '/holiday_list_screen');},
+                        onTap: () {
+                          Navigator.pushNamed(context, '/holiday_list_screen');
+                        },
                       ),
                     ),
                   ),
@@ -286,61 +445,12 @@ class _LeaveScreenState extends State<LeaveScreen> {
 
               /// ---- Design Upcoming events
               KSizedBox.h14,
-              const Text(
-                "Upcoming Your Leaves",
-                style: TextStyle(
-                    fontFamily: "Poppins",
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    color: KColors.textHeadingColor),
-              ),
-              KSizedBox.h10,
-              SizedBox(
-                height: 115,
-                child: Expanded(
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: leaveBalances.length,
-                    itemBuilder: (context, index) {
-                      final leave = leaveBalances[index];
-                      return UpcomingLeavesCard(
-                        month: leave['month'],
-                        date: leave['date'],
-                        type: leave['type'],
-                        cardColor: getLeaveColor(leave["type"] ?? ""),
-                      );
-                    },
-                  ),
-                ),
-              ),
+              _upcomingYourLeaves(),
 
               /// --- Upcoming holidays
               KSizedBox.h14,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Upcoming Holidays', style: TextStyle(
-                      fontFamily: "Poppins",
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: KColors.textHeadingColor),),
-                  InkWell(
-                    child: const Text('Read more', style: TextStyle(
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: KColors.appPrimary),),
-                    onTap: (){Navigator.pushNamed(context, '/holiday_list_screen');},
-                  ),
-                ],
-              ),
 
-              /// ---- Design Holiday banner
-              KSizedBox.h10,
-              SizedBox(
-                height: 95,
-                child: KUpcomingHolidays(upcomingItems: holidays),
-              ),
+              _upcomingHolidays(),
             ],
           ),
         ),
@@ -365,9 +475,282 @@ class _LeaveScreenState extends State<LeaveScreen> {
       case "Comp Off Leave":
         return KColors.pinkColor;
       default:
-        return Colors.grey;  // Default color if no match
+        return Colors.grey; // Default color if no match
     }
   }
+
+  void calculatePercentage() {
+    calculateLeaveBalPercentage();
+    calculateCLPercentage();
+    calculateSLPercentage();
+    calculateELPercentage();
+    calculateCompOffPercentage();
+  }
+
+  void calculateLeaveBalPercentage() {
+    String leaveBal1 = leaveBal.toString() ?? '0';
+    String totalLeaveBal1 = totalLeaveBal.toString() ?? '0';
+
+    print('Leave Balance is invalid or zero:${leaveBal.toString()}');
+    print('Total Leave Balance is invalid or zero:${totalLeaveBal.toString()}');
+
+    double leaveBalDouble = double.tryParse(leaveBal1) ?? 0.0;
+    double? totalLeaveBalDouble = double.tryParse(totalLeaveBal1);
+
+    if (totalLeaveBalDouble != null && totalLeaveBalDouble != 0) {
+      double leavePercentage = (leaveBalDouble * 100) / totalLeaveBalDouble;
+
+      leaveP = leavePercentage / 100;
+
+      print('Leave_Bal_Per: ${leavePercentage.toStringAsFixed(2)}');
+      //print('Leave_Bal_Per: ${ddd.toStringAsFixed(2)}');
+    } else {
+      print('Total Leave Balance is invalid or zero');
+    }
+  }
+
+  void calculateCLPercentage() {
+    String balCL = casualLeave.toString() ?? '0';
+    String totalCl = tCL.toString() ?? '0';
+
+    print('Leave Balance is invalid or zero:${balCL.toString()}');
+    print('Total Leave Balance is invalid or zero:${totalCl.toString()}');
+
+    double leaveBalCL = double.tryParse(balCL) ?? 0.0;
+    double? totalLeaveCL = double.tryParse(totalCl);
+
+    if (totalLeaveCL != null && totalLeaveCL != 0) {
+      double leavePercentage = (leaveBalCL * 100) / totalLeaveCL;
+
+      clP = leavePercentage / 100;
+      clP = double.parse(clP.toStringAsFixed(2));
+
+      print('CL_Leave_Bal_Per: $clP');
+      //print('Leave_Bal_Per: ${ddd.toStringAsFixed(2)}');
+    } else {
+      print('Total Leave Balance is invalid or zero');
+    }
+  }
+
+  void calculateSLPercentage() {
+    String balSL = sickLeave.toString() ?? '0';
+    String totalSL = tSL.toString() ?? '0';
+
+    print('Leave Balance is invalid or zero:${balSL.toString()}');
+    print('Total Leave Balance is invalid or zero:${totalSL.toString()}');
+
+    double leaveBalSL = double.tryParse(balSL) ?? 0.0;
+    double? totalLeaveSL = double.tryParse(totalSL);
+
+    if (totalLeaveSL != null && totalLeaveSL != 0) {
+      double leavePercentage = (leaveBalSL * 100) / totalLeaveSL;
+
+      slP = leavePercentage / 100;
+      slP = double.parse(slP.toStringAsFixed(2));
+
+      print('SL_Leave_Bal_Per: $slP');
+      //print('Leave_Bal_Per: ${ddd.toStringAsFixed(2)}');
+    } else {
+      print('Total Leave Balance is invalid or zero');
+    }
+  }
+
+  void calculateELPercentage() {
+    String balEL = earnLeave.toString() ?? '0';
+    String totalEL = tEL.toString() ?? '0';
+
+    print('Leave Balance is invalid or zero:${balEL.toString()}');
+    print('Total Leave Balance is invalid or zero:${totalEL.toString()}');
+
+    double leaveBalEL = double.tryParse(balEL) ?? 0.0;
+    double? totalLeaveEL = double.tryParse(totalEL);
+
+    if (totalLeaveEL != null && totalLeaveEL != 0) {
+      double leavePercentage = (leaveBalEL * 100) / totalLeaveEL;
+
+      elP = leavePercentage / 100;
+      elP = double.parse(elP.toStringAsFixed(2));
+
+      print('SL_Leave_Bal_Per: $elP');
+      //print('Leave_Bal_Per: ${ddd.toStringAsFixed(2)}');
+    } else {
+      print('Total Leave Balance is invalid or zero');
+    }
+  }
+
+  void calculateCompOffPercentage() {
+    String balCompOff = compOff.toString() ?? '0';
+    String totalCompOff = tCompOff.toString() ?? '0';
+
+    print('Leave Balance is invalid or zero:${balCompOff.toString()}');
+    print('Total Leave Balance is invalid or zero:${totalCompOff.toString()}');
+
+    double leaveBalCompOff = double.tryParse(balCompOff) ?? 0.0;
+    double? totalLeaveCompOff = double.tryParse(totalCompOff);
+
+    if (totalLeaveCompOff != null && totalLeaveCompOff != 0) {
+      double leavePercentage = (leaveBalCompOff * 100) / totalLeaveCompOff;
+
+      compOffP = leavePercentage / 100;
+      compOffP = double.parse(compOffP.toStringAsFixed(2));
+
+      print('compFF_Per: $compOffP');
+      //print('Leave_Bal_Per: ${ddd.toStringAsFixed(2)}');
+    } else {
+      print('Total Leave Balance is invalid or zero');
+    }
+  }
+
+  Future<void> fetchLeaveList() async {
+    var response = await getUpcomingLeaves(context);
+
+    if (response is UpcomingLeavesResponse) {
+      setState(() {
+        leaveList = response.data;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+
+  Widget _upcomingYourLeaves() {
+    return Visibility(
+      visible: leaveList.isEmpty ? false : true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Upcoming Your Leaves",
+            style: TextStyle(
+                fontFamily: "Poppins",
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: KColors.textHeadingColor),
+          ),
+          KSizedBox.h10,
+          SizedBox(
+            height: 115,
+            child: Expanded(
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: leaveList.length,
+                itemBuilder: (context, index) {
+                  final leave = leaveList[index];
+                  return UpcomingLeavesCard(
+                    month: leave.month,
+                    date: leave.startDate.day.toString(),
+                    type: leave.type,
+                    cardColor: getLeaveColor(leave.type),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _upcomingHolidays() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return Visibility(
+      visible: upcomingHolidays.isEmpty ? false : true,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Upcoming Holidays",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              InkWell(
+                child: const Text(
+                  "Read more",
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: KColors.appPrimary),
+                ),
+                onTap: () {
+                  Navigator.pushNamed(context, '/holiday_list_screen');
+                },
+              ),
+            ],
+          ),
+          SizedBox(height: 10,),
+          SizedBox(
+              height: 98,
+              child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: upcomingHolidays.length,
+                  itemBuilder: (context, index) {
+                    final item = upcomingHolidays[index];
+                    return Container(
+                      width: screenWidth * 0.8,
+                      margin: const EdgeInsets.only(right: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: KColors.appPrimary,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 8,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  item.holidayTitle ?? '',
+                                  maxLines: 1,
+                                  style: KFonts.normalBoldWithWhite,
+                                ),
+                                SizedBox(
+                                  height: 2,
+                                ),
+                                Text(
+                                  item.holidayDescription ?? '',
+                                  style: KFonts.thinWithWhite,
+                                  maxLines: 2,
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  item.formattedDate ?? '',
+                                  style: KFonts.thinWithWhite,
+                                  maxLines: 1,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                        ],
+                      ),
+                    );
+                  })),
+        ],
+      ),
+    );
+  }
+
+  Future<void> fetUpcomingHolidays() async {
+    final response = await getDashboard(context);
+    if (response is DashboardResponse) {
+      setState(() {
+        upcomingHolidays = response.data.holidays;
+        print('Check working hrs');
+      });
+    }
+  }
+
 }
 
 class UpcomingLeavesCard extends StatelessWidget {
@@ -393,7 +776,7 @@ class UpcomingLeavesCard extends StatelessWidget {
     return SizedBox(
       width: 100,
       child: Card(
-        elevation: 2,
+        elevation: 0,
         color: Colors.white,
         shadowColor: shadowColor ?? Colors.grey.shade300,
         shape: RoundedRectangleBorder(
@@ -493,5 +876,3 @@ class KFeatureCard extends StatelessWidget {
     );
   }
 }
-
-

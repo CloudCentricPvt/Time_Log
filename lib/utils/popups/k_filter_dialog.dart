@@ -308,11 +308,10 @@ class FilterDialog {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: SizedBox(
-        height: 32,
         width: 84,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: borderColor, width: 1),
           ),
           child: Center(
@@ -334,7 +333,4 @@ class FilterDialog {
       ),
     );
   }
-
-
-
 }

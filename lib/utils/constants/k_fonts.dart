@@ -80,6 +80,13 @@ class KFonts {
     color: KColors.textColorGray,
     letterSpacing: 0.12,
   );
+  static const TextStyle normalWithWhiteColor = TextStyle(
+    fontFamily: poppins,
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: KColors.appColorWhite,
+    letterSpacing: 0.12,
+  );
   static const TextStyle normalWithGray = TextStyle(
     fontFamily: poppins,
     fontSize: 14,

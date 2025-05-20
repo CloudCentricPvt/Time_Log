@@ -116,6 +116,7 @@ class CustomDrawerMenu extends StatelessWidget {
                                       ),
                                     ),
                                     onTap: () {
+                                      Navigator.pop(context);
                                       Navigator.pushNamed(context, '/profile_screen');
                                     },
                                   ),
@@ -164,7 +165,7 @@ class CustomDrawerMenu extends StatelessWidget {
                       child: Column(
                         children: [
                           _buildMenuItem(context, 'assets/icons/dash_board.svg', 'Dashboard', '/dashboard_screen'),
-                          _buildMenuItem(context, 'assets/icons/time_logs.svg', 'Time Logs', '/time_logs_screen'),
+                          _buildMenuItem(context, 'assets/icons/time_log_icon1.svg', 'Time Logs', '/time_logs_screen'),
                           _buildMenuItem(context, 'assets/icons/leaves_etails_apply.svg', 'Leaves Details & Apply', '/leaves_details_screen'),
                           _buildMenuItem(context, 'assets/icons/upcoming_events.svg', 'Upcoming Events', '/upcoming_events_screen'),
                           _buildMenuItem(context, 'assets/icons/help_support.svg', 'Help & Support', '/help_support_screen'),

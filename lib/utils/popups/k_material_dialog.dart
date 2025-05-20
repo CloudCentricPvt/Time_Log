@@ -31,6 +31,16 @@ class KMaterialDialogs {
         actions: [iconsButtonConfirm]);
   }
 
+  static void noInternetFound(BuildContext context, Widget iconsButtonConfirm,
+      String title, String message) {
+    Dialogs.materialDialog(
+        msg: message,
+        title: title,
+        color: Colors.white,
+        context: context,
+        actions: [iconsButtonConfirm]);
+  }
+
   static void infoMaterialDialog(BuildContext context,
       Widget iconsButtonConfirm, String title, String message) {
     Dialogs.materialDialog(

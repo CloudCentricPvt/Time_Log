@@ -59,7 +59,7 @@ class ChangePasswordController{
     print("#PAYLOAD_CHANG_PASS: $changPassPayload");
 
     try{
-      var response = await networkApiServices.postRequest(changPassPayload, KApiEndPoints.changPassWord);
+      var response = await networkApiServices.postRequest(changPassPayload, KApiEndPoints.changPassWord,context);
       if (response != null) {
         // Check for success
         if (response['code'] == 204) {

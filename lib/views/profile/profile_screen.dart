@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:time_log/models/profile_details_res.dart';
 import 'package:time_log/utils/constants/k_colors.dart';
+import 'package:time_log/utils/constants/k_date_and_time.dart';
+import 'package:time_log/utils/constants/k_loader.dart';
 import '../../utils/constants/k_drawer_menu.dart';
 import '../../utils/constants/k_fonts.dart';
 import '../../utils/constants/k_nav_header.dart';
 import '../../utils/reusable_widgit/k_info_card.dart';
+import 'edit_profile.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,8 +19,15 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  LstemployeeDetail? employeeData;
+  bool _isLoading = true;
+
   @override
   void initState() {
+
+    /// --- call API for getting the employee details
+    fetchProfileDetailsData();
+
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -24,7 +35,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         statusBarIconBrightness: Brightness.light, // Light icons on dark status bar
       ));
     });
+
   }
+
+  /// --- check go back from Edit Profile Screen
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       drawer: CustomDrawerMenu(context: context),
 
-      body: SingleChildScrollView(
+      body: _isLoading? KLoader() : SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(left: 16,right: 16,bottom: 20),
           child: Column(
@@ -53,8 +69,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               const SizedBox(height: 10,),
-               Text("SABIR HUSSAIN ANSARI",style: KFonts.heading),
-              const Text("Android Developer | CCC0241",style: TextStyle(fontSize: 15,color: KColors.appSecondary),),
+               Text(employeeData?.employeeName ?? '',style: KFonts.heading),
+               Text('${employeeData?.employeeDesignation ?? ''} | ${employeeData?.employeeCode ?? ''}',style: TextStyle(fontSize: 15,color: KColors.appSecondary),),
 
               ///--- Personal details
               const SizedBox(height: 20,),
@@ -80,7 +96,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                     ),
-                    onTap: (){Navigator.pushNamed(context, '/edit_profile_screen');},
+                    onTap: () async {
+
+                      var result = await  Navigator.pushNamed(context, '/edit_profile_screen',arguments: {
+                      'fullName':employeeData?.employeeName,
+                      'gender': employeeData?.employeeGender,
+                      'phone' : employeeData?.employeePhone,
+                      'email' : employeeData?.employeeEmail,
+                      'dob' : employeeData?.employeeDob,
+                      'anniversaryDate' : employeeData?.employeeAnniversaryDate,
+                      'address' : employeeData?.employeeAddress,
+                    });
+                      if (result == true) {
+                        fetchProfileDetailsData(); // refresh
+                      }
+
+                      },
                   ),
                   InkWell(
                     child: Container(
@@ -100,7 +131,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                     ),
-                    onTap: (){Navigator.pushNamed(context, '/change_password_screen');},
+                    onTap: (){
+                      Navigator.pushNamed(context, '/change_password_screen',);},
                   ),
                 ],
               ),
@@ -108,13 +140,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 10,),
               KInfoCard(
                 children: [
-                  buildRowForProfile("Name:", "Sabir Hussain", context,color:KColors.appBlackColor,fontWeight: FontWeight.w600,fontFamily: 'Poppins'),
-                  buildRowForProfile("Gender:", "Male", context, color:KColors.textColorGray,fontFamily: 'Poppins',),
-                  buildRowForProfile("Phone:", "+917388043661", context, color: KColors.appSecondary, fontFamily: 'Poppins'),
-                  buildRowForProfile("Email:", "sabir@cccinfotech.com", context, color: KColors.appSecondary, fontFamily: 'Poppins'),
-                  buildRowForProfile("DOB:", "01-01-0000", context,color:KColors.textColorGray, fontFamily: 'Poppins'),
-                  buildRowForProfile("Anniversary date:", "01-01-2025", context, color:KColors.textColorGray,fontFamily: 'Poppins'),
-                  buildRowForProfile("Address:", "Noida sec-63, GB Nagar UP-201306", context, color:KColors.textColorGray,fontFamily: 'Poppins'),
+                  buildRowForProfile("Name:", employeeData?.employeeName ?? '', context,color:KColors.appBlackColor,fontWeight: FontWeight.w600,fontFamily: 'Poppins'),
+                  buildRowForProfile("Gender:", employeeData?.employeeGender ?? '', context, color:KColors.textColorGray,fontFamily: 'Poppins',),
+                  buildRowForProfile("Phone:", employeeData?.employeePhone ?? '', context, color: KColors.appSecondary, fontFamily: 'Poppins'),
+                  buildRowForProfile("Email:",employeeData?.employeeEmail ?? '', context, color: KColors.appSecondary, fontFamily: 'Poppins'),
+                  buildRowForProfile("DOB:", KDateAndTime().useFormatDateInMyApp(employeeData?.employeeDob ?? ''), context,color:KColors.textColorGray, fontFamily: 'Poppins'),
+                  buildRowForProfile("Anniversary date:",KDateAndTime().useFormatDateInMyApp(employeeData?.employeeAnniversaryDate ?? ''), context, color:KColors.textColorGray,fontFamily: 'Poppins'),
+                  buildRowForProfile("Address:", employeeData?.employeeAddress ?? '', context, color:KColors.textColorGray,fontFamily: 'Poppins'),
                 ],
               ),
 
@@ -134,10 +166,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 10,),
               KInfoCard(
                 children: [
-                  buildRowForCompany("Department:", "Information Technology(IT)", context,color:KColors.appBlackColor,fontFamily: 'Poppins'),
-                  buildRowForCompany("Employee Id:", "CCC0241", context, color: KColors.appSecondary, fontFamily: 'Poppins'),
-                  buildRowForCompany("Designation:", "Software Engineer", context,color: KColors.textColorGray, fontFamily: 'Poppins'),
-                  buildRowForCompany("Joining date:", "01-04-2024", context,color: KColors.textColorGray, fontFamily: 'Poppins'),
+                  buildRowForCompany("Department:", employeeData?.employeeDepartment ?? '', context,color:KColors.appBlackColor,fontFamily: 'Poppins'),
+                  buildRowForCompany("Employee Id:", employeeData?.employeeCode ?? '', context, color: KColors.appSecondary, fontFamily: 'Poppins'),
+                  buildRowForCompany("Designation:", employeeData?.employeeDesignation ?? '', context,color: KColors.textColorGray, fontFamily: 'Poppins'),
+                  buildRowForCompany("Joining date:", KDateAndTime().useFormatDateInMyApp(employeeData?.employeeJoiningDate ?? ''), context,color: KColors.textColorGray, fontFamily: 'Poppins'),
                 ],
               ),
 
@@ -158,9 +190,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 10,),
               KInfoCard(
                 children: [
-                  buildRowForManager("Manager Name:", "Rohit Sharma", context,color:KColors.appBlackColor,fontFamily: 'Poppins'),
-                  buildRowForManager("Manager Email:", "rohit@cccinfotech.com", context, color: KColors.appSecondary),
-                  buildRowForManager("Manager Phone:", "96325555441", context, color: KColors.appSecondary),
+                  buildRowForManager("Manager Name:", employeeData?.employeeManagerName ?? '', context,color:KColors.appBlackColor,fontFamily: 'Poppins'),
+                  buildRowForManager("Manager Email:", employeeData?.employeeManagerEmail ?? '', context, color: KColors.appSecondary),
+                  buildRowForManager("Manager Phone:", employeeData?.employeeManagerPhone ?? '', context, color: KColors.appSecondary),
                 ],
               ),
 
@@ -264,4 +296,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+
+  /// --  create method for getting the Employee and manager details.
+  void fetchProfileDetailsData() async {
+    final response = await getProfileDetails(context);
+
+    if (response is ProfileDetailsResponse) {
+      final dataList = response.data.lstemployeeDetails;
+
+      if (dataList.isEmpty) {
+        print("No employee details found");
+        return;
+      }
+
+      employeeData = dataList[0];
+
+      setState(() {
+        _isLoading = false;
+      });
+    } else {
+      print("Unexpected response type or failed to parse response");
+    }
+  }
+
 }

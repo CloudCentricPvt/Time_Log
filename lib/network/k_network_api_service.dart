@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -16,9 +15,12 @@ import 'k_base_api_service.dart';
 class KNetworkApiServices extends KBaseApiServices {
 
   final localStorage = GetStorage();
+  bool _isNoInternetDialogShowing = false;
 
-  @override
+
+  /* @override
   Future<dynamic> getRequest(String url) async {
+
     var auth = localStorage.read("Access_token")?? "";
     var userId = localStorage.read("User_Id")?? "";
     var empId = localStorage.read("EMP_ID")?? "";
@@ -38,7 +40,7 @@ class KNetworkApiServices extends KBaseApiServices {
         headers: headers,
       ).timeout(const Duration(seconds: 10));
       responseJson = returnApiResponse(response);
-      if (responseJson['status'] == false && responseJson['code'] == 301) {
+      if (responseJson['status'] == false && responseJson['code'] == 401) {
         return KMaterialDialogs.sessionTimeOut(
             Get.context!,
             IconsButton(
@@ -46,6 +48,8 @@ class KNetworkApiServices extends KBaseApiServices {
                 final localStorage = GetStorage();
                 localStorage.erase();
                 //Get.offAll(() => const OtpScreen());
+                Get.offAll(() => const LoginScreen());
+                //Navigator.pushReplacementNamed(context, '/login_screen');
               },
               text: 'Okay',
               color: Colors.red,
@@ -56,8 +60,7 @@ class KNetworkApiServices extends KBaseApiServices {
             "Your sessions has been expired, please do login again to continue.");
       }
     } on SocketException {
-      throw KSnackBarEvents.errorSnackBar(
-          title: "Opps", message: "No internet connectivity.");
+      throw KSnackBarEvents.errorSnackBar(title: "Opps", message: "No internet connectivity.");
     } on TimeoutException {
       throw KSnackBarEvents.errorSnackBar(
           title: "Opps", message: "Request timeout");
@@ -66,10 +69,50 @@ class KNetworkApiServices extends KBaseApiServices {
       //throw KSnackBarEvents.errorSnackBar(title: "Opps", message: "Something went wrong");
     }
     return responseJson;
-  }
+  }*/
 
   @override
-  Future<dynamic> postRequest(var data, String url) async {
+  Future<dynamic> getRequest(String url, BuildContext context) async {
+
+    var auth = localStorage.read("Access_token") ?? "";
+    var userId = localStorage.read("User_Id") ?? "";
+    log("API Url: $url");
+    log("UserId: $userId");
+    log("AuthToken: $auth");
+
+    final headers = {
+      "Content-Type": "application/json",
+      'auth_token': auth.toString(),
+      'user_code': userId.toString(),
+      'Authorization': 'Bearer $auth',
+    };
+
+    dynamic responseJson;
+
+    try {
+      final response = await https.get(
+        Uri.parse(url),
+        headers: headers,
+      ).timeout(const Duration(seconds: 10));
+
+      responseJson = returnApiResponse(response, context);
+
+
+    } on TimeoutException {
+      KSnackBarEvents.errorSnackBar(
+          title: "Oops", message: "Request timeout");
+      return;
+    } catch (e) {
+      log("Catch On Get API: $e");
+      return;
+    }
+
+    return responseJson;
+  }
+
+
+  @override
+  Future<dynamic> postRequest(var data, String url, BuildContext context) async {
     final localStorage = GetStorage();
     var token = localStorage.read("Access_token") ?? "";
     var userId = localStorage.read("User_Id") ?? "";
@@ -87,7 +130,39 @@ class KNetworkApiServices extends KBaseApiServices {
       final response = await https
           .post(Uri.parse(url), body: jsonEncode(data), headers: headers)
           .timeout(const Duration(seconds: 10));
-      responseJson = returnApiResponse(response);
+      responseJson = returnApiResponse(response, context);
+    } on SocketException {
+      throw KSnackBarEvents.errorSnackBar(title: "Opps", message: "No internet found");
+
+    } on TimeoutException {
+      throw KSnackBarEvents.errorSnackBar(title: "Opps", message: "Request timeout");
+    } catch (e) {
+      log("CatchError : $e");
+      throw KSnackBarEvents.errorSnackBar(title: "Error occurred network service", message: e.toString());
+    }
+    return responseJson;
+  }
+
+  @override
+  Future<dynamic> putRequest(var data, String url, BuildContext context) async {
+    final localStorage = GetStorage();
+    var token = localStorage.read("Access_token") ?? "";
+    var userId = localStorage.read("User_Id") ?? "";
+    final headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+    log("Token: $token");
+    log("API_URL : $url");
+    log("Payload : $data");
+
+    dynamic responseJson;
+    try {
+      final response = await https
+          .put(Uri.parse(url), body: jsonEncode(data), headers: headers)
+          .timeout(const Duration(seconds: 10));
+      responseJson = returnApiResponse(response, context);
     } on SocketException {
       throw KSnackBarEvents.errorSnackBar(title: "Opps", message: "No internet found");
     } on TimeoutException {
@@ -99,8 +174,9 @@ class KNetworkApiServices extends KBaseApiServices {
     return responseJson;
   }
 
+
   @override
-  Future<Map<String, dynamic>> httpPost(var data, String url) async {
+  Future<Map<String, dynamic>> httpPost(var data, String url, BuildContext context) async {
     final localStorage = GetStorage();
     var auth = localStorage.read("Auth_Token") ?? "";
     var userId = localStorage.read("User_Id") ?? "";
@@ -117,7 +193,7 @@ class KNetworkApiServices extends KBaseApiServices {
       final response = await https
           .post(Uri.parse(url), body: data, headers: headers)
           .timeout(const Duration(seconds: 10));
-      responseJson = returnApiResponse(response);
+      responseJson = returnApiResponse(response, context);
     } on SocketException {
       throw KSnackBarEvents.errorSnackBar(
           title: "Opps", message: "No internet found");
@@ -131,7 +207,7 @@ class KNetworkApiServices extends KBaseApiServices {
     return responseJson;
   }
 
-  dynamic returnApiResponse(https.Response response) {
+  dynamic returnApiResponse(https.Response response, BuildContext context) {
     log("GetAPIStatusCode : ${response.statusCode}");
     log("GetAPIResponse : ${response.body}");
     switch (response.statusCode) {
@@ -139,6 +215,22 @@ class KNetworkApiServices extends KBaseApiServices {
         dynamic responseJson = jsonDecode(response.body);
         return responseJson;
       case 401:
+        KMaterialDialogs.sessionTimeOut(
+          context,
+          IconsButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, '/login_screen');
+            },
+            text: 'Login',
+            color: Colors.red,
+            textStyle: const TextStyle(color: Colors.white),
+            iconColor: Colors.white,
+          ),
+          "Session Expired",
+          "Your session has expired. Please login again.",
+        );
+
         log("GetAPIStatusCode:401 : ${response.statusCode}");
         throw KSnackBarEvents.errorSnackBar(
             title: "Opps", message: "Invalid request");
@@ -146,23 +238,14 @@ class KNetworkApiServices extends KBaseApiServices {
         dynamic responseJson = jsonDecode(response.body);
         return responseJson;
       case 404:
-        return KMaterialDialogs.infoMaterialDialog(
-            Get.context!,
-            IconsButton(
-              onPressed: () {
-                Navigator.of(Get.context!).pop();
-              },
-              text: 'Okay',
-              color: Colors.red,
-              textStyle: const TextStyle(color: Colors.white),
-              iconColor: Colors.white,
-            ),
-            "404",
-            "Not found");
+        return KSnackBarEvents.errorSnackBar(
+            title: "Opps",
+            message: "Something went wrong, please try again later.");
       default:
         throw KSnackBarEvents.errorSnackBar(
             title: "Opps",
             message: "Something went wrong, please try again later.");
     }
   }
+
 }
