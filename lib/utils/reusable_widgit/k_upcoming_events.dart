@@ -1,34 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:time_log/utils/constants/k_asstes.dart';
 import 'package:time_log/utils/constants/k_fonts.dart';
 
+import '../../models/dashboard_res.dart';
 import '../constants/k_colors.dart';
 
 class KUpcomingEvents extends StatefulWidget {
-  final List<Map<String, dynamic>> upcomingItems;
 
-  const KUpcomingEvents({super.key, required this.upcomingItems});
+
+  const KUpcomingEvents({super.key});
 
   @override
   State<KUpcomingEvents> createState() => _KUpcomingEventsState();
 }
 
 class _KUpcomingEventsState extends State<KUpcomingEvents> {
+  List<Event> eventsList = [];
+
+  @override
+  void initState() {
+   _fetchEventsList();
+    super.initState();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return ListView.builder(
       scrollDirection: Axis.horizontal,
-      itemCount: widget.upcomingItems.length,
+      itemCount: eventsList.length,
       itemBuilder: (context, index) {
-        final item = widget.upcomingItems[index];
+        final item = eventsList[index];
 
         return Container(
           width: screenWidth *0.8,
           margin: const EdgeInsets.only(right: 12),
           padding: const EdgeInsets.all(0),
           decoration: BoxDecoration(
-            color: item['color'] ?? Colors.blue,
+            color: KColors.appColorWhite,
             borderRadius: BorderRadius.circular(4),
           ),
           child: SizedBox(
@@ -42,10 +54,10 @@ class _KUpcomingEventsState extends State<KUpcomingEvents> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Image.asset(
-                        item['icons'],
-                        height: 50,
-                        width: 45,
+                       Image.asset(
+                        item.eventName =="Birthday"? KAssets.birthday_image : KAssets.aniversary_image,
+                        height: 40,
+                        width: 40,
                         fit: BoxFit.cover,
                       ),
                     ],
@@ -59,12 +71,12 @@ class _KUpcomingEventsState extends State<KUpcomingEvents> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        item['title'] ?? '',
+                        item.personName ?? '',
                         style: KFonts.normalHeading,
                       ),
                       SizedBox(height: 5,),
                       Text(
-                        item['consumed'],
+                        item.eventName ?? '',
                         style: KFonts.thin
                       ),
                     ],
@@ -86,7 +98,7 @@ class _KUpcomingEventsState extends State<KUpcomingEvents> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "${item['days']}",
+                            item.remainingDays.toString() ?? '',
                             style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600,color: KColors.appPrimary,fontFamily: 'Poppins'),
                           ),
                           Text('Days'),
@@ -102,4 +114,16 @@ class _KUpcomingEventsState extends State<KUpcomingEvents> {
       },
     );
   }
+
+  Future<void> _fetchEventsList() async{
+    final response = await getDashboard(context);
+    print('EVENTS_RES1:$response');
+    if(response is DashboardResponse){
+      setState(() {
+        eventsList = response.data.events;
+        print('EVENTS_RES2:$eventsList');
+      });
+    }
+  }
+
 }

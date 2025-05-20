@@ -58,22 +58,25 @@ class LoginController {
 
 
     try {
-      var response = await networkApiServices.postRequest(loginPayload, KApiEndPoints.login);
+      var response = await networkApiServices.postRequest(loginPayload, KApiEndPoints.login,context);
           print("RESPONSE: $response");
 
       if (response != null) {
         // Check for success
         if (response['code'] == 200 && response['status'] == true) {
           var user = response['users']?[0];
-          String userName = user?['User_Name__c'] ?? '';
-          bool isActive = user?['Is_Active__c'] ?? false;
+          String userName = user?['userName'] ?? '';
+          bool isActive = user?['IsActive'] ?? false;
           await storage.write('Is_Active', isActive);
           String employeeID = user?['Id'].toString() ?? '';
+          String annualLeaveId = user?['annualLeaveId'].toString() ?? '';
 
           storage.write('User_Id', userName);
           storage.write('EMP_ID', employeeID);
-          var ss = storage.read('Is_Active');
-          print('#SSSSS: $ss');
+          storage.write('ANNUAL_LEAVE_ID', annualLeaveId);
+
+          print('EMP_ID:${storage.read('EMP_ID')}');
+          print('ANNUAL_LEAVE_ID:${storage.read('ANNUAL_LEAVE_ID')}');
 
           showSuccessMessage(context, response['message']?.toString() ?? 'No message');
           Navigator.pushReplacementNamed(context, '/home_screen');

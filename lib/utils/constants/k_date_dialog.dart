@@ -42,11 +42,7 @@ class KDateDialog {
   }
 
   ///--- Current date and Future date(open date picker)
-  static Future<String?> selectFutureOrCurrentDate({
-    required BuildContext context,
-    DateTime? initialDate,
-    DateTime? lastDate,
-  }) async {
+  static Future<String?> selectFutureOrCurrentDate({required BuildContext context, DateTime? initialDate, DateTime? lastDate,}) async {
     DateTime today = DateTime.now();
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -60,4 +56,24 @@ class KDateDialog {
     }
     return null;
   }
+
+  static Future<String?> selectFutureOrCurrentDateYYYY_DD_MM({
+    required BuildContext context,
+    DateTime? initialDate,
+    DateTime? lastDate,
+  }) async {
+    DateTime today = DateTime.now();
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate ?? today,
+      firstDate: today, // Only future dates
+      lastDate: lastDate ?? DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      return DateFormat('yyyy-MM-dd').format(pickedDate); // ← your desired format
+    }
+    return null;
+  }
 }
+

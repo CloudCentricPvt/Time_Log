@@ -1,15 +1,19 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:time_log/utils/constants/k_asstes.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
 import 'package:time_log/views/timelogs/create_time_log.dart';
-
+import 'package:time_log/views/timelogs/edit_time_log.dart';
 import '../../models/all_time_log_res.dart';
+import '../../utils/constants/check_internet.dart';
 import '../../utils/constants/k_colors.dart';
 import '../../utils/constants/k_date_and_time.dart';
 import '../../utils/constants/k_drawer_menu.dart';
 import '../../utils/constants/k_fonts.dart';
 import '../../utils/constants/k_nav_header.dart';
+import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_custom_card.dart';
 
 class TimeLogsScreen extends StatefulWidget {
@@ -20,13 +24,15 @@ class TimeLogsScreen extends StatefulWidget {
 }
 
 class _TimeLogsScreen extends State<TimeLogsScreen> {
+  final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
+
   List<LstTimeLog> allTimeLogs = []; // original list (from API)
   List<LstTimeLog> timeLogs = []; // filtered list (for display)
+
   int pendingCount = 0;
   int rejectedCount = 0;
-  int totalWorkingHrs = 0;
-
-  bool isLoading = true;
+  dynamic totalWorkingHrs = 0;
+  bool isLoading = false;
 
   String selectedProject = "Select Project";
   String selectedTask = "Select Task";
@@ -36,7 +42,6 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
     "Self Study (April 2024 - March 2025)",
     "UI/UX Designing FY 24-25"
   ];
-
   final List<String> taskItems = [
     "UI/ux CloudCentric",
     "Uux FieldBan",
@@ -68,7 +73,7 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
       "status": "Approved",
       "color": KColors.greenColor,
       "textColor": KColors.greenColor,
-      "borderColor":KColors.greenColor
+      "borderColor": KColors.greenColor
     },
     {
       "label": "Rejected",
@@ -79,7 +84,7 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
     },
   ];
 
-  /// show card on the basis of filters(pending,approved,.........).......
+  /// show card on the basis of filters(pending,approved,.........)
   String selectedFilter = "All"; // Initial value set to "All"
 
   List<LstTimeLog> getFilteredProjects() {
@@ -94,10 +99,32 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
 
   @override
   void initState() {
-    fetchLogs();
-
-    /// time log List of card.........
+    _checkInternetConnection();
     super.initState();
+  }
+  /// --- check internet connection
+  void _checkInternetConnection() async {
+    bool connected = await _checkInternet.isConnected();
+    if (!connected) {
+      // Show no internet dialog or handle no connectivity case
+      KMaterialDialogs.noInternetFound(
+        context,
+        IconsButton(
+          onPressed: () {
+            Navigator.pop(context);
+            // Maybe retry or do something else
+          },
+          text: 'Okay',
+          color: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          iconColor: Colors.white,
+        ),
+        "No Internet Connection",
+        "Please check your internet connection and try again.",
+      );
+      return; // Stop further API calls
+    }
+    fetchLogs();
   }
 
   ///--- go back then Reload Created time log list.
@@ -106,12 +133,21 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
       context,
       MaterialPageRoute(builder: (context) => CreateTimeLog()),
     );
-
-
     if (result == true) {
       fetchLogs(); // Reload data when returning from CreateTimeLog screen
     }
   }
+
+  void _goToUpdateTimeLogeScreen() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => EditTimeLog()),
+    );
+    if (result == true) {
+      fetchLogs(); // Reload data when returning from CreateTimeLog screen
+    }
+  }
+
 
   /// Function to get color based on status
   Color getStatusColor(int status) {
@@ -170,7 +206,7 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
                                   textColor: KColors.appColorWhite,
                                   myColor: KColors.appPrimary,
                                   containerTextDigit:
-                                      totalWorkingHrs.toString(),
+                                  (totalWorkingHrs is double) ? totalWorkingHrs.toInt().toString() : totalWorkingHrs.toString(),
                                   containerTextOne: "Total working",
                                   containerTextTwo: "hours this month",
                                 ),
@@ -201,420 +237,9 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
                               height: 10,
                             ),
 
-                            ///Time log cards with satus of approved,pending,rejected........
-                            /*SizedBox(
-                              height: 500,
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 15),
-                                child: GestureDetector(
-                                  child: isLoading
-                                      ? Center(
-                                          child: KLoader(), // Show loader
-                                        )
-                                      : timeLogs.isEmpty
-                                          ? Center(
-                                              child: Text("No Data Found!."),
-                                            )
-                                          : ListView.builder(
-                                              padding: EdgeInsets.zero,
-                                              itemCount: timeLogs.length,
-                                              itemBuilder:
-                                                  (BuildContext context,
-                                                      int index) {
-                                                final filteredProjects =
-                                                    getFilteredProjects(); // Store in variable
-                                                final project = filteredProjects[
-                                                    index]; // Use stored list
+                            /// --- show all the Filled time log.
+                            _filledTimeLogAndShowInList(),
 
-                                                // Determine status color
-                                                Color statusColor =
-                                                    project.status == "Pending"
-                                                        ? Colors.orange
-                                                        : project.status ==
-                                                                "Approved"
-                                                            ? Colors.green
-                                                            : Colors.red;
-
-                                                return SizedBox(
-                                                  height: 120,
-                                                  width: 374,
-                                                  child: Card(
-                                                    color: Colors.white,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                    ),
-                                                    elevation: 0,
-                                                    shadowColor: KColors.cardShadowColor,
-
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        border: Border(
-                                                          left: BorderSide(
-                                                            color: statusColor,
-                                                            width: 2,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      padding:
-                                                          EdgeInsets.all(10),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Row(
-                                                            children: [
-                                                              /// ---- text for Project name
-                                                              Expanded(
-                                                                flex:7,
-                                                                child: Column(
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    ///project title and task.....
-                                                                    Text(
-                                                                      maxLines: 1,
-                                                                        project.projectName ??
-                                                                            "No Project",
-                                                                        style: KFonts
-                                                                            .normalBold),
-                                                                    SizedBox(
-                                                                      height: 5,
-                                                                    ),
-                                                                    ///--- text for task UI
-                                                                    DecoratedBox(
-                                                                      decoration:
-                                                                          BoxDecoration(
-                                                                        color:
-                                                                            statusColor,
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(
-                                                                                2),
-                                                                      ),
-                                                                      child:
-                                                                          Padding(
-                                                                           padding: const EdgeInsets.only(
-                                                                            left: 10,
-                                                                            right: 10,
-                                                                            top: 1, bottom: 1
-                                                                            ),
-                                                                           child: Text(
-                                                                             maxLines: 3,
-                                                                            project.taskName ??
-                                                                                "No Task",
-                                                                            style:
-                                                                                KFonts.normalWithWithText),
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              /// --- show date 24, Fab 2025 format
-                                                              Expanded(
-                                                                flex: 3,
-                                                                  child: Row(
-                                                                    children: [
-                                                                      Container(
-                                                                        height: 35,
-                                                                        width: 1,
-                                                                        color: Color(
-                                                                            0xFFEDEDED),
-                                                                      ),
-                                                                      SizedBox(width: 10,),
-                                                                      Column(
-                                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                                        children: [
-                                                                          Text(
-                                                                            KDateAndTime().getDay(project.formattedDate ?? ""),
-                                                                            style: TextStyle(
-                                                                                color:
-                                                                                statusColor,
-                                                                                fontFamily:
-                                                                                'Poppins',
-                                                                                fontWeight:
-                                                                                FontWeight.w600,fontSize: 16),
-                                                                          ),
-                                                                          Text(
-                                                                            KDateAndTime().getMonthYear(project.formattedDate ?? ""),
-                                                                            style: KFonts.normalBoldWithGray,
-                                                                          ),
-                                                                        ],
-                                                                      )
-                                                                    ],
-                                                                  )
-                                                              )
-                                                            ],
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Expanded(
-                                                                flex:7,
-                                                                child: Column(
-                                                                  crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                                  children: [
-                                                                    ///project title and task.....
-                                                                    Text(
-                                                                        project.description ??
-                                                                            "No Project",
-                                                                        style: KFonts
-                                                                            .thin),
-                                                                    SizedBox(
-                                                                      height: 5,
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              Expanded(
-                                                                  flex: 3,
-                                                                  child: Row(
-                                                                    children: [
-                                                                      Container(
-                                                                        height: 35,
-                                                                        width: 1,
-                                                                        color: Color(
-                                                                            0xFFEDEDED),
-                                                                      ),
-                                                                      SizedBox(width: 20,),
-                                                                      Column(
-                                                                        children: [
-                                                                          Text(
-                                                                            project
-                                                                                .hours
-                                                                                .toString(),
-                                                                            style: TextStyle(
-                                                                                color:
-                                                                                statusColor,
-                                                                                fontFamily:
-                                                                                'Poppins',
-                                                                                fontWeight:
-                                                                                FontWeight.w600,fontSize: 16),
-                                                                          ),
-                                                                          Text(
-                                                                            'Hours',
-                                                                            style: KFonts.normalBoldWithGray,
-                                                                          ),
-                                                                        ],
-                                                                      )
-
-                                                                    ],
-                                                                  )
-                                                              )
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                  onTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => DetailDialog(
-                                        project: project.projectName,
-                                        task: project.taskName,
-                                        des: project.description,
-                                        date: KDateAndTime().getDay(project.formattedDate ?? ""),
-                                        month: KDateAndTime().getMonthYear(project.formattedDate ?? ""),
-                                        hrs: project.hours.toString(),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),*/
-                            SizedBox(
-                              height: 500,
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 15),
-                                child: isLoading
-                                    ? Center(child: KLoader())
-                                    : timeLogs.isEmpty
-                                    ? Center(child: Text("No Data Found!"))
-                                    : ListView.builder(
-                                     padding: EdgeInsets.zero,
-                                     itemCount: getFilteredProjects().length,
-                                     itemBuilder: (BuildContext context, int index) {
-                                      final filteredProjects = getFilteredProjects();
-                                      final project = filteredProjects[index];
-
-                                    Color statusColor = project.status == "Pending"
-                                        ? KColors.orangeColor
-                                        : project.status == "Approved"
-                                        ? KColors.greenColor
-                                        : KColors.appPrimaryRed;
-
-                                    return GestureDetector(
-                                      onTap: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) => DetailDialog(
-                                            project: project.projectName,
-                                            task: project.taskName,
-                                            date: KDateAndTime().getDay(project.formattedDate ?? ""),
-                                            des: project.description,
-                                            monthYear: KDateAndTime().getMonthYear(project.formattedDate ?? ""),
-                                            hrs: project.hours.toString(),
-                                            status: project.status ?? "",
-                                          ),
-                                        );
-                                      },
-                                      child: SizedBox(
-                                        height: 120,
-                                        width: 374,
-                                        child: Card(
-                                          color: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10),
-                                          ),
-                                          elevation: 0,
-                                          shadowColor: KColors.cardShadowColor,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(10),
-                                              border: Border(
-                                                left: BorderSide(
-                                                  color: statusColor,
-                                                  width: 2,
-                                                ),
-                                              ),
-                                            ),
-                                            padding: EdgeInsets.all(10),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      flex: 7,
-                                                      child: Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          Text(
-                                                            project.projectName ?? "No Project",
-                                                            maxLines: 1,
-                                                            style: KFonts.normalBold,
-                                                          ),
-                                                          SizedBox(height: 5),
-                                                          DecoratedBox(
-                                                            decoration: BoxDecoration(
-                                                              color: statusColor,
-                                                              borderRadius: BorderRadius.circular(2),
-                                                            ),
-                                                            child: Padding(
-                                                              padding: const EdgeInsets.symmetric(
-                                                                  horizontal: 10, vertical: 1),
-                                                              child: Text(
-                                                                project.taskName ?? "No Task",
-                                                                maxLines: 3,
-                                                                style: KFonts.normalWithWithText,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      flex: 3,
-                                                      child: Row(
-                                                        children: [
-                                                          Container(
-                                                            height: 35,
-                                                            width: 1,
-                                                            color: Color(0xFFEDEDED),
-                                                          ),
-                                                          SizedBox(width: 10),
-                                                          Column(
-                                                            mainAxisAlignment: MainAxisAlignment.center,
-                                                            children: [
-                                                              Text(
-                                                                KDateAndTime().getDay(project.formattedDate ?? ""),
-                                                                style: TextStyle(
-                                                                  color: statusColor,
-                                                                  fontFamily: 'Poppins',
-                                                                  fontWeight: FontWeight.w600,
-                                                                  fontSize: 16,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                KDateAndTime().getMonthYear(project.formattedDate ?? ""),
-                                                                style: KFonts.normalBoldWithGray,
-                                                              ),
-                                                            ],
-                                                          )
-                                                        ],
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      flex: 7,
-                                                      child: Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          Text(
-                                                            project.description ?? "No Description",
-                                                            style: KFonts.thin,
-                                                            maxLines: 2,
-                                                          ),
-                                                          SizedBox(height: 5),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      flex: 3,
-                                                      child: Row(
-                                                        children: [
-                                                          Container(
-                                                            height: 35,
-                                                            width: 1,
-                                                            color: Color(0xFFEDEDED),
-                                                          ),
-                                                          SizedBox(width: 20),
-                                                          Column(
-                                                            children: [
-                                                              Text(
-                                                                project.hours.toString(),
-                                                                style: TextStyle(
-                                                                  color: statusColor,
-                                                                  fontFamily: 'Poppins',
-                                                                  fontWeight: FontWeight.w600,
-                                                                  fontSize: 16,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                'Hours',
-                                                                style: KFonts.normalBoldWithGray,
-                                                              ),
-                                                            ],
-                                                          )
-                                                        ],
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       )
@@ -649,58 +274,62 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(filters.length, (index) {
                 bool isSelected = selectedIndex == index;
                 return Padding(
-                  padding: const EdgeInsets.only(left: 2,right: 2),
+                  padding: const EdgeInsets.only(left: 2, right: 2),
 
                   /// we are using choice-chip bcz we need to select single option from a set of options.....
 
-                  child: ChoiceChip(
+                  child: Padding(
+                    padding: const EdgeInsets.all(0.8),
+                    child: ChoiceChip(
+                        checkmarkColor: Colors.white,
+                        showCheckmark: false,
+                        label: Padding(
+                          padding: const EdgeInsets.only(left: 4, right: 4),
+                          child: Text(filters[index]["label"],
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall!
+                                  .copyWith(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : filters[index]["textColor"],
+                                  )),
+                        ),
+                        selected: isSelected,
+                        backgroundColor: Colors.transparent,
+                        selectedColor: filters[index]["color"],
+                        shape: StadiumBorder(
+                          side: BorderSide(color: filters[index]["borderColor"]),
+                        ),
+                        onSelected: (bool selected) {
+                          setState(() {
+                            selectedIndex = index;
 
-                      checkmarkColor: Colors.white,
-                      showCheckmark: false,
-                      label: Padding(
-                        padding: const EdgeInsets.only(left: 4,right: 4),
-                        child: Text(filters[index]["label"],
-                            style:
-                                Theme.of(context).textTheme.labelLarge!.copyWith(
-                                      color: isSelected
-                                          ? Colors.white
-                                          : filters[index]["textColor"],
-                                    )),
-                      ),
-                      selected: isSelected,
-                      backgroundColor: Colors.transparent,
-                      selectedColor: filters[index]["color"],
-                      shape: StadiumBorder(
-                        side: BorderSide(color: filters[index]["borderColor"]),
-                      ),
-                      onSelected: (bool selected) {
-                        setState(() {
-                          selectedIndex = index;
-
-                          if (selectedIndex == 0) {
-                            selectedFilter = "All";
-                          } else if (selectedIndex == 1) {
-                            selectedFilter = "Pending";
-                          } else if (selectedIndex == 2) {
-                            selectedFilter = "Approved";
-                          } else if (selectedIndex == 3) {
-                            selectedFilter = "Rejected";
-                          }
-                          timeLogs =
-                              getFilteredProjects(); // Now filters from original
-                        });
-                      }),
+                            if (selectedIndex == 0) {
+                              selectedFilter = "All";
+                            } else if (selectedIndex == 1) {
+                              selectedFilter = "Pending";
+                            } else if (selectedIndex == 2) {
+                              selectedFilter = "Approved";
+                            } else if (selectedIndex == 3) {
+                              selectedFilter = "Rejected";
+                            }
+                            timeLogs = getFilteredProjects(); // Now filters from original
+                          });
+                        }),
+                  ),
                 );
               }),
             ),
           ),
         ),
 
-        /// --- Filter Icon pop-up  UI design......
-        Container(
+        /// --- Filter Icon pop-up  UI design......quick filter
+        /*Container(
           margin: EdgeInsets.only(left: 8),
           width: 38,
           height: 38,
@@ -1077,7 +706,7 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
                                     child:
 
                                         /// apply filters button....
-                                        Padding(
+                                  Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Column(
                                         crossAxisAlignment:
@@ -1088,12 +717,12 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
                                             height: 30,
                                             child: ElevatedButton(
                                               onPressed: () {
-                                                /* Navigator.push(
+                                                *//* Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
                                                           TimelogScreen()),
-                                                );*/
+                                                );*//*
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 shape: RoundedRectangleBorder(
@@ -1129,17 +758,13 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
               );
             },
           ),
-        ),
+        ),*/
       ],
     );
   }
 
   /// code for rounded button of  pop-up screen .....
-  Widget _roundedRectangularBox({
-    required String text,
-    required Color textColor,
-    required Color borderColor,
-  }) {
+  Widget _roundedRectangularBox({required String text, required Color textColor, required Color borderColor,}) {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: SizedBox(
@@ -1311,55 +936,331 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
   }
 
   /// --- Call for show total hrs and pending Rejected data show in card.
-  /* Future<void> fetchLogs() async {
-    setState(() {
-      isLoading = true;
-    });
-    final response = await getAllTimeLog();
-    setState(() {
-      timeLogs = response.data?.lstTimeLogs ?? [];
-      pendingCount = response.data?.pendingCount ?? 0;
-      rejectedCount = response.data?.rejectedCount ?? 0;
-      //totalWorkingHrs = response.data?.totalMonthlyHours ?? 0;
-      isLoading = false;
-    });
-  }*/
   Future<void> fetchLogs() async {
     setState(() {
       isLoading = true;
     });
 
-    final response = await getAllTimeLog();
+    final response = await getAllTimeLog(context);
+
+    if(response is AllTimeLogResponse){
+      setState(() {
+        allTimeLogs = response.data?.lstTimeLogs ?? [];
+        timeLogs = List.from(allTimeLogs); // initially show all
+        pendingCount = response.data?.pendingCount ?? 0;
+        rejectedCount = response.data?.rejectedCount ?? 0;
+        totalWorkingHrs = response.data?.totalMonthlyHours ?? 0;
+
+        isLoading = false;
+      });
+    }else{
+      setState(() {
+        isLoading = false;
+      });
+
+    }
     setState(() {
-      allTimeLogs = response.data?.lstTimeLogs ?? [];
-      timeLogs = List.from(allTimeLogs); // initially show all
-      pendingCount = response.data?.pendingCount ?? 0;
-      rejectedCount = response.data?.rejectedCount ?? 0;
       isLoading = false;
     });
   }
+
+  Future<bool> isConnected() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    return connectivityResult != ConnectivityResult.none;
+  }
+
+
+  /// --- show all the filled time history in the list.
+  Widget _filledTimeLogAndShowInList() {
+    return SizedBox(
+      height: 500,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 15),
+        child: isLoading
+            ? Center(child: KLoader())
+            : timeLogs.isEmpty
+            ? Center(child: Text("No Data Found!"))
+            : ListView.builder(
+             padding: EdgeInsets.zero,
+             itemCount:
+             getFilteredProjects().length,
+              itemBuilder: (BuildContext context,
+              int index) {
+            final filteredProjects =
+            getFilteredProjects();
+            final project =
+            filteredProjects[index];
+
+            Color statusColor = project
+                .status ==
+                "Pending"
+                ? KColors.orangeColor
+                : project.status == "Approved"
+                ? KColors.greenColor
+                : KColors.appPrimaryRed;
+
+             ///--- show time log UI
+             return GestureDetector(
+              onTap: () {
+
+                showDialog(context: context, builder: (context) =>
+
+                      DetailDialog(
+                        onUpdate: fetchLogs,
+                        timeLogId: project.timelogId,
+                        projectId: project.projectId,
+                        project: project.projectName,
+                        task: project.taskName,
+                        date: KDateAndTime().getDay(project.formattedDate ?? ""),
+                        des: project.description,
+                        monthYear: KDateAndTime().getMonthYear(project.formattedDate ?? ""),
+                        hrs: project.hours.toString(),
+                        min: project.minutes.toString(),
+                        status: project.status ?? "",
+                      ),);
+
+              },
+
+              child: SizedBox(
+                height: 120,
+                width: 374,
+                child: Card(
+                  color: Colors.white,
+                  shape:
+                  RoundedRectangleBorder(
+                    borderRadius:
+                    BorderRadius.circular(
+                        10),
+                  ),
+                  elevation: 0,
+                  shadowColor:
+                  KColors.cardShadowColor,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius:
+                      BorderRadius
+                          .circular(10),
+                      border: Border(
+                        left: BorderSide(
+                          color: statusColor,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    padding:
+                    EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment:
+                      CrossAxisAlignment
+                          .start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 7,
+                              child: Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment
+                                    .start,
+                                children: [
+                                  Text(
+                                    project.projectName ??
+                                        "No Project",
+                                    maxLines:
+                                    1,
+                                    style: KFonts
+                                        .normalBold,
+                                  ),
+                                  SizedBox(
+                                      height:
+                                      5),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 10),
+                                    child: DecoratedBox(
+                                      decoration:
+                                      BoxDecoration(
+                                        color:
+                                        statusColor,
+                                        borderRadius:
+                                        BorderRadius.circular(2),
+                                      ),
+                                      child:
+                                      Padding(
+                                        padding: const EdgeInsets
+                                            .symmetric(
+                                            horizontal:
+                                            10,
+                                            vertical:
+                                            1),
+                                        child:
+                                        Text(
+                                          project.taskName ??
+                                              "No Task",
+                                          maxLines:
+                                          1,
+                                          style:
+                                          KFonts.normalWithWithText,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    height:
+                                    35,
+                                    width: 1,
+                                    color: Color(
+                                        0xFFEDEDED),
+                                  ),
+                                  SizedBox(
+                                      width:
+                                      10),
+                                  Column(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment
+                                        .center,
+                                    children: [
+                                      Text(
+                                        KDateAndTime().getDay(project.formattedDate ?? ""),
+                                        style:
+                                        TextStyle(
+                                          color:
+                                          statusColor,
+                                          fontFamily:
+                                          'Poppins',
+                                          fontWeight:
+                                          FontWeight.w600,
+                                          fontSize:
+                                          16,
+                                        ),
+                                      ),
+                                      Text(
+                                        KDateAndTime().getMonthYear(project.formattedDate ?? ""),
+                                        style:
+                                        KFonts.normalBoldWithGray,
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 7,
+                              child: Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment
+                                    .start,
+                                children: [
+                                  Text(
+                                    project.description ??
+                                        "No Description",
+                                    style: KFonts
+                                        .thin,
+                                    maxLines:
+                                    2,
+                                  ),
+                                  SizedBox(
+                                      height:
+                                      5),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    height:
+                                    35,
+                                    width: 1,
+                                    color: Color(
+                                        0xFFEDEDED),
+                                  ),
+                                  SizedBox(
+                                      width:
+                                      20),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        project
+                                            .hours
+                                            .toString(),
+                                        style:
+                                        TextStyle(
+                                          color:
+                                          statusColor,
+                                          fontFamily:
+                                          'Poppins',
+                                          fontWeight:
+                                          FontWeight.w600,
+                                          fontSize:
+                                          16,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Hours',
+                                        style:
+                                        KFonts.normalBoldWithGray,
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
 }
+
 
 /// ---- Open dialog for show details
 class DetailDialog extends StatelessWidget {
+  final VoidCallback onUpdate;
+  final String? timeLogId;
   final String? project;
+  final String? projectId;
   final String? task;
   final String? des;
   final String? date;
   final String? monthYear;
   final String? hrs;
+  final String? min;
   final String? status;
 
-  const DetailDialog({
-    super.key,
-    this.project,
-    this.task,
-    this.date,
-    this.des,
-    this.monthYear,
-    this.hrs,
-    this.status
-  });
+  const DetailDialog(
+      {super.key,
+      required this.onUpdate, // <- ADD THIS
+      this.timeLogId,
+      this.project,
+      this.projectId,
+      this.task,
+      this.date,
+      this.des,
+      this.monthYear,
+      this.hrs,
+      this.min,
+      this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -1405,28 +1306,58 @@ class DetailDialog extends StatelessWidget {
                             borderRadius: BorderRadius.circular(2)),
                         color: KColors.colorGray,
                         shadowColor: KColors.cardShadowColor,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 6, right: 6),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                height: 25,
-                                width: 18,
-                                child: SvgPicture.asset('assets/icons/edit_profile.svg',color: getStatusColor1(status),),
-                              ),
-                              SizedBox(width: 8,),
-                              Text(
-                                "Edit",
-                                style: KFonts.normal,
-                              ),
-                            ],
+                        child: Visibility(
+                          visible: status=='Pending',
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 6, right: 6),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  height: 25,
+                                  width: 18,
+                                  child: SvgPicture.asset(
+                                    'assets/icons/edit_profile.svg',
+                                    color: getStatusColor1(status),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 8,
+                                ),
+                                Text(
+                                  "Edit",
+                                  style: KFonts.normal,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      onTap: () {
-                        Navigator.pop(context, true);
-                        Navigator.pushNamed(context, '/edit_time_log_screen');
-                      },
+                        onTap: () async {
+                          Navigator.pop(context); // Close dialog first
+                          // Wait for the next frame to push new screen
+                          await Future.delayed(Duration.zero);
+
+                          final result = await Navigator.pushNamed(
+                            context,
+                            '/edit_time_log_screen',
+                            arguments: {
+                              'timeLodId': timeLogId,
+                              'projectId': projectId,
+                              'projectName': project,
+                              'taskName': task,
+                              'des': des,
+                              'hrs': hrs,
+                              'min': min,
+                              'date': date,
+                              'monthsYear': monthYear,
+                            },
+                          );
+
+                          if (result == true) {
+                            onUpdate(); // This will refresh the list
+                          }
+                        }
+
                     ),
                     SizedBox(
                       width: 10,
@@ -1471,14 +1402,16 @@ class DetailDialog extends StatelessWidget {
                   style: KFonts.normalBold,
                 ),
                 Text(
-                  task?? "",
+                  task ?? "",
                   style: KFonts.normal,
                 ),
               ],
             ),
-            SizedBox(height: 5,),
+            SizedBox(
+              height: 5,
+            ),
             Row(
-              crossAxisAlignment:CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: SizedBox(
@@ -1504,8 +1437,7 @@ class DetailDialog extends StatelessWidget {
                           Spacer(),
                           Column(
                             children: [
-                              Text(
-                                  date ?? "",
+                              Text(date ?? "",
                                   style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -1531,8 +1463,7 @@ class DetailDialog extends StatelessWidget {
                           Spacer(),
                           Column(
                             children: [
-                              Text(
-                                  hrs ?? "",
+                              Text(hrs ?? "",
                                   style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -1543,7 +1474,9 @@ class DetailDialog extends StatelessWidget {
                               ),
                             ],
                           ),
-                          SizedBox(width: 12,)
+                          SizedBox(
+                            width: 12,
+                          )
                         ],
                       ),
                     ],
@@ -1556,12 +1489,13 @@ class DetailDialog extends StatelessWidget {
       ),
     );
   }
+
   Color getStatusColor1(String? status) {
     return status == "Pending"
         ? KColors.orangeColor
         : status == "Approved"
-        ? KColors.greenColor
-        : KColors.appPrimaryRed;
+            ? KColors.greenColor
+            : KColors.appPrimaryRed;
   }
 
 }

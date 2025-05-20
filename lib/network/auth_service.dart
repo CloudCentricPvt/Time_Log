@@ -8,7 +8,7 @@ class AuthService {
   static const String clientId = "3MVG9C63IhCOd.9FvdRGPk8SZdfeY7U7aBHcXKjJXC7M8ski1kb0MYu8CaKQ6SIaN_Xa4cF4JbDzGeX.kNq.x";
   static const String clientSecret = "B18E406773B575B7AB16CD58A48237376A8992165652A16849C1CB092E596ECA";
   static const String username = "shivamsharma@cccinfotech.com";
-  static const String password = "Cloud@2025";
+  static const String password = "Cloud@20251";
 
   final  storageService = GetStorage();
 

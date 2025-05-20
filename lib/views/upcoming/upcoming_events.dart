@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:time_log/utils/constants/k_date_and_time.dart';
 import 'package:time_log/utils/constants/k_fonts.dart';
+import 'package:time_log/utils/constants/k_loader.dart';
 
+import '../../models/dashboard_res.dart';
+import '../../models/upcoming_leaves_res.dart';
+import '../../utils/constants/k_asstes.dart';
 import '../../utils/constants/k_colors.dart';
 import '../../utils/reusable_widgit/k_custom_app_bar.dart';
-import '../leaves/balance_leave_screen.dart';
+
 class UpcomingEvents extends StatefulWidget {
   const UpcomingEvents({super.key});
 
@@ -12,47 +17,15 @@ class UpcomingEvents extends StatefulWidget {
 }
 
 class _UpcomingEventsState extends State<UpcomingEvents> {
+  List<Event> eventsList = [];
+  bool _isLoading = true;
+  List<bool> expandedCards = [];
 
-  final List<Map<String, String>> events = [
-    {
-      "title": "No Birthday Today",
-      "des": "Wish you a very happy and colorful Holi",
-      "date": "Friday, 25 Mar",
-    },
-    {
-      "title": "No Anniversary Today",
-      "des": "Join us for the latest tech trends and innovations",
-      "date": "Saturday, 30 Mar",
-    },
-    {
-      "title": "Food Festival",
-      "des": "Enjoy delicious food from around the world",
-      "date": "Friday, 5 Apr",
-    },
-    {
-      "title": "Sports Meet",
-      "des": "Come and cheer for your favorite team",
-      "date": "Wednesday, 10 Apr",
-    },
-  ];
-  final List<Map<String, dynamic>> upcomingBirthdayAnniversary = [
-    {
-      "title": "Sabir Hussain",
-      "consumed": "2nd Anniversary on Feb,26",
-      "days": "04",
-      "color": Colors.purple,
-      "icons": "assets/images/profile_img.jpeg",
-    },
-    {
-      "title": "Keshav Arya",
-      "consumed": "24 Birthday on Jun,20",
-      "days": "04",
-      "color": Colors.green,
-      "icons": "assets/images/profile_img.jpeg",
-    },
-  ];
-
-
+  @override
+  void initState() {
+    _fetchEvents();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,102 +43,45 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Today Events',style: KFonts.normalBold,),
-            SizedBox(height: 10,),
-            SizedBox(
-              height: 120,
-              child: ListView.builder(
-
-                  scrollDirection: Axis.horizontal,
-                  itemCount: events.length,
-                  itemBuilder: (context,index){
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Card(
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        child: Container(
-                            width: 250,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: KColors.appPrimary,
-                            ),
-                            child: Row(
-
-                              children: [
-                                Expanded(
-                                  flex: 7,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SizedBox(height: 6,),
-                                        Align(
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            '${events[index]["title"]}',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: screenWidth * 0.045,
-                                              fontFamily: 'Poppins',
-                                            ),
-                                          ),
-                                        ),
-
-                                        Text(
-                                          '${events[index]["des"]}',
-                                          maxLines: 3,
-                                          style: TextStyle(fontSize: screenWidth * 0.035,color: Colors.white, fontWeight: FontWeight.w400, fontFamily: 'Poppins',),
-                                        ),
-
-                                        const Spacer(),
-                                        Text(
-                                          textAlign: TextAlign.end,
-                                          '${events[index]["date"]}',
-                                          style: TextStyle(fontSize: screenWidth * 0.035,color: Colors.white, fontWeight: FontWeight.w500, fontFamily: 'Poppins',),
-
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                        ),
+      body: _isLoading
+          ? KLoader()
+          : eventsList.isEmpty
+              ? const Center(
+                  child: Text("No Upcoming events found!"),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Visibility(
+                          visible: eventsList.isEmpty ? false : true,
+                          child: Text(
+                            'Today Events',
+                            style: KFonts.normalBold,
+                          )),
+                      SizedBox(
+                        height: 10,
                       ),
-                    );
-                  }),
-            ),
 
-            /// ---- Leave balance List UI
-            SizedBox(height: 10,),
-             Text('Upcoming Birthday & Anniversary',style: KFonts.normalBold,),
-            Expanded(
-              child: ListView.builder(
-                itemCount: upcomingBirthdayAnniversary.length,
-                itemBuilder: (context, index) {
-                  final leave = upcomingBirthdayAnniversary[index];
-                  return UpcomingEventsList(
-                    type: leave["title"] ?? '',
-                    consumed: leave["consumed"] ?? '',
-                    color: leave["color"] ?? Colors.blue,
-                    remain:leave["days"] ?? '',
-                    iconAsset: leave["icons"] ?? '',
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+                      _showTodayEvents(),
+
+                      /// ---- Leave balance List UI
+                      SizedBox(
+                        height: 10,
+                      ),
+
+                      Visibility(
+                          visible: eventsList.isEmpty ? false : true,
+                          child: Text(
+                            'Upcoming Birthday & Anniversary',
+                            style: KFonts.normalBold,
+                          )),
+
+                      _showUpcomingBirthdayAndAnniversary(),
+                    ],
+                  ),
+                ),
     );
   }
 
@@ -186,10 +102,160 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
       case "Comp Off Leave":
         return KColors.pinkColor;
       default:
-        return Colors.grey;  // Default color if no match
+        return Colors.grey; // Default color if no match
     }
   }
+
+  /// --- get all events from the backend
+  Future<void> _fetchEvents() async {
+    final response = await getDashboard(context);
+    if (response is DashboardResponse) {
+      setState(() {
+        eventsList = response.data.events;
+        expandedCards = List.generate(eventsList.length, (index) => false);
+        _isLoading = false;
+        print('Check working hrs');
+      });
+    }
+  }
+
+  /// ---  show Today events
+  Widget _showTodayEvents() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    return Visibility(
+      visible: eventsList.isEmpty ? false : true,
+      child: SizedBox(
+        height: 165, // Max height needed when a card is expanded
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: eventsList.length,
+          itemBuilder: (context, index) {
+            final events = eventsList[index];
+            final isExpanded = expandedCards[index];
+
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  width: screenWidth * 0.90,
+                  height: isExpanded ? 230 : 140,
+                  // Vary height dynamically
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: KColors.appPrimary,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            events.eventName ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                              fontSize: screenWidth * 0.045,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 0),
+                        Text(
+                          'Wishing you and your family a vibrant and joyous Holi filled with colors of happiness, love, and laughter. May this festival of colors bring new energy and positivity to your life. Happy Holi!',
+                          maxLines: isExpanded ? 4 : 2,
+                          overflow: isExpanded
+                              ? TextOverflow.visible
+                              : TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.035,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              expandedCards[index] = !expandedCards[index];
+                            });
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Text(
+                              isExpanded ? 'Show less' : 'Read more',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: screenWidth * 0.035,
+                                fontWeight: FontWeight.w500,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Text(
+                            KDateAndTime()
+                                .useFormatDateInMyApp(events.eventDate ?? ''),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.035,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  /// ---  show anniversary and birthday
+  Widget _showUpcomingBirthdayAndAnniversary() {
+    return Visibility(
+      visible: eventsList.isEmpty ? false : true,
+      child: Expanded(
+        child: ListView.builder(
+          itemCount: eventsList.length,
+          itemBuilder: (context, index) {
+            final events = eventsList[index];
+            return UpcomingEventsList(
+              type: events.personName ?? '',
+              consumed: events.eventName ?? '',
+              color: KColors.appPrimary,
+              remain: KDateAndTime().getDay(events.eventDate ?? ''),
+              iconAsset: events.eventName == "Birthday"
+                  ? KAssets.birthday_image
+                  : KAssets.aniversary_image,
+            );
+          },
+        ),
+      ),
+    );
+  }
 }
+
 class UpcomingEventsList extends StatefulWidget {
   final String type;
   final String consumed;
@@ -213,92 +279,89 @@ class UpcomingEventsList extends StatefulWidget {
 class _UpcomingEventCardState extends State<UpcomingEventsList> {
   @override
   Widget build(BuildContext context) {
-    
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
     return Card(
-      elevation: 0,
-      shadowColor: KColors.cardShadowColor,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                SizedBox(
-                  height: 50,
-                  width: 45,
-                  child: Expanded(
-                    flex: 2,
+        elevation: 0,
+        shadowColor: KColors.cardShadowColor,
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  SizedBox(
+                    height: 50,
+                    width: 45,
+                    child: Expanded(
+                      flex: 2,
                       child: Image.asset(
                         widget.iconAsset,
                         height: 50,
                         width: 50,
                         fit: BoxFit.cover,
                       ),
+                    ),
                   ),
-                ),
-                SizedBox(width: 10,),
-                Expanded(
-                  flex: 6,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.type,
-                          maxLines: 2,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                        Text(widget.consumed,maxLines: 2,)
-                      ],
-                    )
-                ),
-
-                Expanded(
-                  flex: 2,
-                    child:Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Container(
-                            width: 1,
-                            height: 40,
-                            color: KColors.grayLight,
-                          ),
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              widget.remain,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: KColors.appPrimary,
-                                fontFamily: 'Poppins',
-                              ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                      flex: 7,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.type,
+                            maxLines: 2,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Poppins',
                             ),
-                            Text('Days')
-                          ],
-                        )
-                      ],
-                    )
-
-                ),
-
-              ],
-            ),
-          ],
-        ),
-      )
-    );
+                          ),
+                          Text(
+                            widget.consumed,
+                            maxLines: 2,
+                          )
+                        ],
+                      )),
+                  Expanded(
+                      flex: 3,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              width: 1,
+                              height: 40,
+                              color: KColors.grayLight,
+                            ),
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                widget.remain,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: KColors.appPrimary,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                              Text('Days')
+                            ],
+                          )
+                        ],
+                      )),
+                ],
+              ),
+            ],
+          ),
+        ));
   }
 }
-

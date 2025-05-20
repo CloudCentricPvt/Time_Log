@@ -24,7 +24,7 @@ class KFilterHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: height, // Set height if provided
+      height: 40, // Set height if provided
       width: width,   // Set width if provided
       child: Card(
         color: backgroundColor,
@@ -39,13 +39,16 @@ class KFilterHeader extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             child: Center(
-              child: Text(
-                textTitle,
-                style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontFamily: 'Poppins',
-                  fontSize: 14,
-                  color: textColor,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 4,right: 4),
+                child: Text(
+                  textTitle,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontFamily: 'Poppins',
+                    fontSize: 14,
+                    color: textColor,
+                  ),
                 ),
               ),
             ),

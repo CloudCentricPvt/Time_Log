@@ -1,4 +1,6 @@
 
+import 'dart:ffi';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -14,7 +16,7 @@ class CheckInCheckOutController{
   final storage = GetStorage();
   
   /// --- check in
-  Future<dynamic> checkIn(BuildContext context, String des,String lat,String long) async {
+  Future<dynamic> checkIn(BuildContext context, String des,double lat,double long) async {
     if (descriptionController.text
         .trim()
         .isEmpty) {
@@ -30,16 +32,17 @@ class CheckInCheckOutController{
     /// --- call Check In API
     var checkInPayLoad = {
       "empId": storage.read("EMP_ID"),
-      "latitude": lat,
-      "longitude": long,
+      "latitude": lat.toString(),
+      "longitude": long.toString(),
       "description": des,
       "checkInDateTime": KDateAndTime().getCurrentDateAndTime(),
       "checkInCheckOutTrue": true
     };
     print("PAYLOAD: $checkInPayLoad");
+
     /// ---  Call API
     try{
-      var response = await networkApiServices.postRequest(checkInPayLoad, KApiEndPoints.checkIn);
+      var response = await networkApiServices.postRequest(checkInPayLoad, KApiEndPoints.checkIn,context);
       print("RESPONSE: $response");
       if(response!=null){
         if(response['code']==200 && response['status']==true){
@@ -51,14 +54,14 @@ class CheckInCheckOutController{
         }
       }
     }catch(e){
-      KShowInfo.showErrorMessage(context, e.toString() ?? 'No message');
+      KShowInfo.showErrorMessage(context, e.toString());
       print("#RESPONSE3: $e".toString());
     }
 
   }
 
   /// --- Check Out
-  Future<dynamic> checkOut(BuildContext context, String des,String lat,String long) async {
+  Future<dynamic> checkOut(BuildContext context, String des,double lat,double long) async {
     if (descriptionController.text
         .trim()
         .isEmpty) {
@@ -74,8 +77,8 @@ class CheckInCheckOutController{
     /// --- call Check Out API
     var checkOutPayLoad = {
       "empId": storage.read("EMP_ID"),
-      "latitude": "28.619248",
-      "longitude": "77.366885",
+      "latitude": lat.toString(),
+      "longitude": long.toString(),
       "description": des,
       "checkOutDateTime": KDateAndTime().getCurrentDateAndTime(),
       "checkInCheckOutTrue": false
@@ -83,12 +86,13 @@ class CheckInCheckOutController{
     print("PAYLOAD: $checkOutPayLoad");
     /// ---  Call API
     try{
-      var response = await networkApiServices.postRequest(checkOutPayLoad, KApiEndPoints.checkOut);
+      var response = await networkApiServices.postRequest(checkOutPayLoad, KApiEndPoints.checkOut,context);
       print("RESPONSE: $response");
       if(response!=null){
         if(response['code']==200 && response['status']==true){
 
           KShowInfo.showSuccessMessage(context, response['message']?.toString() ?? 'No message');
+
         }else{
           KShowInfo.showInfoMessage(context, response['message']?.toString() ?? 'No message');
 

@@ -1,7 +1,9 @@
 
 
 import 'dart:convert';
+import 'dart:core';
 
+import 'package:flutter/cupertino.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:time_log/utils/toasts/k_snack_bar_events.dart';
 
@@ -13,14 +15,14 @@ AllTimeLogResponse allTimeLogResponseFromJson(String str) => AllTimeLogResponse.
 String allTimeLogResponseToJson(AllTimeLogResponse data) => json.encode(data.toJson());
 
 
-Future<dynamic> getAllTimeLog() async {
+Future<dynamic> getAllTimeLog(BuildContext context) async {
   var apiNetwork = KNetworkApiServices();
   final storage = GetStorage();
   var empID = storage.read("EMP_ID");
 
   try {
     var response =
-    await apiNetwork.getRequest("${KApiEndPoints.allTimeLogs}?employeeId=$empID");
+    await apiNetwork.getRequest("${KApiEndPoints.allTimeLogs}?employeeId=$empID",context);
     print("GET_URL: ${KApiEndPoints.allTimeLogs}?=$empID");
 
     if (response != null && response['status'] == true) {
@@ -102,6 +104,8 @@ class Data {
 }
 
 class LstTimeLog {
+  String? timelogId;
+  String? projectId;
   String? taskName;
   String? status;
   String? projectName;
@@ -111,6 +115,8 @@ class LstTimeLog {
   String? description;
 
   LstTimeLog({
+    this.timelogId,
+    this.projectId,
     this.taskName,
     this.status,
     this.projectName,
@@ -121,6 +127,8 @@ class LstTimeLog {
   });
 
   factory LstTimeLog.fromJson(Map<String, dynamic> json) => LstTimeLog(
+    timelogId:json["timelogId"],
+    projectId:json["projectId"],
     taskName: json["taskName"],
     status: json["status"],
     projectName: json["projectName"],
@@ -131,6 +139,8 @@ class LstTimeLog {
   );
 
   Map<String, dynamic> toJson() => {
+    "timelogId":timelogId,
+    "projectId":timelogId,
     "taskName": taskName,
     "status": status,
     "projectName": projectName,

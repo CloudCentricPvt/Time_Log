@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:time_log/utils/constants/k_date_and_time.dart';
+
+import '../network/k_network_api_service.dart';
+import '../utils/constants/api_container.dart';
+import '../utils/toasts/k_show_info.dart';
 
 class EditProfileController{
 
@@ -9,6 +15,8 @@ class EditProfileController{
   final TextEditingController dobController = TextEditingController();
   final TextEditingController anniversaryController = TextEditingController();
   final TextEditingController mailingAddressController = TextEditingController();
+  final storage = GetStorage();
+  final KNetworkApiServices networkApiServices = KNetworkApiServices();
 
   Future<void>editProfile(BuildContext context) async {
 
@@ -76,14 +84,39 @@ class EditProfileController{
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Profile updated successfully"),
-        backgroundColor: Colors.green,
-      ),
-    );
+    var editProfilePayload = {
+      "employeeID": storage.read('EMP_ID'),
+      "employeePhone": phoneController.text,
+      "employeeAddress": mailingAddressController.text,
+      "employeeAnniversaryDate": KDateAndTime().convertToStandardDateFormatYYYY_MM_DD(anniversaryController.text),
+    };
+    print("#Edit_ProfileLeavePayLoad: $editProfilePayload");
 
-    Navigator.pop(context, true);
+    try{
+      var response = await networkApiServices.putRequest(editProfilePayload, KApiEndPoints.updateProfile,context);
+      print("#Update_profile_RESPONSE: $response");
+
+      if(response!=null){
+        if(response['code'] == 200 && response['status'] == true){
+          KShowInfo.showSuccessMessage(context, response['message']);
+          print('Update_Profile:"success"');
+          await Future.delayed(Duration(seconds: 1));
+          if (context.mounted) {
+            Navigator.pop(context, true);
+          }
+
+        }else{
+          KShowInfo.showInfoMessage(context, response['message']);
+          print('Update_Profile:"else_failed"');
+        }
+      }else{
+        KShowInfo.showInfoMessage(context, response['message']);
+        print('Update_Profile:"res_null"');
+      }
+
+    }catch(e){
+      KShowInfo.showInfoMessage(context, "An error occurred: $e");
+    }
 
   }
 

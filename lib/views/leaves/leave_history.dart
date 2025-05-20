@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:time_log/utils/constants/k_fonts.dart';
+import 'package:time_log/utils/constants/k_loader.dart';
 import 'package:time_log/utils/reusable_widgit/k_filter_header.dart';
 
+import '../../models/applied_leave_history_res.dart';
 import '../../utils/constants/k_asstes.dart';
 import '../../utils/constants/k_colors.dart';
+import '../../utils/constants/k_date_and_time.dart';
+import '../../utils/constants/show_leave_history_details_dialog.dart';
 import '../../utils/popups/k_filter_dialog.dart';
 import '../../utils/reusable_widgit/k_custom_app_bar.dart';
 
@@ -16,6 +20,9 @@ class LeaveHistory extends StatefulWidget {
 }
 
 class _LeaveHistoryState extends State<LeaveHistory> {
+  String selectedStatus = 'All';
+  bool _isLoading = true;
+  List<AppliedLeaveHistory> appliedLeaveList = [];
   final List<Map<String, dynamic>> leaveBalances = [
     {
       "type": "Casual/Paid Leaves",
@@ -53,6 +60,11 @@ class _LeaveHistoryState extends State<LeaveHistory> {
     "Other"
   ];
 
+  @override
+  void initState() {
+    fetchAppliedLeaveData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,8 +74,8 @@ class _LeaveHistoryState extends State<LeaveHistory> {
         backgroundColor: KColors.appPrimary,
         title: KCustomAppBar(
           screenTitle: 'Leave History',
-          showHistory: true,
           historyTitle: 'Apply New',
+          showHistory: true,
           onHistoryTap: () {
             Navigator.pushNamed(context, '/apply_leave_screen');
           },
@@ -75,32 +87,68 @@ class _LeaveHistoryState extends State<LeaveHistory> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 KFilterHeader(
                     width: 65,
                     textTitle: 'All',
-                    textColor: KColors.appColorWhite,
-                    backgroundColor: KColors.appPrimary,
+                    strokeColor: KColors.appPrimary,
+                    textColor: selectedStatus == 'All'
+                        ? KColors.appColorWhite
+                        : KColors.appPrimary,
+                    backgroundColor: selectedStatus == 'All'
+                        ? KColors.appPrimary
+                        : Colors.transparent,
                     onHistoryTap: () {
-
+                      setState(() {
+                        selectedStatus = 'All';
+                      });
                     }),
                 KFilterHeader(
                     textTitle: 'Pending',
                     strokeColor: KColors.orangeColor,
-                    textColor: KColors.orangeColor,
-                    onHistoryTap: () {}),
+                    textColor: selectedStatus == 'Pending'
+                        ? KColors.appColorWhite
+                        : KColors.orangeColor,
+                    backgroundColor: selectedStatus == 'Pending'
+                        ? KColors.orangeColor
+                        : Colors.transparent,
+                    onHistoryTap: () {
+                      setState(() {
+                        selectedStatus = 'Pending';
+                      });
+                    }),
                 KFilterHeader(
                     textTitle: 'Approved',
                     strokeColor: KColors.greenColor,
-                    textColor: KColors.greenColor,
-                    onHistoryTap: () {}),
+                    textColor: selectedStatus == 'Approved'
+                        ? KColors.appColorWhite
+                        : KColors.greenColor,
+                    backgroundColor: selectedStatus == 'Approved'
+                        ? KColors.greenColor
+                        : Colors.transparent,
+                    onHistoryTap: () {
+                      setState(() {
+                        selectedStatus = 'Approved';
+                      });
+                    }),
                 KFilterHeader(
                     textTitle: 'Rejected',
                     strokeColor: KColors.appPrimaryRed,
-                    textColor: KColors.appPrimaryRed,
-                    onHistoryTap: () {}),
-                GestureDetector(child: SvgPicture.asset(KAssets.filterIcon),
-                  onTap: (){
+                    textColor: selectedStatus == 'Rejected'
+                        ? KColors.appColorWhite
+                        : KColors.appPrimaryRed,
+                    backgroundColor: selectedStatus == 'Rejected'
+                        ? KColors.appPrimaryRed
+                        : Colors.transparent,
+                    onHistoryTap: () {
+                      setState(() {
+                        selectedStatus = 'Rejected';
+                      });
+                    }),
+                /*GestureDetector(
+                  child: SvgPicture.asset(KAssets.filterIcon),
+                  onTap: () {
                     FilterDialog.showTimeLogFilterDialog(
                       context,
                       projectItems,
@@ -112,41 +160,111 @@ class _LeaveHistoryState extends State<LeaveHistory> {
                           selectedProject = newProject!;
                         });
                       },
-                       (String? newTask) {
+                      (String? newTask) {
                         setState(() {
                           selectedTask = newTask!; // Update the selected task
                         });
                       },
                     );
-                },
-                ),
+                  },
+                ),*/
               ],
             ),
             const SizedBox(height: 10),
-
             Expanded(
-              child: ListView.builder(
-                itemCount: leaveBalances.length,
-                itemBuilder: (context, index) {
-                  final leave = leaveBalances[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6.0),
-                    child: BalanceLeave(
-                      type: leave["type"],
-                      day: leave["day"],
-                      status: leave["status"],
-                      startDate: leave["startDate"],
-                      endDate: leave["endDate"],
-                      iconAsset: leave["icons"],
+              child: _isLoading
+                  ? KLoader()
+                  : Builder(
+                      builder: (context) {
+                        final filteredList = _getFilteredList(); // filter once
+                        return filteredList.isEmpty
+                            ? const Center(child: Text("No data found!"))
+                            : ListView.builder(
+                                itemCount: filteredList.length,
+                                itemBuilder: (context, index) {
+                                  final leave = filteredList[index];
+                                  return _showLeaveHistoryDataInList(leave);
+                                },
+                              );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void fetchAppliedLeaveData() async {
+    var result = await getAllAppliedLeave(context);
+    print('History of Comp Off: $result');
+    if (result is AppliedLeaveHistoryResponse) {
+      setState(() {
+        appliedLeaveList = result.data;
+        _isLoading = false;
+      });
+    }
+  }
+
+  List<AppliedLeaveHistory> _getFilteredList() {
+    if (selectedStatus == 'All') {
+      return List.from(appliedLeaveList);
+    } else {
+      return appliedLeaveList
+          .where((item) =>
+              item.status?.trim().toLowerCase() == selectedStatus.toLowerCase())
+          .toList();
+    }
+  }
+
+  /// --- Show WFH History data in ListView
+  Widget _showLeaveHistoryDataInList(AppliedLeaveHistory leave) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: GestureDetector(
+        child: BalanceLeave(
+          type: leave.type.isEmpty ? '' : leave.type,
+          day: leave.numberOfDays == null
+              ? "0.0"
+              : leave.numberOfDays.toString(),
+          status: leave.status.isEmpty ? '' : leave.status,
+          startDate: leave.startDate.isEmpty ? '' : leave.startDate,
+          endDate: leave.endDate.isEmpty ? '' : leave.endDate,
+          iconAsset: getIconForType(leave.type),
+        ),
+        onTap: () {
+          showDialog(
+              context: context,
+              builder: (context) => ShowLeaveHistoryDetailsDialog(
+                    leaveType: leave.type.isEmpty ? '' : leave.type,
+                    des: leave.description ?? '',
+                    status: leave.status.isEmpty ? '' : leave.status,
+                    startDate: leave.startDate.isEmpty ? '' : leave.startDate,
+                    endDate: leave.endDate.isEmpty ? '' : leave.endDate,
+                    dayCount: leave.numberOfDays == null
+                        ? "0.0"
+                        : leave.numberOfDays.toString(),
+                  ));
+        },
+      ),
+    );
+  }
+
+  String getIconForType(String? type) {
+    switch (type) {
+      case 'SL':
+        return KAssets.sickLeave;
+      case 'CL':
+        return KAssets.casualLeave;
+      case 'EL':
+        return KAssets.earnLeave;
+      case 'Comp off':
+        return KAssets.compOffLeave;
+      case 'LWP':
+        return KAssets.lwpLeave;
+      default:
+        return KAssets.casualLeave; // fallback icon
+    }
   }
 }
 
@@ -184,21 +302,20 @@ class BalanceLeave extends StatelessWidget {
         break;
       default:
         statusColor = Colors.grey; // Default color if status is unknown
-
     }
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       elevation: 3,
       shadowColor: KColors.cardShadowColor,
       color: KColors.appColorWhite,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
-              child: Image.asset(
+              child: SvgPicture.asset(
                 iconAsset,
                 height: 40,
                 width: 40,
@@ -210,16 +327,37 @@ class BalanceLeave extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(children: [
-                    Text(type, style: KFonts.normalHeading),
-                    const SizedBox(width: 2,),
-                    const Text('|', style: KFonts.normalHeading),
-                    const SizedBox(width: 2,),
-                    Text(day, style: KFonts.normalHeading),
-                  ],),
-
+                  Row(
+                    children: [
+                      Text(type.isEmpty ? '' : type,
+                          style: KFonts.normalHeading),
+                      const SizedBox(
+                        width: 2,
+                      ),
+                      const Text('|', style: KFonts.normalHeading),
+                      const SizedBox(
+                        width: 2,
+                      ),
+                      Text('${double.parse(day).toInt()} Day',
+                          style: KFonts.normalHeading),
+                    ],
+                  ),
                   const SizedBox(height: 4),
-                  Text("$startDate to $endDate", style: KFonts.normal),
+                  Wrap(
+                    spacing: 4, // space between elements horizontally
+                    runSpacing: 2, // space between lines if wrapped
+                    children: [
+                      Text(KDateAndTime().getDay(startDate ?? ""),
+                          style: KFonts.normalBold),
+                      Text(KDateAndTime().getMonthYear(startDate ?? ""),
+                          style: KFonts.normal),
+                      Text('to', style: KFonts.normal),
+                      Text(KDateAndTime().getDay(endDate ?? ""),
+                          style: KFonts.normalBold),
+                      Text(KDateAndTime().getMonthYear(endDate ?? ""),
+                          style: KFonts.normal),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -231,7 +369,7 @@ class BalanceLeave extends StatelessWidget {
               color: statusColor, // Set background color dynamically
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Text(status, style: KFonts.normal),
+                child: Text(status, style: KFonts.normalWithWhiteColor),
               ),
             ),
           ],

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:time_log/utils/constants/k_asstes.dart';
+import 'package:time_log/utils/constants/k_loader.dart';
 import 'package:time_log/utils/reusable_widgit/k_size_box.dart';
 
+import '../../models/annual_leave_details_res.dart';
 import '../../utils/constants/k_colors.dart';
 import '../../utils/reusable_widgit/k_custom_app_bar.dart';
 import '../../utils/reusable_widgit/k_elevated_button.dart';
@@ -14,57 +17,44 @@ class BalanceLeaveScreen extends StatefulWidget {
 }
 
 class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
-  // Static List of Leave Balances
-  final List<Map<String, dynamic>> leaveBalances = [
-    {
-      "type": "Casual/Paid Leaves",
-      "consumed": "2 days Consumed",
-      "left": 7,
-      "total": 9,
-      "color": Colors.purple,
-      "icons": "assets/images/profile_img.jpeg",
-    },
-    {
-      "type": "Sick Leaves",
-      "consumed": "1 day Consumed",
-      "left": 4,
-      "total": 5,
-      "color": Colors.green,
-      "icons": "assets/images/profile_img.jpeg",
-    },
-    {
-      "type": "LWP Leave",
-      "consumed": "5 days Consumed",
-      "left": 10,
-      "total": 15,
-      "color": Colors.blue,
-      "icons": "assets/images/profile_img.jpeg",
-    },
-    {
-      "type": "Maternity Leave",
-      "consumed": "5 days Consumed",
-      "left": 10,
-      "total": 15,
-      "color": Colors.blue,
-      "icons": "assets/images/profile_img.jpeg",
-    },
-    {
-      "type": "Earn Leave",
-      "consumed": "5 days Consumed",
-      "left": 10,
-      "total": 15,
-      "color": Colors.blue,
-      "icons": "assets/images/profile_img.jpeg",
-    },
-    {
-      "type": "Paternity Leave",
-      "consumed": "5 days Consumed",
-      "left": 10,
-      "total": 15,
-      "color": Colors.blue,
-      "icons": "assets/images/profile_img.jpeg",
-    },
-  ];
+  bool _isLoading = true;
+  double casualLeave = 0.0;
+  double casualLeaveBal = 0.0;
+  LeaveBal? data;
+
+
+  @override
+  void initState() {
+    fetchAnnualLeaveDetails();
+    super.initState();
+  }
+
+  Future<void> fetchAnnualLeaveDetails() async {
+    try {
+      final response = await getAnnualLeaveDetails(context);
+
+      if (response is AnnualLeaveDetailsResponse) {
+        setState(() {
+
+          final dataList = response.data;
+          data = dataList;
+          _isLoading = false;
+
+        });
+
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        print("Error: Response is not of type AnnualLeaveDetailsResponse.");
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print("Error in fetchAnnualLeaveDetails: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,26 +66,30 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
           screenTitle: 'Balance Leave',
         ),
       ),
-      body: Padding(
+      body: _isLoading ? KLoader() : Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: leaveBalances.length,
-                itemBuilder: (context, index) {
-                  final leave = leaveBalances[index];
-                  return BalanceLeave(
-                    type: leave["type"],
-                    consumed: leave["consumed"],
-                    left: leave["left"],
-                    total: leave["total"],
-                    color: getLeaveColor(leave["type"] ?? ""),  // Assign color
-                    iconAsset: leave["icons"],
-                  );
-                },
-              ),
-            ),
+            data?.totalCasualLeave != null && data!.totalCasualLeave != 0
+                ? _showCasualLeave()
+                : SizedBox(),
+
+            data?.totalSickLeave != null && data!.totalSickLeave != 0
+                ? _showSickLeave()
+                : SizedBox(),// or SizedBox.shrink() if you want it to take no space
+
+            data?.totalElLeave != null && data!.totalElLeave != 0
+                ? _showEarnLeave()
+                : SizedBox(),
+
+            data?.totalCompOffLeave != null && data!.totalCompOffLeave != 0
+                ? _showCompOffLeave()
+                : SizedBox(),
+
+            //_showLWPLeave(),
+            //_showMaternityLeave(),
+            //_showPaternityLeave(),
+            SizedBox(height: 10,),
             CustomElevatedButton(text: 'Apply Leave', onPressed: () { Navigator.pushNamed(context, '/apply_leave_screen');},),
             KSizedBox.h14,
           ],
@@ -124,6 +118,92 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
       default:
         return Colors.grey;  // Default color if no match
     }
+  }
+
+  Widget _showCasualLeave() {
+    int left = data?.casualLeaveBal?.toInt() ?? 0;
+    int total = data?.totalCasualLeave?.toInt() ?? 0;
+    int consumed = total - left;
+    return BalanceLeave(
+      type: "Casual Leave/Paid Leave",
+      consumed: ('$consumed Day'),
+      left: data?.casualLeaveBal.toInt() ?? 0,
+      total: data?.totalCasualLeave.toInt() ?? 0,
+      color: KColors.purpleColor,
+      iconAsset: KAssets.casualLeave,
+    );
+  }
+
+  Widget _showSickLeave() {
+    int left = data?.sickLeaveBal?.toInt() ?? 0;
+    int total = data?.totalSickLeave?.toInt() ?? 0;
+    int consumed = total - left;
+    return BalanceLeave(
+      type: "Sick Leaves",
+      consumed: ('$consumed Day'),
+      left: data?.sickLeaveBal.toInt() ?? 0,
+      total: data?.totalSickLeave.toInt() ?? 0,
+      color: KColors.greenColor,
+      iconAsset: KAssets.sickLeave,
+    );
+  }
+
+  Widget _showEarnLeave() {
+    int left = data?.elLeaveBal?.toInt() ?? 0;
+    int total = data?.totalElLeave?.toInt() ?? 0;
+    int consumed = total - left;
+    return BalanceLeave(
+      type: "Earn Leave",
+      consumed: ('$consumed Day'),
+      left: data?.elLeaveBal.toInt() ?? 0,
+      total: data?.totalElLeave.toInt() ?? 0,
+      color: KColors.orangeColor,
+      iconAsset: KAssets.earnLeave,
+    );
+  }
+
+  Widget _showCompOffLeave() {
+    return BalanceLeave(
+      type: "Comp Off Leave",
+      consumed: '0 days',
+      left: data?.compOffLeaveBal.toInt() ?? 0,
+      total: data?.totalCompOffLeave.toInt() ?? 0,
+      color: KColors.pinkColor,
+      iconAsset: KAssets.compOffLeave,
+    );
+  }
+
+  Widget _showLWPLeave() {
+    return BalanceLeave(
+      type: "LWP Leave",
+      consumed: '0 days',
+      left: 1,
+      total: (casualLeave.toInt()),
+      color: KColors.appPrimary,
+      iconAsset: KAssets.lwpLeave,
+    );
+  }
+
+  Widget _showMaternityLeave() {
+    return BalanceLeave(
+      type: "Maternity Leave",
+      consumed: '0 days',
+      left: 1,
+      total: (casualLeave.toInt()),
+      color: KColors.appPrimaryRed,
+      iconAsset: KAssets.compOffLeave,
+    );
+  }
+
+  Widget _showPaternityLeave() {
+    return BalanceLeave(
+      type: "Paternity Leave",
+      consumed: '0 days',
+      left: 1,
+      total: (casualLeave.toInt()),
+      color: KColors.appPrimaryYellow,
+      iconAsset: KAssets.compOffLeave,
+    );
   }
 }
 
@@ -179,7 +259,7 @@ class BalanceLeave extends StatelessWidget {
             ///-- Set Icons
             const SizedBox(width: 20,),
             Center(
-              child: Image.asset(
+              child: SvgPicture.asset(
                 iconAsset,
                 height: 40,
                 width: 40,

@@ -109,6 +109,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 shadowColor: KColors.cardShadowColor,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4)),
+
               ),
             ),
 
@@ -253,7 +254,6 @@ class CustomNotificationCard extends StatelessWidget {
           ],
         ),
       ),
-
     );
   }
 }
