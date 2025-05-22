@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:time_log/utils/constants/k_asstes.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
 import 'package:time_log/utils/reusable_widgit/k_size_box.dart';
 
 import '../../models/annual_leave_details_res.dart';
+import '../../utils/constants/check_internet.dart';
 import '../../utils/constants/k_colors.dart';
+import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_custom_app_bar.dart';
 import '../../utils/reusable_widgit/k_elevated_button.dart';
 
@@ -17,6 +21,7 @@ class BalanceLeaveScreen extends StatefulWidget {
 }
 
 class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
+  final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
   bool _isLoading = true;
   double casualLeave = 0.0;
   double casualLeaveBal = 0.0;
@@ -25,7 +30,7 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
 
   @override
   void initState() {
-    fetchAnnualLeaveDetails();
+    _checkInternetConnection();
     super.initState();
   }
 
@@ -56,43 +61,86 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
     }
   }
 
+  Future<void> _refreshData() async {
+    // Your logic to refresh data
+    await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
+    setState(() {
+      fetchAnnualLeaveDetails();
+    });
+  }
+
+  /// --- check internet connection
+  void _checkInternetConnection() async {
+    bool connected = await _checkInternet.isConnected();
+    if (!connected) {
+      // Show no internet dialog or handle no connectivity case
+      KMaterialDialogs.noInternetFound(
+        context,
+        IconsButton(
+          onPressed: () {
+            Navigator.pop(context);
+            // Maybe retry or do something else
+          },
+          text: 'Okay',
+          color: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          iconColor: Colors.white,
+        ),
+        "No Internet Connection",
+        "Please check your internet connection and try again.",
+      );
+      return; // Stop further API calls
+    }
+    fetchAnnualLeaveDetails();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF84DBFF), // Same as app bar
+          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+        ),
         title: const KCustomAppBar(
           screenTitle: 'Balance Leave',
         ),
       ),
-      body: _isLoading ? KLoader() : Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            data?.totalCasualLeave != null && data!.totalCasualLeave != 0
-                ? _showCasualLeave()
-                : SizedBox(),
+      body: _isLoading ? KLoader() : RefreshIndicator(
+        onRefresh: _refreshData,
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(), // <- Required!
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                data?.totalCasualLeave != null && data!.totalCasualLeave != 0
+                    ? _showCasualLeave()
+                    : SizedBox(),
 
-            data?.totalSickLeave != null && data!.totalSickLeave != 0
-                ? _showSickLeave()
-                : SizedBox(),// or SizedBox.shrink() if you want it to take no space
+                data?.totalSickLeave != null && data!.totalSickLeave != 0
+                    ? _showSickLeave()
+                    : SizedBox(),// or SizedBox.shrink() if you want it to take no space
 
-            data?.totalElLeave != null && data!.totalElLeave != 0
-                ? _showEarnLeave()
-                : SizedBox(),
+                data?.totalElLeave != null && data!.totalElLeave != 0
+                    ? _showEarnLeave()
+                    : SizedBox(),
 
-            data?.totalCompOffLeave != null && data!.totalCompOffLeave != 0
-                ? _showCompOffLeave()
-                : SizedBox(),
+                data?.totalCompOffLeave != null && data!.totalCompOffLeave != 0
+                    ? _showCompOffLeave()
+                    : SizedBox(),
 
-            //_showLWPLeave(),
-            //_showMaternityLeave(),
-            //_showPaternityLeave(),
-            SizedBox(height: 10,),
-            CustomElevatedButton(text: 'Apply Leave', onPressed: () { Navigator.pushNamed(context, '/apply_leave_screen');},),
-            KSizedBox.h14,
-          ],
+                //_showLWPLeave(),
+                //_showMaternityLeave(),
+                //_showPaternityLeave(),
+                SizedBox(height: 10,),
+                CustomElevatedButton(text: 'Apply Leave', onPressed: () { Navigator.pushNamed(context, '/apply_leave_screen');},),
+                KSizedBox.h14,
+              ],
+            ),
+          ),
         ),
       ),
     );

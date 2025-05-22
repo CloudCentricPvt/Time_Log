@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -61,7 +62,8 @@ class _RequestWorkFromHomeState extends State<RequestWorkFromHome> {
         _startDate!.isNotEmpty &&
         _endDate!.isNotEmpty) {
       try {
-        DateFormat inputFormat = DateFormat("dd, MMM yyyy");
+        // ✅ Use the correct format
+        DateFormat inputFormat = DateFormat("dd, MMMM yyyy");
 
         DateTime startDate = inputFormat.parse(_startDate!.trim());
         DateTime endDate = inputFormat.parse(_endDate!.trim());
@@ -188,6 +190,10 @@ class _RequestWorkFromHomeState extends State<RequestWorkFromHome> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF84DBFF), // Same as app bar
+          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+        ),
         title: KCustomAppBar(
           screenTitle: 'Request WFH',
           showHistory: true,

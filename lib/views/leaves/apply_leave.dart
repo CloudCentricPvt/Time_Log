@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -208,6 +209,10 @@ class _ApplyLeaveState extends State<ApplyLeave> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF84DBFF), // Same as app bar
+          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+        ),
         title: KCustomAppBar(
           screenTitle: 'Apply Leave',
           showHistory: true,

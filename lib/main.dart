@@ -5,6 +5,7 @@ import 'package:time_log/utils/constants/k_colors.dart';
 
 import 'package:time_log/views/authentication/change_password.dart';
 import 'package:time_log/views/authentication/login_screen.dart';
+import 'package:time_log/views/help_and_support.dart';
 import 'package:time_log/views/leaves/comp_off_history_screen.dart';
 import 'package:time_log/views/leaves/request_comp_off_screen.dart';
 import 'package:time_log/views/dashBoard/check_in_check_out.dart';
@@ -38,16 +39,9 @@ Future<void> main() async {
   final storage = GetStorage();
   print("##MAIN STORAGE: Is_Active = ${storage.read('Is_Active')}");
 
+
   runApp( MyApp());
 }
-
-/*Future<void> main() async {
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor:KColors.appSecondary,
-  ));
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
-}*/
 
 
 class MyApp extends StatelessWidget {
@@ -89,6 +83,7 @@ class MyApp extends StatelessWidget {
         '/balance_leave_screen': (context) => const BalanceLeaveScreen(),
         '/notification_screen': (context) => const NotificationScreen(),
         '/upcoming_events_screen': (context) => const UpcomingEvents(),
+        '/help_and_support_screen': (context) => const HelpAndSupport(),
 
       },
     );

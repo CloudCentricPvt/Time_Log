@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:time_log/models/login_res.dart';
+import 'package:time_log/utils/constants/k_storage_key.dart';
 
 import '../network/auth_service.dart';
 import '../network/k_network_api_service.dart';
@@ -65,18 +66,24 @@ class LoginController {
         // Check for success
         if (response['code'] == 200 && response['status'] == true) {
           var user = response['users']?[0];
-          String userName = user?['userName'] ?? '';
+          String userID = user?['userName'] ?? '';
+          String userName = user?['Name'] ?? '';
           bool isActive = user?['IsActive'] ?? false;
           await storage.write('Is_Active', isActive);
           String employeeID = user?['Id'].toString() ?? '';
           String annualLeaveId = user?['annualLeaveId'].toString() ?? '';
+          String designation = user?['Designation'].toString() ?? '';
+          String empCode = user?['employeeCode'].toString() ?? '';
 
-          storage.write('User_Id', userName);
+          storage.write('User_Id', userID);
           storage.write('EMP_ID', employeeID);
           storage.write('ANNUAL_LEAVE_ID', annualLeaveId);
+          storage.write(KStorageKey.userName, userName);
+          storage.write(KStorageKey.userId, userID);
+          storage.write(KStorageKey.designation, designation);
+          storage.write(KStorageKey.employeeCode, empCode);
+          storage.write(KStorageKey.annualLeaveId, annualLeaveId);
 
-          print('EMP_ID:${storage.read('EMP_ID')}');
-          print('ANNUAL_LEAVE_ID:${storage.read('ANNUAL_LEAVE_ID')}');
 
           showSuccessMessage(context, response['message']?.toString() ?? 'No message');
           Navigator.pushReplacementNamed(context, '/home_screen');

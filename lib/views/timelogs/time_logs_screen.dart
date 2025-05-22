@@ -138,14 +138,12 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
     }
   }
 
-  void _goToUpdateTimeLogeScreen() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => EditTimeLog()),
-    );
-    if (result == true) {
-      fetchLogs(); // Reload data when returning from CreateTimeLog screen
-    }
+  Future<void> _refreshData() async {
+    // Your logic to refresh data
+    await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
+    setState(() {
+      fetchLogs();
+    });
   }
 
 
@@ -179,75 +177,78 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
         showProfileIcon: false, // Hide Profile Icon
       ),
       drawer: CustomDrawerMenu(context: context),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 10, left: 8, right: 8, bottom: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ///Time log cards.....
-              Align(
-                alignment: Alignment.topCenter, // Align content to the top
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 8, right: 8, top: 0, bottom: 8),
-                  child: Column(
-                    children: [
-                      // Your content here
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8, right: 8),
-                        child: Column(
-                          children: [
-                            /// alignment of three card of hours and leave and pending leave......
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                CustomCard(
-                                  textColor: KColors.appColorWhite,
-                                  myColor: KColors.appPrimary,
-                                  containerTextDigit:
-                                  (totalWorkingHrs is double) ? totalWorkingHrs.toInt().toString() : totalWorkingHrs.toString(),
-                                  containerTextOne: "Total working",
-                                  containerTextTwo: "hours this month",
-                                ),
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10, left: 8, right: 8, bottom: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ///Time log cards.....
+                Align(
+                  alignment: Alignment.topCenter, // Align content to the top
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        left: 8, right: 8, top: 0, bottom: 8),
+                    child: Column(
+                      children: [
+                        // Your content here
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8, right: 8),
+                          child: Column(
+                            children: [
+                              /// alignment of three card of hours and leave and pending leave......
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  CustomCard(
+                                    textColor: KColors.appColorWhite,
+                                    myColor: KColors.appPrimary,
+                                    containerTextDigit:
+                                    (totalWorkingHrs is double) ? totalWorkingHrs.toInt().toString() : totalWorkingHrs.toString(),
+                                    containerTextOne: "Total working",
+                                    containerTextTwo: "hours this month",
+                                  ),
 
-                                /// Second card.....
-                                CustomCard(
-                                  textColor: KColors.appColorWhite,
-                                  myColor: KColors.orangeColor,
-                                  containerTextDigit: pendingCount.toString(),
-                                  containerTextOne: "Pending Time ",
-                                  containerTextTwo: "Logs",
-                                ),
+                                  /// Second card.....
+                                  CustomCard(
+                                    textColor: KColors.appColorWhite,
+                                    myColor: KColors.orangeColor,
+                                    containerTextDigit: pendingCount.toString(),
+                                    containerTextOne: "Pending Time ",
+                                    containerTextTwo: "Logs",
+                                  ),
 
-                                /// third card.....
-                                CustomCard(
-                                  textColor: KColors.appColorWhite,
-                                  myColor: KColors.appPrimaryRed,
-                                  containerTextDigit: rejectedCount.toString(),
-                                  containerTextOne: "Rejected Time",
-                                  containerTextTwo: "Logs",
-                                ),
-                              ],
-                            ),
+                                  /// third card.....
+                                  CustomCard(
+                                    textColor: KColors.appColorWhite,
+                                    myColor: KColors.appPrimaryRed,
+                                    containerTextDigit: rejectedCount.toString(),
+                                    containerTextOne: "Rejected Time",
+                                    containerTextTwo: "Logs",
+                                  ),
+                                ],
+                              ),
 
-                            ///  Time Log listview Filter....
-                            _listViewFilter(),
-                            SizedBox(
-                              height: 10,
-                            ),
+                              ///  Time Log listview Filter....
+                              _listViewFilter(),
+                              SizedBox(
+                                height: 10,
+                              ),
 
-                            /// --- show all the Filled time log.
-                            _filledTimeLogAndShowInList(),
+                              /// --- show all the Filled time log.
+                              _filledTimeLogAndShowInList(),
 
-                          ],
-                        ),
-                      )
-                    ],
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ),
       ),

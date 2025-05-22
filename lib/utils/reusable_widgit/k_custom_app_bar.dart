@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:time_log/utils/constants/k_colors.dart';
 
 class KCustomAppBar extends StatelessWidget {
@@ -34,6 +36,7 @@ class KCustomAppBar extends StatelessWidget {
               fontSize: 20,
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w500,
+              letterSpacing: 1
             ),
       ),
       trailing: showHistory
@@ -63,3 +66,5 @@ class KCustomAppBar extends StatelessWidget {
     );
   }
 }
+
+

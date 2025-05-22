@@ -21,6 +21,8 @@ class KApiEndPoints {
   static String getAssignProject = "${KApiContainer.BASE_URL}apexrest/AssignedProjects";
   static String getAssignTask = "${KApiContainer.BASE_URL}apexrest/TaskTypes";
   static String privacyPolicyPDF = "${KApiContainer.BASE_URL}apexrest/GetPolicyPDF?policyName=Privacy Policy";
+  static String leavePolicyPDF = "${KApiContainer.BASE_URL}apexrest/GetPolicyPDF?policyName=Leave Policy";
+  static String termsAndConditionPDF = "${KApiContainer.BASE_URL}apexrest/GetPolicyPDF?policyName=Terms and Conditions";
   static String applyLeave = "${KApiContainer.BASE_URL}apexrest/RequestLeave";
   static String getAppliedLeave = "${KApiContainer.BASE_URL}apexrest/AppliedLeaveDetails";
   static String applyCompOff = "${KApiContainer.BASE_URL}apexrest/RequestCompOff";

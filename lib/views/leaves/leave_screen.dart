@@ -123,6 +123,16 @@ class _LeaveScreenState extends State<LeaveScreen> {
     fetchLeaveList();
     fetUpcomingHolidays();
   }
+  /// --- refresh data when swap down screen
+  Future<void> _refreshData() async {
+    // Your logic to refresh data
+    await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
+    setState(() {
+      fetchAnnualLeaveDetails();
+      fetchLeaveList();
+      fetUpcomingHolidays();
+    });
+  }
 
 
   ///--- go back then Reload Leave list.
@@ -257,201 +267,204 @@ class _LeaveScreenState extends State<LeaveScreen> {
         showProfileIcon: false, // Hide Profile Icon
       ),
       drawer: CustomDrawerMenu(context: context),
-      body: _isLoading? KLoader():SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    color: KColors.appColorWhite),
-                child: Column(
-                  children: [
-                    KSizedBox.h15,
-                    const Text(
-                      "Annual Leave Details",
-                      style: TextStyle(
-                          fontFamily: "Poppins",
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16),
-                    ),
-                    KSizedBox.h10,
-
-                    Center(
-                      child: KCircularProgressBar.circularIndicator(
-                        percent: leaveP,
-                        value: leaveBal ?? '',
-                        valueTextSize: 28,
-                        label: 'Leave balance',
-                        radius: 60.0,
+      body: _isLoading? KLoader():RefreshIndicator(
+        onRefresh: _refreshData,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6),
+                      color: KColors.appColorWhite),
+                  child: Column(
+                    children: [
+                      KSizedBox.h15,
+                      const Text(
+                        "Annual Leave Details",
+                        style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16),
                       ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Column(
-                          children: [
-                            const Text('Total Leaves'),
-                            Text(
-                              totalLeaveBal.toString() ?? '',
-                              style: const TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          ],
+                      KSizedBox.h10,
+
+                      Center(
+                        child: KCircularProgressBar.circularIndicator(
+                          percent: leaveP,
+                          value: leaveBal ?? '',
+                          valueTextSize: 28,
+                          label: 'Leave balance',
+                          radius: 60.0,
                         ),
-                        Column(
-                          children: [
-                            Text('Leave Used'),
-                            Text(usedLeave1.toString() ?? '',
-                                style: TextStyle(
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            children: [
+                              const Text('Total Leaves'),
+                              Text(
+                                totalLeaveBal.toString() ?? '',
+                                style: const TextStyle(
                                     fontSize: 16,
                                     fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w700)),
-                          ],
-                        ),
-                      ],
-                    ),
-
-                    /// ---- Design Circular progress bar Horizontally
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                              child: KCircularProgressBar.circularIndicator(
-                                  progressColor: KColors.purpleColor,
-                                  percent: (clP ?? 0) > 0 ? clP : 0,
-                                  value: casualLeave.toString(),
-                                  valueTextSize: 18,
-                                  radius: 34.0,
-                                  bottomLabel: 'Casual Leave',
-                                  bottomLabelColor: KColors.textColorGray)),
-                          Expanded(
-                              child: KCircularProgressBar.circularIndicator(
-                                  progressColor: KColors.greenColor,
-                                  percent: (slP ?? 0) > 0 ? slP : 0,
-                                  value: sickLeave.toString() ?? '',
-                                  valueTextSize: 18,
-                                  radius: 34.0,
-                                  bottomLabel: 'Sick Leave',
-                                  bottomLabelColor: KColors.textColorGray)),
-                          Expanded(
-                              child: KCircularProgressBar.circularIndicator(
-                                  progressColor: KColors.orangeColor,
-                                  percent: (elP ?? 0) > 0 ? elP : 0,
-                                  value: earnLeave.toString() ?? '',
-                                  valueTextSize: 18,
-                                  radius: 34.0,
-                                  bottomLabel: 'Earn Leave',
-                                  bottomLabelColor: KColors.textColorGray)),
-                          Expanded(
-                              child: KCircularProgressBar.circularIndicator(
-                                  progressColor: KColors.pinkColor,
-                                  percent: (compOffP ?? 0) > 0 ? compOffP : 0.0,
-                                  value: compOff.toString() ?? '',
-                                  valueTextSize: 18,
-                                  radius: 34.0,
-                                  bottomLabel: 'Comp Off',
-                                  bottomLabelColor: KColors.textColorGray)),
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text('Leave Used'),
+                              Text(usedLeave1.toString() ?? '',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w700)),
+                            ],
+                          ),
                         ],
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: GestureDetector(
-                        child: const Center(
-                          child: Text(
-                            "View Balance Leave",
-                            style: TextStyle(
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.w400,
-                                fontSize: 16,
-                                color: KColors.appPrimary),
-                          ),
+
+                      /// ---- Design Circular progress bar Horizontally
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                                child: KCircularProgressBar.circularIndicator(
+                                    progressColor: KColors.purpleColor,
+                                    percent: (clP ?? 0) > 0 ? clP : 0,
+                                    value: casualLeave.toString(),
+                                    valueTextSize: 18,
+                                    radius: 34.0,
+                                    bottomLabel: 'Casual Leave',
+                                    bottomLabelColor: KColors.textColorGray)),
+                            Expanded(
+                                child: KCircularProgressBar.circularIndicator(
+                                    progressColor: KColors.greenColor,
+                                    percent: (slP ?? 0) > 0 ? slP : 0,
+                                    value: sickLeave.toString() ?? '',
+                                    valueTextSize: 18,
+                                    radius: 34.0,
+                                    bottomLabel: 'Sick Leave',
+                                    bottomLabelColor: KColors.textColorGray)),
+                            Expanded(
+                                child: KCircularProgressBar.circularIndicator(
+                                    progressColor: KColors.orangeColor,
+                                    percent: (elP ?? 0) > 0 ? elP : 0,
+                                    value: earnLeave.toString() ?? '',
+                                    valueTextSize: 18,
+                                    radius: 34.0,
+                                    bottomLabel: 'Earn Leave',
+                                    bottomLabelColor: KColors.textColorGray)),
+                            Expanded(
+                                child: KCircularProgressBar.circularIndicator(
+                                    progressColor: KColors.pinkColor,
+                                    percent: (compOffP ?? 0) > 0 ? compOffP : 0.0,
+                                    value: compOff.toString() ?? '',
+                                    valueTextSize: 18,
+                                    radius: 34.0,
+                                    bottomLabel: 'Comp Off',
+                                    bottomLabelColor: KColors.textColorGray)),
+                          ],
                         ),
-                        onTap: () {
-                          Navigator.pushNamed(context, '/balance_leave_screen');
-                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: GestureDetector(
+                          child: const Center(
+                            child: Text(
+                              "View Balance Leave",
+                              style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 16,
+                                  color: KColors.appPrimary),
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pushNamed(context, '/balance_leave_screen');
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                /// ---- Design Apply section
+                Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 14, right: 5),
+                        child: KFeatureCard(
+                          iconAsset: KAssets.applyLeave,
+                          title: 'Apply Leaves',
+                            onTap: () async {
+                              //Navigator.pushReplacementNamed(context, '/apply_leave_screen');
+                              await _goBackToApplyLeaveScreen();
+                            }
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(top: 14, right: 5, left: 5),
+                        child: KFeatureCard(
+                          iconAsset: KAssets.requestWFH,
+                          title: 'Request WFH',
+                          onTap: () async {
+                            //Navigator.pushNamed(context, '/request_wfh_screen');
+                            await _goBackToWFHLeaveScreen();
+                          },
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(top: 14, right: 5, left: 5),
+                        child: KFeatureCard(
+                          iconAsset: KAssets.requestCompOFF,
+                          title: 'Comp Off',
+                          onTap: () async{
+                            //Navigator.pushNamed(context, '/comp_off_screen');
+                            await _goBackToCompOffLeaveScreen();
+                          },
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 14, left: 5),
+                        child: KFeatureCard(
+                          iconAsset: KAssets.holidaysList,
+                          title: 'Holidays List',
+                          onTap: () {
+                            Navigator.pushNamed(context, '/holiday_list_screen');
+                          },
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
 
-              /// ---- Design Apply section
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 14, right: 5),
-                      child: KFeatureCard(
-                        iconAsset: KAssets.applyLeave,
-                        title: 'Apply Leaves',
-                          onTap: () async {
-                            //Navigator.pushReplacementNamed(context, '/apply_leave_screen');
-                            await _goBackToApplyLeaveScreen();
-                          }
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(top: 14, right: 5, left: 5),
-                      child: KFeatureCard(
-                        iconAsset: KAssets.requestWFH,
-                        title: 'Request WFH',
-                        onTap: () async {
-                          //Navigator.pushNamed(context, '/request_wfh_screen');
-                          await _goBackToWFHLeaveScreen();
-                        },
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(top: 14, right: 5, left: 5),
-                      child: KFeatureCard(
-                        iconAsset: KAssets.requestCompOFF,
-                        title: 'Comp Off',
-                        onTap: () async{
-                          //Navigator.pushNamed(context, '/comp_off_screen');
-                          await _goBackToCompOffLeaveScreen();
-                        },
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 14, left: 5),
-                      child: KFeatureCard(
-                        iconAsset: KAssets.holidaysList,
-                        title: 'Holidays List',
-                        onTap: () {
-                          Navigator.pushNamed(context, '/holiday_list_screen');
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                /// ---- Design Upcoming events
+                KSizedBox.h14,
+                _upcomingYourLeaves(),
 
-              /// ---- Design Upcoming events
-              KSizedBox.h14,
-              _upcomingYourLeaves(),
+                /// --- Upcoming holidays
+                KSizedBox.h14,
 
-              /// --- Upcoming holidays
-              KSizedBox.h14,
-
-              _upcomingHolidays(),
-            ],
+                _upcomingHolidays(),
+              ],
+            ),
           ),
         ),
       ),

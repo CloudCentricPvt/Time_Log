@@ -35,6 +35,36 @@ Future<dynamic> getAllAppliedLeave(BuildContext context) async{
   }
 }
 
+/*Future<dynamic> getAllAppliedLeave(BuildContext context, int page, int pageSize) async {
+  final apiNetwork = KNetworkApiServices();
+  final storage = GetStorage();
+  final empID = storage.read("EMP_ID");
+
+  if (empID == null) {
+    print("EMP_ID is null");
+    return []; // or show a toast/snackbar
+  }
+
+  final url = "${KApiEndPoints.getAppliedLeave}?employeeId=$empID";
+  print("GET_URL_Comm_Off_HISTORY: $url");
+
+  try {
+    final response = await apiNetwork.getRequest(url, context);
+
+    if (response != null && response['status'] == true) {
+      final appliedLeaveHistoryResponse = AppliedLeaveHistoryResponse.fromJson(response);
+      return appliedLeaveHistoryResponse;
+    } else {
+      print("API returned unsuccessful status or null data");
+      return []; // Consider returning a default response model instead
+    }
+  } catch (e, stacktrace) {
+    print("Error in getAllAppliedLeave: $e");
+    print("StackTrace: $stacktrace");
+    return []; // or throw Exception("API error")
+  }
+}*/
+
 class AppliedLeaveHistoryResponse {
   bool status;
   String message;

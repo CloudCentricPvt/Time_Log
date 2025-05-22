@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
 
 import '../../models/wfh_history_res.dart';
+import '../../utils/constants/check_internet.dart';
 import '../../utils/constants/k_asstes.dart';
 import '../../utils/constants/k_colors.dart';
 import '../../utils/constants/k_date_and_time.dart';
 import '../../utils/constants/k_fonts.dart';
 import '../../utils/constants/show_leave_history_details_dialog.dart';
 import '../../utils/popups/k_filter_dialog.dart';
+import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_custom_app_bar.dart';
 import '../../utils/reusable_widgit/k_filter_header.dart';
 
@@ -20,51 +24,50 @@ class WorkFromHomeHistory extends StatefulWidget {
 }
 
 class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
+  final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
+
   String selectedStatus = 'All';
   bool _isLoading = true;
   List<WFHRequest> wfhList = [];
-  final List<Map<String, dynamic>> leaveBalances = [
-    {
-      "type": "Casual/Paid Leaves",
-      "day": "2 Days",
-      "startDate": "13 March 2025",
-      "endDate": "20 March 2025",
-      "status": "Pending",
-      "icons": "assets/images/profile_img.jpeg",
-    },
-    {
-      "type": "Sick Leave",
-      "day": "3 Days",
-      "startDate": "10 April 2025",
-      "endDate": "13 April 2025",
-      "status": "Rejected",
-      "icons": "assets/images/profile_img.jpeg",
-    },
-  ];
   String selectedProject = "Select Project";
   String selectedTask = "Select Task";
-  final List<String> projectItems = [
-    "Select Project",
-    "Leave/Holiday (April 2024 - March 2025)",
-    "Self Study (April 2024 - March 2025)",
-    "UI/UX Designing FY 24-25"
-  ];
-
-  final List<String> taskItems = [
-    "Select Task",
-    "UI/ux CloudCentric",
-    "Uux FieldBan",
-    "ui/ux CloudConics",
-    "UI/ux SocialPols",
-    "ui/ux Desers",
-    "Other"
-  ];
 
   @override
   void initState() {
-    fetchWfhData();
+    _checkInternetConnection();
     super.initState();
   }
+  Future<void> _refreshData() async {
+    // Your logic to refresh data
+    await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
+    setState(() {
+      fetchWfhData();
+    });
+  }
+  void _checkInternetConnection() async {
+    bool connected = await _checkInternet.isConnected();
+    if (!connected) {
+      // Show no internet dialog or handle no connectivity case
+      KMaterialDialogs.noInternetFound(
+        context,
+        IconsButton(
+          onPressed: () {
+            Navigator.pop(context);
+            // Maybe retry or do something else
+          },
+          text: 'Okay',
+          color: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          iconColor: Colors.white,
+        ),
+        "No Internet Connection",
+        "Please check your internet connection and try again.",
+      );
+      return; // Stop further API calls
+    }
+    fetchWfhData();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +75,10 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF84DBFF), // Same as app bar
+          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+        ),
         title: KCustomAppBar(
           screenTitle: 'WFH History',
           historyTitle: 'Request New',
@@ -81,117 +88,120 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                KFilterHeader(
-                    width: 65,
-                    textTitle: 'All',
-                    strokeColor: KColors.appPrimary,
-                    textColor: selectedStatus == 'All'
-                        ? KColors.appColorWhite
-                        : KColors.appPrimary,
-                    backgroundColor: selectedStatus == 'All'
-                        ? KColors.appPrimary
-                        : Colors.transparent,
-                    onHistoryTap: () {
-                      setState(() {
-                        selectedStatus = 'All';
-                      });
-                    }),
-                KFilterHeader(
-                    textTitle: 'Pending',
-                    strokeColor: KColors.orangeColor,
-                    textColor: selectedStatus == 'Pending'
-                        ? KColors.appColorWhite
-                        : KColors.orangeColor,
-                    backgroundColor: selectedStatus == 'Pending'
-                        ? KColors.orangeColor
-                        : Colors.transparent,
-                    onHistoryTap: () {
-                      setState(() {
-                        selectedStatus = 'Pending';
-                      });
-                    }),
-                KFilterHeader(
-                    textTitle: 'Approved',
-                    strokeColor: KColors.greenColor,
-                    textColor: selectedStatus == 'Approved'
-                        ? KColors.appColorWhite
-                        : KColors.greenColor,
-                    backgroundColor: selectedStatus == 'Approved'
-                        ? KColors.greenColor
-                        : Colors.transparent,
-                    onHistoryTap: () {
-                      setState(() {
-                        selectedStatus = 'Approved';
-                      });
-                    }),
-                KFilterHeader(
-                    textTitle: 'Rejected',
-                    strokeColor: KColors.appPrimaryRed,
-                    textColor: selectedStatus == 'Rejected'
-                        ? KColors.appColorWhite
-                        : KColors.appPrimaryRed,
-                    backgroundColor: selectedStatus == 'Rejected'
-                        ? KColors.appPrimaryRed
-                        : Colors.transparent,
-                    onHistoryTap: () {
-                      setState(() {
-                        selectedStatus = 'Rejected';
-                      });
-                    }),
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  KFilterHeader(
+                      width: 65,
+                      textTitle: 'All',
+                      strokeColor: KColors.appPrimary,
+                      textColor: selectedStatus == 'All'
+                          ? KColors.appColorWhite
+                          : KColors.appPrimary,
+                      backgroundColor: selectedStatus == 'All'
+                          ? KColors.appPrimary
+                          : Colors.transparent,
+                      onHistoryTap: () {
+                        setState(() {
+                          selectedStatus = 'All';
+                        });
+                      }),
+                  KFilterHeader(
+                      textTitle: 'Pending',
+                      strokeColor: KColors.orangeColor,
+                      textColor: selectedStatus == 'Pending'
+                          ? KColors.appColorWhite
+                          : KColors.orangeColor,
+                      backgroundColor: selectedStatus == 'Pending'
+                          ? KColors.orangeColor
+                          : Colors.transparent,
+                      onHistoryTap: () {
+                        setState(() {
+                          selectedStatus = 'Pending';
+                        });
+                      }),
+                  KFilterHeader(
+                      textTitle: 'Approved',
+                      strokeColor: KColors.greenColor,
+                      textColor: selectedStatus == 'Approved'
+                          ? KColors.appColorWhite
+                          : KColors.greenColor,
+                      backgroundColor: selectedStatus == 'Approved'
+                          ? KColors.greenColor
+                          : Colors.transparent,
+                      onHistoryTap: () {
+                        setState(() {
+                          selectedStatus = 'Approved';
+                        });
+                      }),
+                  KFilterHeader(
+                      textTitle: 'Rejected',
+                      strokeColor: KColors.appPrimaryRed,
+                      textColor: selectedStatus == 'Rejected'
+                          ? KColors.appColorWhite
+                          : KColors.appPrimaryRed,
+                      backgroundColor: selectedStatus == 'Rejected'
+                          ? KColors.appPrimaryRed
+                          : Colors.transparent,
+                      onHistoryTap: () {
+                        setState(() {
+                          selectedStatus = 'Rejected';
+                        });
+                      }),
 
-                /// ---- filter with multiple option
-                /*GestureDetector(
-                  child: SvgPicture.asset(KAssets.filterIcon),
-                  onTap: () {
-                    FilterDialog.showTimeLogFilterDialog(
-                      context,
-                      projectItems,
-                      selectedProject,
-                      selectedTask,
-                      taskItems,
-                      (String? newProject) {
-                        setState(() {
-                          selectedProject = newProject!;
-                        });
-                      },
-                      (String? newTask) {
-                        setState(() {
-                          selectedTask = newTask!; // Update the selected task
-                        });
-                      },
-                    );
-                  },
-                ),*/
-              ],
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: _isLoading
-                  ? KLoader()
-                  : Builder(
-                      builder: (context) {
-                        final filteredList = _getFilteredList(); // filter once
-                        return filteredList.isEmpty
-                            ? const Center(child: Text("No data found!"))
-                            : ListView.builder(
-                                itemCount: filteredList.length,
-                                itemBuilder: (context, index) {
-                                  final leave = filteredList[index];
-                                  return _showWFHHistoryDataInList(leave);
-                                },
-                              );
-                      },
-                    ),
-            ),
-          ],
+                  /// ---- filter with multiple option
+                  /*GestureDetector(
+                    child: SvgPicture.asset(KAssets.filterIcon),
+                    onTap: () {
+                      FilterDialog.showTimeLogFilterDialog(
+                        context,
+                        projectItems,
+                        selectedProject,
+                        selectedTask,
+                        taskItems,
+                        (String? newProject) {
+                          setState(() {
+                            selectedProject = newProject!;
+                          });
+                        },
+                        (String? newTask) {
+                          setState(() {
+                            selectedTask = newTask!; // Update the selected task
+                          });
+                        },
+                      );
+                    },
+                  ),*/
+                ],
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: _isLoading
+                    ? KLoader()
+                    : Builder(
+                        builder: (context) {
+                          final filteredList = _getFilteredList(); // filter once
+                          return filteredList.isEmpty
+                              ? const Center(child: Text("No data found!"))
+                              : ListView.builder(
+                                  itemCount: filteredList.length,
+                                  itemBuilder: (context, index) {
+                                    final leave = filteredList[index];
+                                    return _showWFHHistoryDataInList(leave);
+                                  },
+                                );
+                        },
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:time_log/utils/constants/k_fonts.dart';
 import '../../utils/constants/k_colors.dart';
 import '../../utils/reusable_widgit/k_custom_app_bar.dart';
@@ -74,6 +75,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF84DBFF), // Same as app bar
+          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+        ),
         title: KCustomAppBar(
           screenTitle: 'Notification Screen',
           showHistory: false,

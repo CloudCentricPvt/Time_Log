@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -41,6 +42,8 @@ class _CreateTimelogState extends State<CreateTimeLog> {
   bool _isLoading = false;
   double lat = 0.000;
   double long = 0.000;
+
+
 
   @override
   void initState() {
@@ -147,12 +150,17 @@ class _CreateTimelogState extends State<CreateTimeLog> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF84DBFF), // Same as app bar
+          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+        ),
         title: KCustomAppBar(
           screenTitle: 'Create Time Log',
           showHistory: false,
           onHistoryTap: () {
             Navigator.pushNamed(context, '/leave_history_screen');
           },
+
         ),
       ),
       body: Expanded(
@@ -191,6 +199,13 @@ class _CreateTimelogState extends State<CreateTimeLog> {
                                     keyboardType: TextInputType.number,
                                     isRequired: true,
                                     controller: _controller.hrsController,
+                                    maxLength: 1,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                      LengthLimitingTextInputFormatter(2),
+                                      MinuteRangeFormatter(), // Ensures value is between 1–59
+                                    ],
+
                                   ),
                                 ),
                                 const SizedBox(width: 10), // Add spacing between fields
@@ -201,6 +216,12 @@ class _CreateTimelogState extends State<CreateTimeLog> {
                                     keyboardType: TextInputType.number,
                                     isRequired: false,
                                     controller: _controller.minController,
+                                    maxLength: 2,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                      LengthLimitingTextInputFormatter(2),
+                                      MinuteRangeFormatter(), // Ensures value is between 1–59
+                                    ],
                                   ),
                                 ),
                               ],
@@ -267,7 +288,6 @@ class _CreateTimelogState extends State<CreateTimeLog> {
 
                           await _controller.applyTimeLog(context,selectedProjectId,selectedTask,_controller.dateController.text,_controller.hrsController.text,_controller.minController.text,_controller.descriptionController.text);
 
-                          // If not successful, stop loader
                           setState(() {
                             _isLoading = false;
                           });
@@ -385,5 +405,24 @@ class _CreateTimelogState extends State<CreateTimeLog> {
     );
   }
 }
+
+/// Restricts input to a valid minute value (1–59).
+class MinuteRangeFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    if (newValue.text.isEmpty) return newValue;
+
+    final int? value = int.tryParse(newValue.text);
+    if (value == null || value < 1 || value > 59) {
+      return oldValue;
+    }
+    return newValue;
+  }
+}
+
+
 
 

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../constants/k_colors.dart';
 
 class KTextInputFormField extends StatelessWidget {
+
   final String? labelText;
   final String? hintText;
   final String? initValue;
@@ -26,6 +28,7 @@ class KTextInputFormField extends StatelessWidget {
   // Newly added font customization
   final double? fontSize;
   final FontWeight? fontWeight;
+  final List<TextInputFormatter>? inputFormatters;
 
   const KTextInputFormField({
     super.key,
@@ -47,6 +50,7 @@ class KTextInputFormField extends StatelessWidget {
     this.isRequired = false, // Default: false
     this.fontSize, // New optional fontSize
     this.fontWeight, // New optional fontWeight
+    this.inputFormatters,
   });
 
   @override
@@ -68,6 +72,7 @@ class KTextInputFormField extends StatelessWidget {
           (isRequired ? (value) => value?.isEmpty ?? true ? "This field is required" : null : null),
       onChanged: onChange,
       readOnly: readOnly ?? false,
+      inputFormatters: inputFormatters, // ✅ apply formatters here
       decoration: InputDecoration(
         alignLabelWithHint: true,
         floatingLabelBehavior: FloatingLabelBehavior.always,

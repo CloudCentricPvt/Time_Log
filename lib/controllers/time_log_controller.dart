@@ -81,29 +81,30 @@ class TimeLogController {
       return;
     }*/
 
-    int? minValue = int.tryParse(minController.text.trim());
-    if (minValue == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Enter a valid number for Minutes."),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
+
+    if (minController.text.isNotEmpty) {
+      int? minValue = int.tryParse(minController.text);
+
+      if (minValue == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Enter a valid number for Minutes."),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      if (minValue < 0 || minValue > 59) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Minutes must be between 0 and 59."),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
     }
-
-    if (minValue < 1 || minValue > 59) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Minutes must be between 1 and 59."),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-// ✅ Minutes are valid, proceed...
-
 
     if (dateController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -196,16 +197,63 @@ class TimeLogController {
       );
       return;
     }
-
-    if (minController.text.trim().isEmpty) {
+    int? value = int.tryParse(hrsController.text.trim());
+    if (value == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Please enter  Minutes."),
+          content: Text("Enter a valid number."),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
+
+    if (value < 1 || value > 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Hours must be between 1 and 8."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+
+    /*if (minController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter Minutes."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }*/
+
+
+    if (minController.text.isNotEmpty) {
+      int? minValue = int.tryParse(minController.text);
+
+      if (minValue == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Enter a valid number for Minutes."),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      if (minValue < 0 || minValue > 59) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Minutes must be between 0 and 59."),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    }
+
 
     if (dateController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
