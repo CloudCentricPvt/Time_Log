@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:time_log/controllers/edit_profile_controller.dart';
 import 'package:time_log/utils/constants/k_colors.dart';
@@ -19,20 +20,10 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   final EditProfileController _editProfileController = EditProfileController();
-  String fName = '';
-  String gender = '';
   String phone = '';
-  String email = '';
-  String dob = '';
   String anniversaryDate = '';
   String address = '';
   bool _isLoading = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _editProfileController.fullNameController.text = fName ?? '';
-  }
 
   @override
   void initState() {
@@ -55,6 +46,7 @@ class _EditProfileState extends State<EditProfile> {
        _editProfileController.dobController.text  = KDateAndTime().useFormatDateInMyApp(args['dob'] ?? '');
        anniversaryDate= KDateAndTime().useFormatDateInMyApp(args['anniversaryDate'] ?? '');
        address  = args['address'] ?? '';
+
        if(_editProfileController.anniversaryController.text.isEmpty){
          _editProfileController.anniversaryController.text= anniversaryDate;
        }
@@ -71,6 +63,10 @@ class _EditProfileState extends State<EditProfile> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF84DBFF), // Same as app bar
+          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+        ),
         title: const KCustomAppBar(screenTitle: 'Edit Profile'),
       ),
       body: _editProfileForm(),

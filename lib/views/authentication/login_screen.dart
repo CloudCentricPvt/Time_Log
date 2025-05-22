@@ -25,175 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return /*Scaffold(
-      backgroundColor: KColors.appPrimary,
-      *//*appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: KColors.appSecondary,
-      ),*//*
-     *//* body: Stack(
-        children: [
-          // Background container (optional)
-          Container(
-            color: KColors.appPrimary,
-          ),
-
-          // Bottom curved login container
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: FractionallySizedBox(
-              heightFactor: 0.60,
-              widthFactor: 1.0,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(40),
-                    topRight: Radius.circular(40),
-                  ),
-                  border: Border.all(
-                    color: Colors.grey.shade300,
-                    width: 1.5,
-                  ),
-                ),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.only(top: 60.0, left: 16, right: 16),
-                  // extra top padding for space under logo
-                  child: SingleChildScrollView(
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    child: Column(
-                      children: [
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Welcome Back",
-                              style:
-                                  TextStyle(color: Colors.blue, fontSize: 14),
-                            ),
-                          ],
-                        ),
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Account Login",
-                              style: TextStyle(
-                                  color: Colors.black, fontSize: 22.5),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        userLoginForm(),
-                        onClickLoginButton(),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // Logo floating above curve
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 100.0),
-              // adjust this to your liking
-              child: Image.asset(
-                KAssets.login_image,
-                  height: 250,
-                width: 250,
-              ),
-            ),
-          ),
-        ],
-      ),*//*
-      body: Stack(
-        children: [
-          // Background
-          Container(color: KColors.appPrimary),
-
-          // Bottom curved container
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: FractionallySizedBox(
-              heightFactor: 0.60,
-              widthFactor: 1.0,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(40),
-                    topRight: Radius.circular(40),
-                  ),
-                  border: Border.all(
-                    color: Colors.grey.shade300,
-                    width: 1.5,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: SingleChildScrollView(
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Column(
-                          children: [
-                            const SizedBox(height: 120), // space for floating image
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Welcome Back",
-                                  style: TextStyle(color: Colors.blue, fontSize: 14),
-                                ),
-                              ],
-                            ),
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Account Login",
-                                  style:
-                                  TextStyle(color: Colors.black, fontSize: 22.5),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            userLoginForm(),
-                            onClickLoginButton(),
-                          ],
-                        ),
-
-                        // Floating image inside scrollable container
-                        Positioned(
-                          top: -235, // pushes image out of the curve
-                          left: 0,
-                          right: 0,
-                          child: Center(
-                            child: Image.asset(
-                              KAssets.login_image,
-                              height: 250,
-                              width: 300,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-
-    );*/
-      Scaffold(
+    return Scaffold(
         backgroundColor: KColors.appPrimary,
         body: Column(
           children: [
@@ -209,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: Card(
-                  margin: EdgeInsets.zero, // ✅ REMOVE extra space outside the card
+                  margin: EdgeInsets.zero, // REMOVE extra space outside the card
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(50),
@@ -345,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget onClickLoginButton() {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blue,
+        backgroundColor: KColors.appPrimary,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12.0)),
         ),

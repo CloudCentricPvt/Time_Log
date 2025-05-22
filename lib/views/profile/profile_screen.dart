@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:time_log/models/profile_details_res.dart';
 import 'package:time_log/utils/constants/k_colors.dart';
 import 'package:time_log/utils/constants/k_date_and_time.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
+import '../../utils/constants/check_internet.dart';
 import '../../utils/constants/k_drawer_menu.dart';
 import '../../utils/constants/k_fonts.dart';
 import '../../utils/constants/k_nav_header.dart';
+import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_info_card.dart';
-import 'edit_profile.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -19,32 +22,44 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
+  final storage = GetStorage();
   LstemployeeDetail? employeeData;
   bool _isLoading = true;
 
   @override
   void initState() {
-
-    /// --- call API for getting the employee details
-    fetchProfileDetailsData();
-
+    _checkInternetConnection();
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: Colors.red, // Change this to your desired color
-        statusBarIconBrightness: Brightness.light, // Light icons on dark status bar
-      ));
-    });
 
   }
 
-  /// --- check go back from Edit Profile Screen
-
-
+  void _checkInternetConnection() async {
+    bool connected = await _checkInternet.isConnected();
+    if (!connected) {
+      // Show no internet dialog or handle no connectivity case
+      KMaterialDialogs.noInternetFound(
+        context,
+        IconsButton(
+          onPressed: () {
+            Navigator.pop(context);
+            // Maybe retry or do something else
+          },
+          text: 'Okay',
+          color: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          iconColor: Colors.white,
+        ),
+        "No Internet Connection",
+        "Please check your internet connection and try again.",
+      );
+      return; // Stop further API calls
+    }
+    fetchProfileDetailsData();
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: KCustomDrawer.customDrawer(
         context: context,
@@ -53,6 +68,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         showBellIcon: true,  // Show Bell Icon
         showProfileIcon: false,  // Hide Profile Icon
+
       ),
       drawer: CustomDrawerMenu(context: context),
 

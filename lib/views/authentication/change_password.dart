@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
 
@@ -23,14 +24,24 @@ class _ChangePasswordState extends State<ChangePassword> {
   bool _isNewPasswordObscure = true;
   bool _isConfirmPasswordObscure = true;
   bool _isLoading = false;
+  @override
+
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
         title: const KCustomAppBar(screenTitle: 'Update Password'),
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF84DBFF), // Same as app bar
+          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(

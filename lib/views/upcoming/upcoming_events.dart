@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:time_log/utils/constants/k_date_and_time.dart';
 import 'package:time_log/utils/constants/k_fonts.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
 
 import '../../models/dashboard_res.dart';
 import '../../models/upcoming_leaves_res.dart';
+import '../../utils/constants/check_internet.dart';
 import '../../utils/constants/k_asstes.dart';
 import '../../utils/constants/k_colors.dart';
+import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_custom_app_bar.dart';
 
 class UpcomingEvents extends StatefulWidget {
@@ -17,14 +21,49 @@ class UpcomingEvents extends StatefulWidget {
 }
 
 class _UpcomingEventsState extends State<UpcomingEvents> {
+  final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
+
   List<Event> eventsList = [];
   bool _isLoading = true;
   List<bool> expandedCards = [];
 
   @override
   void initState() {
-    _fetchEvents();
+    _checkInternetConnection();
     super.initState();
+  }
+
+  Future<void> _refreshData() async {
+    // Your logic to refresh data
+    await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
+    setState(() {
+      _fetchEvents();
+    });
+  }
+
+  /// --- check internet connection
+  void _checkInternetConnection() async {
+    bool connected = await _checkInternet.isConnected();
+    if (!connected) {
+      // Show no internet dialog or handle no connectivity case
+      KMaterialDialogs.noInternetFound(
+        context,
+        IconsButton(
+          onPressed: () {
+            Navigator.pop(context);
+            // Maybe retry or do something else
+          },
+          text: 'Okay',
+          color: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          iconColor: Colors.white,
+        ),
+        "No Internet Connection",
+        "Please check your internet connection and try again.",
+      );
+      return; // Stop further API calls
+    }
+    _fetchEvents();
   }
 
   @override
@@ -35,6 +74,10 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF84DBFF), // Same as app bar
+          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+        ),
         title: KCustomAppBar(
           screenTitle: 'Upcoming Events',
           showHistory: false,
@@ -49,39 +92,43 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
               ? const Center(
                   child: Text("No Upcoming events found!"),
                 )
-              : Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Visibility(
-                          visible: eventsList.isEmpty ? false : true,
-                          child: Text(
-                            'Today Events',
-                            style: KFonts.normalBold,
-                          )),
-                      SizedBox(
-                        height: 10,
-                      ),
+              : RefreshIndicator(
+                onRefresh: _refreshData,
 
-                      _showTodayEvents(),
+                child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Visibility(
+                            visible: eventsList.isEmpty ? false : true,
+                            child: Text(
+                              'Today Events',
+                              style: KFonts.normalBold,
+                            )),
+                        SizedBox(
+                          height: 10,
+                        ),
 
-                      /// ---- Leave balance List UI
-                      SizedBox(
-                        height: 10,
-                      ),
+                        _showTodayEvents(),
 
-                      Visibility(
-                          visible: eventsList.isEmpty ? false : true,
-                          child: Text(
-                            'Upcoming Birthday & Anniversary',
-                            style: KFonts.normalBold,
-                          )),
+                        /// ---- Leave balance List UI
+                        SizedBox(
+                          height: 10,
+                        ),
 
-                      _showUpcomingBirthdayAndAnniversary(),
-                    ],
+                        Visibility(
+                            visible: eventsList.isEmpty ? false : true,
+                            child: Text(
+                              'Upcoming Birthday & Anniversary',
+                              style: KFonts.normalBold,
+                            )),
+
+                        _showUpcomingBirthdayAndAnniversary(),
+                      ],
+                    ),
                   ),
-                ),
+              ),
     );
   }
 
@@ -162,6 +209,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
+                              letterSpacing: 1,
                               color: Colors.white,
                               fontWeight: FontWeight.w500,
                               fontSize: screenWidth * 0.045,
@@ -171,7 +219,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                         ),
                         const SizedBox(height: 0),
                         Text(
-                          'Wishing you and your family a vibrant and joyous Holi filled with colors of happiness, love, and laughter. May this festival of colors bring new energy and positivity to your life. Happy Holi!',
+                          events.eventDescription ?? '',
                           maxLines: isExpanded ? 4 : 2,
                           overflow: isExpanded
                               ? TextOverflow.visible

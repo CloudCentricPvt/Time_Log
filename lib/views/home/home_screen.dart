@@ -1,26 +1,29 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:time_log/utils/constants/k_colors.dart';
-import 'package:time_log/utils/constants/k_nav_header.dart';
 import 'package:time_log/views/dashBoard/check_in_check_out.dart';
 import 'package:time_log/views/profile/profile_screen.dart';
 import 'package:time_log/views/timelogs/time_logs_screen.dart';
-
 import '../../utils/constants/k_asstes.dart';
-import '../../utils/constants/k_logout_dialog.dart';
 import '../leaves/leave_screen.dart';
 
-
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final int initialIndex;
+  const HomeScreen({Key? key, this.initialIndex = 0}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0; // Track the index of the selected item
+  int _selectedIndex = 0;
+  bool _hasHandledArgs = false;
+  bool _isDrawerOpen = false;
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
 
   static final List<Widget> _widgetOptions = <Widget>[
     const CheckInCheckOut(),
@@ -29,29 +32,57 @@ class _HomeScreenState extends State<HomeScreen> {
     const ProfileScreen(),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_hasHandledArgs) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args != null && args is int && args != _selectedIndex) {
+        setState(() {
+          _selectedIndex = args;
+        });
+      }
+      _hasHandledArgs = true;
+    }
+  }
+
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index; // Update the selected index
+      _selectedIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    // Handle route arguments once
+    if (!_hasHandledArgs) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args != null && args is int && args != _selectedIndex) {
+        _selectedIndex = args;
+        _hasHandledArgs = true;
+      }
+    }
     return Scaffold(
       key: _scaffoldKey,
-
-      body: _widgetOptions[_selectedIndex], // Display the selected screen
-
-     ///--- Bottom Nav menu
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _widgetOptions,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
             icon: _buildNavItem(
               SvgPicture.asset(
-                KAssets.homeIcon, // Your SVG asset
+                KAssets.homeIcon,
                 width: 24,
                 height: 24,
-                color: _selectedIndex == 0 ? KColors.appPrimary : KColors.textColor, // Dynamic color
+                color: _selectedIndex == 0 ? KColors.appPrimary : KColors.textColor,
               ),
               "Dashboard",
               0,
@@ -59,49 +90,63 @@ class _HomeScreenState extends State<HomeScreen> {
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: _buildNavItem( SvgPicture.asset(
-              KAssets.timeLoge, // Your SVG asset
-              width: 24,
-              height: 24,
-              color: _selectedIndex == 1 ? KColors.orangeColor: KColors.textColor, // Dynamic color
-            ), "Time Log", 1),
+            icon: _buildNavItem(
+              SvgPicture.asset(
+                KAssets.timeLoge,
+                width: 24,
+                height: 24,
+                color: _selectedIndex == 1 ? KColors.orangeColor : KColors.textColor,
+              ),
+              "Time Log",
+              1,
+            ),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: _buildNavItem( SvgPicture.asset(
-              KAssets.leaveIcon, // Your SVG asset
-              width: 24,
-              height: 24,
-              color: _selectedIndex == 2 ? KColors.greenColor :KColors.textColor,
-            ), "Leaves", 2),
+            icon: _buildNavItem(
+              SvgPicture.asset(
+                KAssets.leaveIcon,
+                width: 24,
+                height: 24,
+                color: _selectedIndex == 2 ? KColors.greenColor : KColors.textColor,
+              ),
+              "Leaves",
+              2,
+            ),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: _buildNavItem( SvgPicture.asset(
-              KAssets.profileIcon, // Your SVG asset
-              width: 24,
-              height: 24,
-              color: _selectedIndex == 3 ? KColors.appPrimaryYellow : KColors.textColor,
-            ), "Profile", 3),
+            icon: _buildNavItem(
+              SvgPicture.asset(
+                KAssets.profileIcon,
+                width: 24,
+                height: 24,
+                color: _selectedIndex == 3 ? KColors.appPrimaryYellow : KColors.textColor,
+              ),
+              "Profile",
+              3,
+            ),
             label: '',
           ),
         ],
         currentIndex: _selectedIndex,
-        //selectedItemColor: _getSelectedColor(), // Dynamic color change
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed, // Fixes shifting effect
+        type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
       ),
     );
+
+
+
+
   }
 
-  ///--- Corrected method for building navigation items
   Widget _buildNavItem(Widget icon, String label, int index) {
     bool isSelected = _selectedIndex == index;
 
     return Padding(
-      padding: const EdgeInsets.only(left: 2, right: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -116,13 +161,12 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  icon, // Use icon directly, no need to wrap it inside `Icon()`
-
+                  icon,
                   if (isSelected) ...[
                     const SizedBox(width: 4),
-                    Text(
+                     Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: KColors.appColorWhite,
                         fontWeight: FontWeight.bold,
                       ),

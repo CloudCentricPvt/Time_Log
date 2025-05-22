@@ -205,27 +205,35 @@ class Event {
   int remainingDays;
   String personName;
   String eventName;
+  String eventDescription;
   String eventDate;
+
 
   Event({
     required this.remainingDays,
     required this.personName,
     required this.eventName,
+    required this.eventDescription,
     required this.eventDate,
+
   });
 
   factory Event.fromJson(Map<String, dynamic> json) => Event(
     remainingDays: json["remainingDays"],
     personName: json["personName"],
     eventName: json["eventName"],
+    eventDescription: json["eventDescription"],
     eventDate: json["eventDate"],
+
   );
 
   Map<String, dynamic> toJson() => {
     "remainingDays": remainingDays,
     "personName": personName,
     "eventName": eventName,
+    "eventDescription":eventDescription,
     "eventDate": eventDate,
+
   };
 }
 

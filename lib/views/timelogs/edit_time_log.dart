@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:time_log/utils/constants/k_fonts.dart';
@@ -197,6 +198,10 @@ class _EditTimeLogState extends State<EditTimeLog> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF84DBFF), // Same as app bar
+          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+        ),
         title: KCustomAppBar(
           screenTitle: 'Edit Time Log',
           showHistory: false,
@@ -413,6 +418,12 @@ class _EditTimeLogState extends State<EditTimeLog> {
             keyboardType: TextInputType.number,
             isRequired: true,
             controller: _controller.hrsController,
+            maxLength: 1,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(2),
+              MinuteRangeFormatter(), // Ensures value is between 1–59
+            ],
           ),
         ),
         const SizedBox(width: 10),
@@ -424,6 +435,12 @@ class _EditTimeLogState extends State<EditTimeLog> {
             keyboardType: TextInputType.number,
             isRequired: false,
             controller: _controller.minController,
+            maxLength: 2,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(2),
+              MinuteRangeFormatter(), // Ensures value is between 1–59
+            ],
           ),
         ),
       ],
@@ -458,5 +475,21 @@ class _EditTimeLogState extends State<EditTimeLog> {
         });
       },
     );
+  }
+}
+/// Restricts input to a valid minute value (1–59).
+class MinuteRangeFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    if (newValue.text.isEmpty) return newValue;
+
+    final int? value = int.tryParse(newValue.text);
+    if (value == null || value < 1 || value > 59) {
+      return oldValue;
+    }
+    return newValue;
   }
 }

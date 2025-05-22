@@ -2,11 +2,13 @@ import 'package:app_settings/app_settings.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:location/location.dart';
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:time_log/controllers/check_in_check_out_controller.dart';
 import 'package:time_log/models/dashboard_res.dart';
 import 'package:time_log/utils/constants/k_date_and_time.dart';
+import 'package:time_log/utils/constants/k_storage_key.dart';
 import 'package:time_log/utils/reusable_widgit/k_elevated_button.dart';
 import '../../models/chech_in_out_details_res.dart';
 import '../../models/upcoming_leaves_res.dart';
@@ -30,11 +32,13 @@ class CheckInCheckOut extends StatefulWidget {
 class _CheckInCheckOutState extends State<CheckInCheckOut> {
   final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
   final CheckInCheckOutController _controller = CheckInCheckOutController();
+  final storage = GetStorage();
   List<CheckInOutList> allCheckInOut = []; // original list (from API)
   List<UpcomingLeave> leaveList = [];
   List<Event> eventsList = [];
   List<Holiday> upcomingHolidays = [];
   List<Dashboard> dashboardData = [];
+
 
   double lat = 0.000;
   double long = 0.000;
@@ -42,6 +46,8 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
   String pendingCount = '';
   String leaveTaken = '';
   String totalWorkingHrs = '';
+
+
 
   @override
   void initState() {
@@ -77,6 +83,16 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
     _fetchDashboardDetails();
   }
 
+  Future<void> _refreshData() async {
+    // Your logic to refresh data
+    await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
+    setState(() {
+      _fetchCheckInOutDetails();
+      _fetchLeaveList();
+      _fetchDashboardDetails();
+    });
+  }
+
 
 
 
@@ -86,7 +102,8 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
     return Scaffold(
       appBar: KCustomDrawer.customDrawer(
         context: context,
-        title: "Hello Sabir",
+        title: storage.read(KStorageKey.userName ??''),
+        hello: true,
         subtitle: "Welcome to TimeSync",
         showBellIcon: true,
         // Show Bell Icon
@@ -95,130 +112,133 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
       drawer: CustomDrawerMenu(context: context),
       body: _isLoading
           ? KLoader()
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  Column(
-                    children: [
-                      Stack(
-                        children: [
-                          Container(
-                            color: KColors.appPrimary,
-                            width: double.infinity,
-                            height: 65,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 20),
-                            child: Column(
-                              children: [
-                                /// --- show total working hrs, leave taken this month, pending time log
-                                _showWorkingHrsAnd(),
-
-                                ///--- Start check in UI
-                                _startCheckIn(),
-
-                                ///-- Check out UI
-                                _startCheckOut(),
-
-                                ///--- Your are check out for today UI
-
-
-                                _checkOutForToadyCard(),
-
-
-
-                                const SizedBox(
-                                  height: 10,
-                                ),
-
-                                ///--- Upcoming Leave UI
-                                _upcomingLeave(),
-
-                                const SizedBox(
-                                  height: 10,
-                                ),
-
-                                /// --- show upcoming events
-                                _showUpcomingEvents(),
-
-                                /// --- upcoming holidays Test title.
-                                const SizedBox(
-                                  height: 10,
-                                ),
-
-                                _upcomingHolidays(),
-
-                                ///--- flow chart
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 20, right: 20, bottom: 20),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      const Text(
-                                        "Annual Leave Details",
-                                        style: KFonts.normalBold,
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      buildLegend([
-                                        {
-                                          "color": Colors.blue,
-                                          "text": "Monthly Leave"
-                                        },
-                                        {
-                                          "color": Colors.yellow,
-                                          "text": "Annual Leave"
-                                        },
-                                        {
-                                          "color": Colors.red,
-                                          "text": "Comp Off Request"
-                                        },
-                                        {
-                                          "color": Colors.green,
-                                          "text": "WFH Request"
-                                        },
-                                      ]),
-                                      const SizedBox(height: 10),
-                                      _buildAnnualLeaveChart(),
-                                      const SizedBox(height: 20),
-                                      const Text(
-                                        "Working Hours Details",
-                                        style: KFonts.normalBold,
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      buildLegend([
-                                        {
-                                          "color": Colors.blue,
-                                          "text": "Working Hours"
-                                        },
-                                        {
-                                          "color": Colors.orange,
-                                          "text": "Self Study Hours"
-                                        },
-                                      ]),
-                                      const SizedBox(height: 10),
-                                      _buildWorkingHoursChart(),
-                                    ],
-                                  ),
-                                ),
-                              ],
+          : RefreshIndicator(
+            onRefresh: _refreshData,
+            child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Column(
+                      children: [
+                        Stack(
+                          children: [
+                            Container(
+                              color: KColors.appPrimary,
+                              width: double.infinity,
+                              height: 65,
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+                            Padding(
+                              padding: const EdgeInsets.only(top: 20),
+                              child: Column(
+                                children: [
+                                  /// --- show total working hrs, leave taken this month, pending time log
+                                  _showWorkingHrsAnd(),
+
+                                  ///--- Start check in UI
+                                  _startCheckIn(),
+
+                                  ///-- Check out UI
+                                  _startCheckOut(),
+
+                                  ///--- Your are check out for today UI
+
+
+                                  _checkOutForToadyCard(),
+
+
+
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+
+                                  ///--- Upcoming Leave UI
+                                  _upcomingLeave(),
+
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+
+                                  /// --- show upcoming events
+                                  _showUpcomingEvents(),
+
+                                  /// --- upcoming holidays Test title.
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+
+                                  _upcomingHolidays(),
+
+                                  ///--- flow chart
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 20, right: 20, bottom: 20),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        const Text(
+                                          "Annual Leave Details",
+                                          style: KFonts.normalBold,
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        buildLegend([
+                                          {
+                                            "color": Colors.blue,
+                                            "text": "Monthly Leave"
+                                          },
+                                          {
+                                            "color": Colors.yellow,
+                                            "text": "Annual Leave"
+                                          },
+                                          {
+                                            "color": Colors.red,
+                                            "text": "Comp Off Request"
+                                          },
+                                          {
+                                            "color": Colors.green,
+                                            "text": "WFH Request"
+                                          },
+                                        ]),
+                                        const SizedBox(height: 10),
+                                        _buildAnnualLeaveChart(),
+                                        const SizedBox(height: 20),
+                                        const Text(
+                                          "Working Hours Details",
+                                          style: KFonts.normalBold,
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        buildLegend([
+                                          {
+                                            "color": Colors.blue,
+                                            "text": "Working Hours"
+                                          },
+                                          {
+                                            "color": Colors.orange,
+                                            "text": "Self Study Hours"
+                                          },
+                                        ]),
+                                        const SizedBox(height: 10),
+                                        _buildWorkingHoursChart(),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
+          ),
     );
   }
 
@@ -959,6 +979,8 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
         pendingCount = response.data.pendingTimeLogEntryCount;
         eventsList = response.data.events;
         upcomingHolidays = response.data.holidays;
+        storage.write(KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs?? '');
+        storage.write(KStorageKey.leaveTakenInThisMonth, leaveTaken?? '');
         print('Check working hrs');
       });
     }

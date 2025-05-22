@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:time_log/utils/constants/k_date_and_time.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
@@ -49,6 +50,14 @@ class _HolidayListState extends State<HolidayList> {
   void initState() {
     _checkInternetConnection();
     super.initState();
+  }
+
+  Future<void> _refreshData() async {
+    // Your logic to refresh data
+    await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
+    setState(() {
+      fetchOfficialHolidays();
+    });
   }
 
   /// --- check internet connection
@@ -103,11 +112,18 @@ class _HolidayListState extends State<HolidayList> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
-        title: KCustomAppBar(screenTitle: 'Holiday List 2025',showHistory: false,),
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF84DBFF), // Same as app bar
+          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+        ),
+        title: KCustomAppBar(screenTitle: 'Holiday List',showHistory: false,),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 14, right: 16, left: 16),
-        child: _showOfficialHolidaysInListView(),
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 14, right: 16, left: 16),
+          child: _showOfficialHolidaysInListView(),
+        ),
       ),
     );
   }

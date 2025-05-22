@@ -12,12 +12,61 @@ PrivacyPolicyResponse privacyPolicyResponseFromJson(String str) => PrivacyPolicy
 
 String privacyPolicyResponseToJson(PrivacyPolicyResponse data) => json.encode(data.toJson());
 
+/// --- This function used for get Privacy Policy.
 Future<dynamic> privacyPolicy(BuildContext context)async{
   var apiNetwork = KNetworkApiServices();
   final storage = GetStorage();
   var empID = storage.read("EMP_ID");
   try{
     var response = await apiNetwork.getRequest(KApiEndPoints.privacyPolicyPDF,context);
+    print("GET_URL_Privacy: ${KApiEndPoints.privacyPolicyPDF}");
+
+    if(response!=null && response['status']==true){
+      print('PRIVACY_SUCCESS:$response');
+      PrivacyPolicyResponse policyResponse = PrivacyPolicyResponse.fromJson(response);
+      return policyResponse;
+    }else{
+      return [];
+    }
+
+  }catch(e){
+    print("Error in getAllTimeLog: $e");
+    return []; // or rethrow if you want to handle it higher up
+  }
+
+}
+
+/// --- This function used for get Leave Policy.
+Future<dynamic> leavePolicy(BuildContext context)async{
+  var apiNetwork = KNetworkApiServices();
+  final storage = GetStorage();
+  var empID = storage.read("EMP_ID");
+  try{
+    var response = await apiNetwork.getRequest(KApiEndPoints.leavePolicyPDF,context);
+    print("GET_URL_Privacy: ${KApiEndPoints.privacyPolicyPDF}");
+
+    if(response!=null && response['status']==true){
+      print('PRIVACY_SUCCESS:$response');
+      PrivacyPolicyResponse policyResponse = PrivacyPolicyResponse.fromJson(response);
+      return policyResponse;
+    }else{
+      return [];
+    }
+
+  }catch(e){
+    print("Error in getAllTimeLog: $e");
+    return []; // or rethrow if you want to handle it higher up
+  }
+
+}
+
+/// --- This function used for get Terms and Condition.
+Future<dynamic> termsAndCondition(BuildContext context)async{
+  var apiNetwork = KNetworkApiServices();
+  final storage = GetStorage();
+  var empID = storage.read("EMP_ID");
+  try{
+    var response = await apiNetwork.getRequest(KApiEndPoints.termsAndConditionPDF,context);
     print("GET_URL_Privacy: ${KApiEndPoints.privacyPolicyPDF}");
 
     if(response!=null && response['status']==true){

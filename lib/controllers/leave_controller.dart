@@ -56,7 +56,7 @@ class ApplyLeaveController {
       "annualLeaveId": storage.read('ANNUAL_LEAVE_ID'),
       "startDate": fStartDate,
       "endDate": fEndDate,
-      "leaveType": leaveDay == "Full day" ? "Full" : "Half",
+      "leaveType": leaveDay == "Full Day" ? "Full" : "Half",
       "leaveCategory": leaveType,
       "description": des,
       "dayCount":countDay
