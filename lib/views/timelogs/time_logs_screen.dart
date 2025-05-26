@@ -140,7 +140,7 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
 
   Future<void> _refreshData() async {
     // Your logic to refresh data
-    await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
+    //await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
     setState(() {
       fetchLogs();
     });
@@ -169,7 +169,7 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
     return Scaffold(
       appBar: KCustomDrawer.customDrawer(
         context: context,
-        title: "Time Loge",
+        title: "Time Log",
         titleColor: KColors.appBlackColor,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         showBellIcon: true,
@@ -973,261 +973,260 @@ class _TimeLogsScreen extends State<TimeLogsScreen> {
 
   /// --- show all the filled time history in the list.
   Widget _filledTimeLogAndShowInList() {
-    return SizedBox(
-      height: 500,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 15),
-        child: isLoading
-            ? Center(child: KLoader())
-            : timeLogs.isEmpty
-            ? Center(child: Text("No Data Found!"))
-            : ListView.builder(
-             padding: EdgeInsets.zero,
-             itemCount:
-             getFilteredProjects().length,
-              itemBuilder: (BuildContext context,
-              int index) {
-            final filteredProjects =
-            getFilteredProjects();
-            final project =
-            filteredProjects[index];
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: isLoading
+          ? Center(child: KLoader())
+          : timeLogs.isEmpty
+          ? Center(child: Text("No Data Found!"))
+          : ListView.builder(
+           shrinkWrap: true, // 👈 Let the list take minimum height needed
+           physics: NeverScrollableScrollPhysics(), // 👈 Prevent scroll conflict
+           padding: EdgeInsets.zero,
+           itemCount:
+           getFilteredProjects().length,
+            itemBuilder: (BuildContext context,
+            int index) {
+          final filteredProjects =
+          getFilteredProjects();
+          final project =
+          filteredProjects[index];
 
-            Color statusColor = project
-                .status ==
-                "Pending"
-                ? KColors.orangeColor
-                : project.status == "Approved"
-                ? KColors.greenColor
-                : KColors.appPrimaryRed;
+          Color statusColor = project
+              .status ==
+              "Pending"
+              ? KColors.orangeColor
+              : project.status == "Approved"
+              ? KColors.greenColor
+              : KColors.appPrimaryRed;
 
-             ///--- show time log UI
-             return GestureDetector(
-              onTap: () {
+           ///--- show time log UI
+           return GestureDetector(
+            onTap: () {
 
-                showDialog(context: context, builder: (context) =>
+              showDialog(context: context, builder: (context) =>
 
-                      DetailDialog(
-                        onUpdate: fetchLogs,
-                        timeLogId: project.timelogId,
-                        projectId: project.projectId,
-                        project: project.projectName,
-                        task: project.taskName,
-                        date: KDateAndTime().getDay(project.formattedDate ?? ""),
-                        des: project.description,
-                        monthYear: KDateAndTime().getMonthYear(project.formattedDate ?? ""),
-                        hrs: project.hours.toString(),
-                        min: project.minutes.toString(),
-                        status: project.status ?? "",
-                      ),);
+                    DetailDialog(
+                      onUpdate: fetchLogs,
+                      timeLogId: project.timelogId,
+                      projectId: project.projectId,
+                      project: project.projectName,
+                      task: project.taskName,
+                      date: KDateAndTime().getDay(project.formattedDate ?? ""),
+                      des: project.description,
+                      monthYear: KDateAndTime().getMonthYear(project.formattedDate ?? ""),
+                      hrs: project.hours.toString(),
+                      min: project.minutes.toString(),
+                      status: project.status ?? "",
+                    ),);
 
-              },
+            },
 
-              child: SizedBox(
-                height: 120,
-                width: 374,
-                child: Card(
-                  color: Colors.white,
-                  shape:
-                  RoundedRectangleBorder(
+            child: SizedBox(
+              height: 120,
+              width: 374,
+              child: Card(
+                color: Colors.white,
+                shape:
+                RoundedRectangleBorder(
+                  borderRadius:
+                  BorderRadius.circular(
+                      10),
+                ),
+                elevation: 0,
+                shadowColor:
+                KColors.cardShadowColor,
+                child: Container(
+                  decoration: BoxDecoration(
                     borderRadius:
-                    BorderRadius.circular(
-                        10),
-                  ),
-                  elevation: 0,
-                  shadowColor:
-                  KColors.cardShadowColor,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius:
-                      BorderRadius
-                          .circular(10),
-                      border: Border(
-                        left: BorderSide(
-                          color: statusColor,
-                          width: 2,
-                        ),
+                    BorderRadius
+                        .circular(10),
+                    border: Border(
+                      left: BorderSide(
+                        color: statusColor,
+                        width: 2,
                       ),
                     ),
-                    padding:
-                    EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment:
-                      CrossAxisAlignment
-                          .start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 7,
-                              child: Column(
-                                crossAxisAlignment:
-                                CrossAxisAlignment
-                                    .start,
-                                children: [
-                                  Text(
-                                    project.projectName ??
-                                        "No Project",
-                                    maxLines:
-                                    1,
-                                    style: KFonts
-                                        .normalBold,
-                                  ),
-                                  SizedBox(
-                                      height:
-                                      5),
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 10),
-                                    child: DecoratedBox(
-                                      decoration:
-                                      BoxDecoration(
-                                        color:
-                                        statusColor,
-                                        borderRadius:
-                                        BorderRadius.circular(2),
-                                      ),
+                  ),
+                  padding:
+                  EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment:
+                    CrossAxisAlignment
+                        .start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 7,
+                            child: Column(
+                              crossAxisAlignment:
+                              CrossAxisAlignment
+                                  .start,
+                              children: [
+                                Text(
+                                  project.projectName ??
+                                      "No Project",
+                                  maxLines:
+                                  1,
+                                  style: KFonts
+                                      .normalBold,
+                                ),
+                                SizedBox(
+                                    height:
+                                    5),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: DecoratedBox(
+                                    decoration:
+                                    BoxDecoration(
+                                      color:
+                                      statusColor,
+                                      borderRadius:
+                                      BorderRadius.circular(2),
+                                    ),
+                                    child:
+                                    Padding(
+                                      padding: const EdgeInsets
+                                          .symmetric(
+                                          horizontal:
+                                          10,
+                                          vertical:
+                                          1),
                                       child:
-                                      Padding(
-                                        padding: const EdgeInsets
-                                            .symmetric(
-                                            horizontal:
-                                            10,
-                                            vertical:
-                                            1),
-                                        child:
-                                        Text(
-                                          project.taskName ??
-                                              "No Task",
-                                          maxLines:
-                                          1,
-                                          style:
-                                          KFonts.normalWithWithText,
-                                        ),
+                                      Text(
+                                        project.taskName ??
+                                            "No Task",
+                                        maxLines:
+                                        1,
+                                        style:
+                                        KFonts.normalWithWithText,
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            Expanded(
-                              flex: 3,
-                              child: Row(
-                                children: [
-                                  Container(
-                                    height:
-                                    35,
-                                    width: 1,
-                                    color: Color(
-                                        0xFFEDEDED),
-                                  ),
-                                  SizedBox(
-                                      width:
-                                      10),
-                                  Column(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment
-                                        .center,
-                                    children: [
-                                      Text(
-                                        KDateAndTime().getDay(project.formattedDate ?? ""),
-                                        style:
-                                        TextStyle(
-                                          color:
-                                          statusColor,
-                                          fontFamily:
-                                          'Poppins',
-                                          fontWeight:
-                                          FontWeight.w600,
-                                          fontSize:
-                                          16,
-                                        ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Row(
+                              children: [
+                                Container(
+                                  height:
+                                  35,
+                                  width: 1,
+                                  color: Color(
+                                      0xFFEDEDED),
+                                ),
+                                SizedBox(
+                                    width:
+                                    10),
+                                Column(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment
+                                      .center,
+                                  children: [
+                                    Text(
+                                      KDateAndTime().getDay(project.formattedDate ?? ""),
+                                      style:
+                                      TextStyle(
+                                        color:
+                                        statusColor,
+                                        fontFamily:
+                                        'Poppins',
+                                        fontWeight:
+                                        FontWeight.w600,
+                                        fontSize:
+                                        16,
                                       ),
-                                      Text(
-                                        KDateAndTime().getMonthYear(project.formattedDate ?? ""),
-                                        style:
-                                        KFonts.normalBoldWithGray,
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 7,
-                              child: Column(
-                                crossAxisAlignment:
-                                CrossAxisAlignment
-                                    .start,
-                                children: [
-                                  Text(
-                                    project.description ??
-                                        "No Description",
-                                    style: KFonts
-                                        .thin,
-                                    maxLines:
-                                    2,
-                                  ),
-                                  SizedBox(
-                                      height:
-                                      5),
-                                ],
-                              ),
+                                    ),
+                                    Text(
+                                      KDateAndTime().getMonthYear(project.formattedDate ?? ""),
+                                      style:
+                                      KFonts.normalBoldWithGray,
+                                    ),
+                                  ],
+                                )
+                              ],
                             ),
-                            Expanded(
-                              flex: 3,
-                              child: Row(
-                                children: [
-                                  Container(
+                          )
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 7,
+                            child: Column(
+                              crossAxisAlignment:
+                              CrossAxisAlignment
+                                  .start,
+                              children: [
+                                Text(
+                                  project.description ??
+                                      "No Description",
+                                  style: KFonts
+                                      .thin,
+                                  maxLines:
+                                  2,
+                                ),
+                                SizedBox(
                                     height:
-                                    35,
-                                    width: 1,
-                                    color: Color(
-                                        0xFFEDEDED),
-                                  ),
-                                  SizedBox(
-                                      width:
-                                      20),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        project
-                                            .hours
-                                            .toString(),
-                                        style:
-                                        TextStyle(
-                                          color:
-                                          statusColor,
-                                          fontFamily:
-                                          'Poppins',
-                                          fontWeight:
-                                          FontWeight.w600,
-                                          fontSize:
-                                          16,
-                                        ),
+                                    5),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Row(
+                              children: [
+                                Container(
+                                  height:
+                                  35,
+                                  width: 1,
+                                  color: Color(
+                                      0xFFEDEDED),
+                                ),
+                                SizedBox(
+                                    width:
+                                    20),
+                                Column(
+                                  children: [
+                                    Text(
+                                      project
+                                          .hours
+                                          .toString(),
+                                      style:
+                                      TextStyle(
+                                        color:
+                                        statusColor,
+                                        fontFamily:
+                                        'Poppins',
+                                        fontWeight:
+                                        FontWeight.w600,
+                                        fontSize:
+                                        16,
                                       ),
-                                      Text(
-                                        'Hours',
-                                        style:
-                                        KFonts.normalBoldWithGray,
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
+                                    ),
+                                    Text(
+                                      'Hours',
+                                      style:
+                                      KFonts.normalBoldWithGray,
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

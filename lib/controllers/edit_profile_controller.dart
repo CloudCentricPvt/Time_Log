@@ -102,7 +102,8 @@ class EditProfileController{
           print('Update_Profile:"success"');
           await Future.delayed(Duration(seconds: 1));
           if (context.mounted) {
-            Navigator.pop(context, true);
+            //Navigator.pop(context, true);
+            Navigator.pushReplacementNamed(context, '/profile_screen');
           }
 
         }else{

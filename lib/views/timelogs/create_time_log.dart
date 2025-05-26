@@ -58,7 +58,6 @@ class _CreateTimelogState extends State<CreateTimeLog> {
   void _startListening() async {
     bool available = await _speech.initialize(
       onStatus: (status) {
-        print("Speech recognition status: $status");
         if (status == "notListening") {
           Navigator.pop(context); // Close dialog when speech stops
         }
@@ -69,7 +68,6 @@ class _CreateTimelogState extends State<CreateTimeLog> {
       setState(() => _isListening = true);
       _speech.listen(
         onResult: (result) {
-          print("Recognized words: ${result.recognizedWords}");
           setState(() {
             _text = result.recognizedWords;
             _controller.descriptionController.text =
@@ -84,7 +82,6 @@ class _CreateTimelogState extends State<CreateTimeLog> {
         },
       ).onError((error) {
         // Handle errors using `.onError`
-        print("Speech recognition error: $error");
         setState(() => _isListening = false);
         Navigator.pop(context); // Close dialog
       } as FutureOr Function(Object error, StackTrace stackTrace));
@@ -137,7 +134,6 @@ class _CreateTimelogState extends State<CreateTimeLog> {
     var status = await Permission.microphone.request();
     if (status.isDenied) {
       // Permission denied by the user
-      print("Microphone permission denied");
     } else if (status.isPermanentlyDenied) {
       // Open app settings if the permission is permanently denied
       openAppSettings();
@@ -163,143 +159,141 @@ class _CreateTimelogState extends State<CreateTimeLog> {
 
         ),
       ),
-      body: Expanded(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: KInfoCard(
-                      children: [
-                        Column(
-                          children: [
-                            /// --- Design for select project list
-                            KSizedBox.h20,
-                            _selectProject(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: KInfoCard(
+                    children: [
+                      Column(
+                        children: [
+                          /// --- Design for select project list
+                          KSizedBox.h20,
+                          _selectProject(),
 
 
-                            /// --- Design for select task list
-                            KSizedBox.h20,
-                            _selectTask(),
+                          /// --- Design for select task list
+                          KSizedBox.h20,
+                          _selectTask(),
 
 
-                            /// --- Design for select Hours and Minutes
-                            KSizedBox.h20,
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: KTextInputFormField(
-                                    labelText: 'Hours',
-                                    hintText: '00',
-                                    keyboardType: TextInputType.number,
-                                    isRequired: true,
-                                    controller: _controller.hrsController,
-                                    maxLength: 1,
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly,
-                                      LengthLimitingTextInputFormatter(2),
-                                      MinuteRangeFormatter(), // Ensures value is between 1–59
-                                    ],
+                          /// --- Design for select Hours and Minutes
+                          KSizedBox.h20,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: KTextInputFormField(
+                                  labelText: 'Hours',
+                                  hintText: '00',
+                                  keyboardType: TextInputType.number,
+                                  isRequired: true,
+                                  controller: _controller.hrsController,
+                                  maxLength: 1,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    LengthLimitingTextInputFormatter(2),
+                                    MinuteRangeFormatter(), // Ensures value is between 1–59
+                                  ],
 
-                                  ),
                                 ),
-                                const SizedBox(width: 10), // Add spacing between fields
-                                Expanded(
-                                  child: KTextInputFormField(
-                                    labelText: 'Minutes',
-                                    hintText: '00',
-                                    keyboardType: TextInputType.number,
-                                    isRequired: false,
-                                    controller: _controller.minController,
-                                    maxLength: 2,
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly,
-                                      LengthLimitingTextInputFormatter(2),
-                                      MinuteRangeFormatter(), // Ensures value is between 1–59
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            /// --- Design for select date
-                            KSizedBox.h20,
-                            KTextInputFormField(
-                              labelText: 'Date',
-                              hintText: 'Select date',
-                              isRequired: true,
-                              controller: _controller.dateController,
-                              readOnly: true,
-                              suffixIcon: IconButton(
-                                onPressed: () async {
-                                  String? selectedDateStr = await KDateDialog.selectDate(context: context);
-
-                                  if (selectedDateStr != null) {
-                                    setState(() {
-                                      _controller.dateController.text = selectedDateStr;
-                                    });
-                                  }
-                                },
-                                icon: SvgPicture.asset(KAssets.calenderIcon),
                               ),
+                              const SizedBox(width: 10), // Add spacing between fields
+                              Expanded(
+                                child: KTextInputFormField(
+                                  labelText: 'Minutes',
+                                  hintText: '00',
+                                  keyboardType: TextInputType.number,
+                                  isRequired: false,
+                                  controller: _controller.minController,
+                                  maxLength: 2,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    LengthLimitingTextInputFormatter(2),
+                                    MinuteRangeFormatter(), // Ensures value is between 1–59
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
 
-                            ),
+                          /// --- Design for select date
+                          KSizedBox.h20,
+                          KTextInputFormField(
+                            labelText: 'Date',
+                            hintText: 'Select date',
+                            isRequired: true,
+                            controller: _controller.dateController,
+                            readOnly: true,
+                            suffixIcon: IconButton(
+                              onPressed: () async {
+                                String? selectedDateStr = await KDateDialog.selectDate(context: context);
 
-
-                            /// --- Design for Time Log description
-                            KSizedBox.h20,
-                            KTextInputFormField(
-                              labelText: 'Description',
-                              hintText: 'Enter description here..',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              controller: _controller.descriptionController,
-                              useMaxLines: true,
-                              isRequired: true,
-                              maxLines: 3,
-                              onChange: (value) {
-                                _controller.descriptionController.text = value!;
-                                return null;
+                                if (selectedDateStr != null) {
+                                  setState(() {
+                                    _controller.dateController.text = selectedDateStr;
+                                  });
+                                }
                               },
+                              icon: SvgPicture.asset(KAssets.calenderIcon),
                             ),
-                            KSizedBox.h10,
-                            /// --- text voice reorganisation
-                            _performSpeakAndSetTextInTextField(),
-                            KSizedBox.h10,
-                          ],
-                        )
-                      ],
-                    ),
+
+                          ),
+
+
+                          /// --- Design for Time Log description
+                          KSizedBox.h20,
+                          KTextInputFormField(
+                            labelText: 'Description',
+                            hintText: 'Enter description here..',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            controller: _controller.descriptionController,
+                            useMaxLines: true,
+                            isRequired: true,
+                            maxLines: 3,
+                           /* onChange: (value) {
+                              _controller.descriptionController.text = value!;
+                              return null;
+                            },*/
+                          ),
+                          KSizedBox.h10,
+                          /// --- text voice reorganisation
+                          _performSpeakAndSetTextInTextField(),
+                          KSizedBox.h10,
+                        ],
+                      )
+                    ],
                   ),
+                ),
 
-                  KSizedBox.h20,
-                  Center(
-                    child: _isLoading ? const KLoader(): CustomElevatedButton(
-                      text: 'SUBMIT',
-                      onPressed: () async {
-                          setState(() {
-                            _isLoading = true;
-                          });
+                KSizedBox.h20,
+                Center(
+                  child: _isLoading ? const KLoader(): CustomElevatedButton(
+                    text: 'SUBMIT',
+                    onPressed: () async {
+                        setState(() {
+                          _isLoading = true;
+                        });
 
-                          await _controller.applyTimeLog(context,selectedProjectId,selectedTask,_controller.dateController.text,_controller.hrsController.text,_controller.minController.text,_controller.descriptionController.text);
+                        await _controller.applyTimeLog(context,selectedProjectId,selectedTask,_controller.dateController.text,_controller.hrsController.text,_controller.minController.text,_controller.descriptionController.text);
 
-                          setState(() {
-                            _isLoading = false;
-                          });
+                        setState(() {
+                          _isLoading = false;
+                        });
 
-                      },
-                    ),
+                    },
                   ),
-                  const SizedBox(
-                    height: 40,
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(
+                  height: 40,
+                ),
+              ],
             ),
           ),
         ),

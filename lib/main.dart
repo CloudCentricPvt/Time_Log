@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:time_log/utils/constants/k_colors.dart';
 
 import 'package:time_log/views/authentication/change_password.dart';
@@ -30,15 +31,18 @@ import 'package:time_log/views/timelogs/time_logs_screen.dart';
 import 'package:time_log/views/upcoming/upcoming_events.dart';
 
 Future<void> main() async {
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor:Color(0xFF84DBFF),
-  ));
-  WidgetsFlutterBinding.ensureInitialized();
+ WidgetsFlutterBinding.ensureInitialized();
+ await Permission.microphone.request();
   await GetStorage.init();
 
   final storage = GetStorage();
-  print("##MAIN STORAGE: Is_Active = ${storage.read('Is_Active')}");
+  final isActive = storage.read('Is_Active') ?? false;
 
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Color(0xFF84DBFF),
+    ),
+  );
 
   runApp( MyApp());
 }

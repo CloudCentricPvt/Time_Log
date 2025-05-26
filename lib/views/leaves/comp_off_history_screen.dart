@@ -43,8 +43,9 @@ class _CompOffHistoryScreenState extends State<CompOffHistoryScreen> {
 
   Future<void> _refreshData() async {
     // Your logic to refresh data
-    await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
+    //await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
     setState(() {
+      _isLoading = true;
       fetchCompOffData();
     });
   }
@@ -98,75 +99,77 @@ class _CompOffHistoryScreenState extends State<CompOffHistoryScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  KFilterHeader(
-                      width: 65,
-                      textTitle: 'All',
-                      strokeColor: KColors.appPrimary,
-                      textColor: selectedStatus == 'All' ? KColors.appColorWhite : KColors.appPrimary,
-                      backgroundColor: selectedStatus == 'All' ? KColors.appPrimary : Colors.transparent,
-                      onHistoryTap: () {
-                        setState(() {
-                          selectedStatus = 'All';
-                        });
-                      }),
-                  KFilterHeader(
-                      textTitle: 'Pending',
-                      strokeColor: KColors.orangeColor,
-                      //textColor: KColors.orangeColor,
-                      textColor: selectedStatus == 'Pending' ? KColors.appColorWhite : KColors.orangeColor,
-                      backgroundColor: selectedStatus == 'Pending' ? KColors.orangeColor : Colors.transparent,
-                      onHistoryTap: () {
-                        setState(() {
-                          selectedStatus = 'Pending';
-                        });
-                      }),
-                  KFilterHeader(
-                      textTitle: 'Approved',
-                      strokeColor: KColors.greenColor,
-                      textColor: selectedStatus == 'Approved' ? KColors.appColorWhite : KColors.greenColor,
-                      backgroundColor: selectedStatus == 'Approved' ? KColors.greenColor : Colors.transparent,
-                      onHistoryTap: () {
-                        setState(() {
-                          selectedStatus = 'Approved';
-                        });
-                      }),
-                  KFilterHeader(
-                      textTitle: 'Rejected',
-                      strokeColor: KColors.appPrimaryRed,
-                      textColor: selectedStatus == 'Rejected' ? KColors.appColorWhite : KColors.appPrimaryRed,
-                      backgroundColor: selectedStatus == 'Rejected' ? KColors.appPrimaryRed : Colors.transparent,
-                      onHistoryTap: () {
-                        setState(() {
-                          selectedStatus = 'Rejected';
-                        });
-                      }),
-                  /// --- filter by multiple option
-                  /*GestureDetector(
-                    child: SvgPicture.asset(KAssets.filterIcon),
-                    onTap: () {
-                      FilterDialog.showTimeLogFilterDialog(
-                        context,
-                        projectItems,
-                        selectedProject,
-                        selectedTask,
-                        taskItems,
-                        (String? newProject) {
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    KFilterHeader(
+                        width: 65,
+                        textTitle: 'All',
+                        strokeColor: KColors.appPrimary,
+                        textColor: selectedStatus == 'All' ? KColors.appColorWhite : KColors.appPrimary,
+                        backgroundColor: selectedStatus == 'All' ? KColors.appPrimary : Colors.transparent,
+                        onHistoryTap: () {
                           setState(() {
-                            selectedProject = newProject!;
+                            selectedStatus = 'All';
                           });
-                        },
-                        (String? newTask) {
+                        }),
+                    KFilterHeader(
+                        textTitle: 'Pending',
+                        strokeColor: KColors.orangeColor,
+                        //textColor: KColors.orangeColor,
+                        textColor: selectedStatus == 'Pending' ? KColors.appColorWhite : KColors.orangeColor,
+                        backgroundColor: selectedStatus == 'Pending' ? KColors.orangeColor : Colors.transparent,
+                        onHistoryTap: () {
                           setState(() {
-                            selectedTask = newTask!; // Update the selected task
+                            selectedStatus = 'Pending';
                           });
-                        },
-                      );
-                    },
-                  ),*/
-                ],
+                        }),
+                    KFilterHeader(
+                        textTitle: 'Approved',
+                        strokeColor: KColors.greenColor,
+                        textColor: selectedStatus == 'Approved' ? KColors.appColorWhite : KColors.greenColor,
+                        backgroundColor: selectedStatus == 'Approved' ? KColors.greenColor : Colors.transparent,
+                        onHistoryTap: () {
+                          setState(() {
+                            selectedStatus = 'Approved';
+                          });
+                        }),
+                    KFilterHeader(
+                        textTitle: 'Rejected',
+                        strokeColor: KColors.appPrimaryRed,
+                        textColor: selectedStatus == 'Rejected' ? KColors.appColorWhite : KColors.appPrimaryRed,
+                        backgroundColor: selectedStatus == 'Rejected' ? KColors.appPrimaryRed : Colors.transparent,
+                        onHistoryTap: () {
+                          setState(() {
+                            selectedStatus = 'Rejected';
+                          });
+                        }),
+                    /// --- filter by multiple option
+                    /*GestureDetector(
+                      child: SvgPicture.asset(KAssets.filterIcon),
+                      onTap: () {
+                        FilterDialog.showTimeLogFilterDialog(
+                          context,
+                          projectItems,
+                          selectedProject,
+                          selectedTask,
+                          taskItems,
+                          (String? newProject) {
+                            setState(() {
+                              selectedProject = newProject!;
+                            });
+                          },
+                          (String? newTask) {
+                            setState(() {
+                              selectedTask = newTask!; // Update the selected task
+                            });
+                          },
+                        );
+                      },
+                    ),*/
+                  ],
+                ),
               ),
               const SizedBox(height: 10),
               Expanded(

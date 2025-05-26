@@ -43,7 +43,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
 
   Future<void> _selectStartDate() async {
 
-    String? selectedStartDate = await KDateDialog.futureDate(context: context);
+    String? selectedStartDate = await KDateDialog.selectDate(context: context);
     if (selectedStartDate != null) {
       setState(() {
         _startDate = selectedStartDate;
@@ -54,7 +54,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
 
   Future<void> _selectEndDate() async {
     String? selectedEndDate =
-        await KDateDialog.futureDate(context: context);
+        await KDateDialog.selectDate(context: context);
     if (selectedEndDate != null) {
       setState(() {
         _endDate = selectedEndDate;
@@ -233,6 +233,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
 
   /// --- Apply Leave User form
   Widget _applyLeaveForm() {
+    double screenWidth = MediaQuery.of(context).size.width;
     return Form(
       key: _formKey,
       child: Column(
@@ -246,12 +247,13 @@ class _ApplyLeaveState extends State<ApplyLeave> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
+
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             _startDate == null
-                                ? "Select Start Date"
+                                ? "From Date"
                                 : "From Date",
                             style: const TextStyle(
                                 fontWeight: FontWeight.w500,
@@ -306,7 +308,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
                         children: [
                           Text(
                             _endDate == null
-                                ? "Select End Date"
+                                ? "To Date"
                                 : "To Date",
                             style: const TextStyle(
                                 fontWeight: FontWeight.w500,
@@ -386,10 +388,6 @@ class _ApplyLeaveState extends State<ApplyLeave> {
                   isRequired: true,
                   maxLines: 4,
                   maxLength: 1000,
-                  onChange: (value) {
-                    _controller.descriptionController.text = value!;
-                    return null;
-                  },
                 ),
 
                 /// --- text voice reorganisation

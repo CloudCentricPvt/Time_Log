@@ -51,45 +51,6 @@ class _LeaveScreenState extends State<LeaveScreen> {
   List<UpcomingLeave> leaveList = [];
   List<Holiday> upcomingHolidays = [];
 
-  final List<Map<String, dynamic>> holidays = [
-    {
-      "title": "HOLI",
-      "consumed":
-          "this week is holi the offical selebration in company at 4:00 PM",
-      "date": "#Fridat, 14 March 2025",
-      "color": KColors.appSecondary,
-      "icons": "assets/images/profile_img.jpeg",
-    },
-    {
-      "title": "EID-UL-FITER",
-      "consumed": "vdkj dfmndfkjdfkgjdfkgjdfkgjdfkjgdfkjdfkv",
-      "date": "#Fridat, 14 March 2025",
-      "color": KColors.appSecondary,
-      "icons": "assets/images/profile_img.jpeg",
-    },
-    {
-      "title": "Rohit",
-      "consumed": "kdkdkdgmdkdfkgffgfgdflgfdfghjk dfdff",
-      "date": "#Fridat, 14 March 2025",
-      "color": KColors.appSecondary,
-      "icons": "assets/images/profile_img.jpeg",
-    },
-    {
-      "title": "Maternity Leave",
-      "consumed": "fkfdjf djfdjfjd ddfjddfjfdff ff",
-      "date": "#Fridat, 14 March 2025",
-      "color": KColors.appSecondary,
-      "icons": "assets/images/profile_img.jpeg",
-    },
-    {
-      "title": "Earn Leave",
-      "consumed": "ttettetttgftyftef efefefefef",
-      "date": "#Fridat, 14 March 2025",
-      "color": KColors.appSecondary,
-      "icons": "assets/images/profile_img.jpeg",
-    },
-  ];
-
   @override
   void initState() {
     _checkInternetConnection();
@@ -267,9 +228,10 @@ class _LeaveScreenState extends State<LeaveScreen> {
         showProfileIcon: false, // Hide Profile Icon
       ),
       drawer: CustomDrawerMenu(context: context),
-      body: _isLoading? KLoader():RefreshIndicator(
+      body: _isLoading? KLoader() : RefreshIndicator(
         onRefresh: _refreshData,
         child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(), // <- Required!
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -455,7 +417,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
                   ],
                 ),
 
-                /// ---- Design Upcoming events
+                /// ---- Design Upcoming Your Leaves
                 KSizedBox.h14,
                 _upcomingYourLeaves(),
 
@@ -630,7 +592,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
   }
 
 
-  Widget _upcomingYourLeaves() {
+  /*Widget _upcomingYourLeaves() {
     return Visibility(
       visible: leaveList.isEmpty ? false : true,
       child: Column(
@@ -666,7 +628,44 @@ class _LeaveScreenState extends State<LeaveScreen> {
         ],
       ),
     );
+  }*/
+  Widget _upcomingYourLeaves() {
+    return Visibility(
+      visible: leaveList.isNotEmpty,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Upcoming Your Leaves",
+            style: TextStyle(
+              fontFamily: "Poppins",
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: KColors.textHeadingColor,
+            ),
+          ),
+          KSizedBox.h10,
+          SizedBox(
+            height: 115,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: leaveList.length,
+              itemBuilder: (context, index) {
+                final leave = leaveList[index];
+                return UpcomingLeavesCard(
+                  month: leave.month,
+                  date: leave.startDate.day.toString(),
+                  type: leave.type,
+                  cardColor: getLeaveColor(leave.type),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
+
 
   Widget _upcomingHolidays() {
     double screenWidth = MediaQuery.of(context).size.width;

@@ -35,8 +35,9 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
 
   Future<void> _refreshData() async {
     // Your logic to refresh data
-    await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
+    //await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
     setState(() {
+      _isLoading = true;
       _fetchEvents();
     });
   }
