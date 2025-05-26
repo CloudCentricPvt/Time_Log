@@ -180,6 +180,7 @@ class _CompOffScreenState extends State<RequestCompOFF> {
     } else if (status.isPermanentlyDenied) {
       // Open app settings if the permission is permanently denied
       openAppSettings();
+
     }
   }
 
