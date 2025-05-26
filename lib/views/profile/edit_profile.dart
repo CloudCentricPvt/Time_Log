@@ -1,11 +1,15 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:time_log/controllers/edit_profile_controller.dart';
 import 'package:time_log/utils/constants/k_colors.dart';
 import 'package:time_log/utils/constants/k_date_and_time.dart';
 import 'package:time_log/utils/constants/k_date_dialog.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
+import 'package:time_log/utils/constants/k_storage_key.dart';
 import 'package:time_log/utils/reusable_widgit/k_custom_app_bar.dart';
 import 'package:time_log/utils/reusable_widgit/k_elevated_button.dart';
 import 'package:time_log/utils/reusable_widgit/k_size_box.dart';
@@ -20,6 +24,7 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   final EditProfileController _editProfileController = EditProfileController();
+  final storage = GetStorage();
   String phone = '';
   String anniversaryDate = '';
   String address = '';
@@ -27,14 +32,24 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   void initState() {
+    _refreshData();
+    _bindDataInEditProfileForm();
     super.initState();
+  }
+  Future<void> _refreshData() async {
+
+    setState(() {
+      _isLoading = true;
+      _bindDataInEditProfileForm();
+      _isLoading = false;
+
+    });
   }
 
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-
+    /*final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if(args == null){
       print("No arguments passed!");
 
@@ -57,7 +72,7 @@ class _EditProfileState extends State<EditProfile> {
        _editProfileController.phoneController.text = phone;
      }
 
-    }
+    }*/
 
     return Scaffold(
       appBar: AppBar(
@@ -69,10 +84,17 @@ class _EditProfileState extends State<EditProfile> {
         ),
         title: const KCustomAppBar(screenTitle: 'Edit Profile'),
       ),
-      body: _editProfileForm(),
+      body: _isLoading? KLoader(): RefreshIndicator(
+          onRefresh: _refreshData,
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+              child: _editProfileForm())
+      )
+
 
     );
   }
+
   /// ---  edit profile form user can only to edit phone,anniversary date and address .
   Widget _editProfileForm() {
     return  SingleChildScrollView(
@@ -93,10 +115,10 @@ class _EditProfileState extends State<EditProfile> {
                     hintText: 'Enter your full name',
                     controller: _editProfileController.fullNameController,
                     keyboardType: TextInputType.text,
-                    onChange: (value) {
+                    /*onChange: (value) {
                       _editProfileController.fullNameController.text = value!;
                       return null;
-                    },
+                    },*/
                     readOnly: true,
                     prefixIcon: null,
                   ),
@@ -107,10 +129,10 @@ class _EditProfileState extends State<EditProfile> {
                     hintText: 'Enter Gender name',
                     controller: _editProfileController.genderController,
                     keyboardType: TextInputType.text,
-                    onChange: (value) {
+                    /*onChange: (value) {
                       _editProfileController.genderController.text = value!;
                       return null;
-                    },
+                    },*/
                     readOnly: true,
                     prefixIcon: null,
                   ),
@@ -119,13 +141,14 @@ class _EditProfileState extends State<EditProfile> {
                   KTextInputFormField(
                     labelText: 'Phone',
                     hintText: 'Enter Mobile Number',
+                    useMaxLength: true,
                     maxLength: 10,
                     controller: _editProfileController.phoneController,
-                    keyboardType: TextInputType.text,
-                    onChange: (value) {
+                    keyboardType: TextInputType.number,
+                    /*onChange: (value) {
                       _editProfileController.phoneController.text = value!;
                       return null;
-                    },
+                    },*/
                     readOnly: false,
                     prefixIcon: null,
                   ),
@@ -136,10 +159,10 @@ class _EditProfileState extends State<EditProfile> {
                     hintText: 'Enter Email',
                     controller: _editProfileController.emailController,
                     keyboardType: TextInputType.text,
-                    onChange: (value) {
+                    /*onChange: (value) {
                       _editProfileController.emailController.text = value!;
                       return null;
-                    },
+                    },*/
                     readOnly: true,
                     prefixIcon: null,
                   ),
@@ -150,10 +173,10 @@ class _EditProfileState extends State<EditProfile> {
                     hintText: 'Enter Date of Birth',
                     controller: _editProfileController.dobController,
                     keyboardType: TextInputType.text,
-                    onChange: (value) {
+                    /*onChange: (value) {
                       _editProfileController.dobController.text = value!;
                       return null;
-                    },
+                    },*/
                     readOnly: true,
                     prefixIcon: null,
                   ),
@@ -164,10 +187,10 @@ class _EditProfileState extends State<EditProfile> {
                     hintText: 'Anniversary Date',
                     controller: _editProfileController.anniversaryController,
                     keyboardType: TextInputType.text,
-                    onChange: (value) {
+                    /*onChange: (value) {
                       _editProfileController.anniversaryController.text = value!;
                       return null;
-                    },
+                    },*/
                     readOnly: false,
                     prefixIcon:  null,
                     suffixIcon: IconButton(onPressed: () async {
@@ -192,10 +215,10 @@ class _EditProfileState extends State<EditProfile> {
                     maxLength: 500,
                     controller: _editProfileController.mailingAddressController,
                     keyboardType: TextInputType.text,
-                    onChange: (value) {
+                    /*onChange: (value) {
                       _editProfileController.mailingAddressController.text = value!;
                       return null;
-                    },
+                    },*/
                     readOnly: false,
                     prefixIcon: null,
                   ),
@@ -221,5 +244,16 @@ class _EditProfileState extends State<EditProfile> {
         ),
       ),
     );
+  }
+
+  void _bindDataInEditProfileForm() {
+
+    _editProfileController.fullNameController.text = storage.read(KStorageKey.employeeName);
+    _editProfileController.genderController.text = storage.read(KStorageKey.employeeGender);
+    _editProfileController.phoneController.text = storage.read(KStorageKey.employeeMobile);
+    _editProfileController.emailController.text = storage.read(KStorageKey.employeeEmail);
+    _editProfileController.dobController.text = KDateAndTime().useFormatDateInMyApp(storage.read(KStorageKey.employeeDOB));
+    _editProfileController.anniversaryController.text = KDateAndTime().useFormatDateInMyApp(storage.read(KStorageKey.employeeAnniversary));
+    _editProfileController.mailingAddressController.text = storage.read(KStorageKey.employeeAddress);
   }
 }

@@ -11,6 +11,7 @@ import 'package:time_log/utils/constants/k_date_and_time.dart';
 import 'package:time_log/utils/constants/k_storage_key.dart';
 import 'package:time_log/utils/reusable_widgit/k_elevated_button.dart';
 import '../../models/chech_in_out_details_res.dart';
+import '../../models/profile_details_res.dart';
 import '../../models/upcoming_leaves_res.dart';
 import '../../utils/constants/check_internet.dart';
 import '../../utils/constants/k_asstes.dart';
@@ -38,7 +39,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
   List<Event> eventsList = [];
   List<Holiday> upcomingHolidays = [];
   List<Dashboard> dashboardData = [];
-
+  LstemployeeDetail? employeeData;
 
   double lat = 0.000;
   double long = 0.000;
@@ -78,6 +79,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
       );
       return; // Stop further API calls
     }
+    _fetchProfileDetailsData();
     _fetchCheckInOutDetails();
     _fetchLeaveList();
     _fetchDashboardDetails();
@@ -85,15 +87,14 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
 
   Future<void> _refreshData() async {
     // Your logic to refresh data
-    await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
+    //await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
     setState(() {
+       _fetchProfileDetailsData();
       _fetchCheckInOutDetails();
       _fetchLeaveList();
       _fetchDashboardDetails();
     });
   }
-
-
 
 
   @override
@@ -140,11 +141,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                                   _startCheckOut(),
 
                                   ///--- Your are check out for today UI
-
-
                                   _checkOutForToadyCard(),
-
-
 
                                   const SizedBox(
                                     height: 10,
@@ -399,18 +396,13 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
             'Denied the location permission, please go to setting and give access',
             'Location permission denied',
             'Open Setting');
-        print('Location_Service:');
         return;
       }
     }
     location.onLocationChanged.listen((LocationData CurrentLocation) async {
-      print(
-          'Location: ${CurrentLocation.latitude},${CurrentLocation.longitude}');
       setState(() {
         lat = CurrentLocation.latitude!;
         long = CurrentLocation.longitude!;
-
-        print('#Location:${CurrentLocation.latitude}');
       });
     });
   }
@@ -981,7 +973,6 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
         upcomingHolidays = response.data.holidays;
         storage.write(KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs?? '');
         storage.write(KStorageKey.leaveTakenInThisMonth, leaveTaken?? '');
-        print('Check working hrs');
       });
     }
   }
@@ -1173,12 +1164,13 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
 
   /// --- show total working hrs,leave taken this month and pending time log
   Widget _showWorkingHrsAnd() {
+    double screenWidth = MediaQuery.of(context).size.width;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         SizedBox(
-            height: 100,
-            width: 120,
+            height: 112,
+            width: screenWidth * 0.3,
             child: Card(
               elevation: 2,
               color: KColors.appSkyGary,
@@ -1201,10 +1193,12 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                     padding: EdgeInsets.all(8.0),
                     child: Text(
                       "Total working hours this months",
+                      maxLines: 3,
                       style: TextStyle(
-                          fontSize: 12,
+                        fontSize: 10,
                           fontWeight: FontWeight.bold,
-                          color: KColors.textColorGray),
+                          color: KColors.textColorGray,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -1212,8 +1206,8 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
               ),
             )),
         SizedBox(
-            height: 100,
-            width: 120,
+            height: 112,
+            width: screenWidth * 0.3,
             child: Card(
               elevation: 2,
               color: KColors.appLightBlue,
@@ -1236,9 +1230,10 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                     padding: EdgeInsets.all(8.0),
                     child: Text(
                       "Leaves Taken in this months",
+                      maxLines: 3,
                       style: TextStyle(
                         color: KColors.textColorGray,
-                        fontSize: 12,
+                        fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
@@ -1248,8 +1243,8 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
               ),
             )),
         SizedBox(
-            height: 100,
-            width: 120,
+            height: 112,
+            width: screenWidth * 0.3,
             child: Card(
               elevation: 2,
               color: KColors.appLightYellow,
@@ -1272,9 +1267,10 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                     padding: EdgeInsets.all(8.0),
                     child: Text(
                       "Pending Time Logs",
+                      maxLines: 3,
                       style: TextStyle(
                         color: KColors.textColorGray,
-                        fontSize: 12,
+                        fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
@@ -1304,21 +1300,19 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
             ),
             SizedBox(
               height: 115,
-              child: Expanded(
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: leaveList.length,
-                  itemBuilder: (context, index) {
-                    final leave = leaveList[index];
-                    return UpcomingLeavesCard(
-                      month: leave.month,
-                      date: leave.startDate.day.toString(),
-                      // or format it nicely if needed
-                      type: leave.type,
-                      cardColor: getLeaveColor(leave.type),
-                    );
-                  },
-                ),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: leaveList.length,
+                itemBuilder: (context, index) {
+                  final leave = leaveList[index];
+                  return UpcomingLeavesCard(
+                    month: leave.month,
+                    date: leave.startDate.day.toString(),
+                    // or format it nicely if needed
+                    type: leave.type,
+                    cardColor: getLeaveColor(leave.type),
+                  );
+                },
               ),
             ),
           ],
@@ -1486,8 +1480,37 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
       ),
     );
   }
-}
 
+  /// --  create method for getting the Employee and manager details.
+  void _fetchProfileDetailsData() async {
+    final response = await getProfileDetails(context);
+
+    if (response is ProfileDetailsResponse) {
+      final dataList = response.data.lstemployeeDetails;
+
+      if (dataList.isEmpty) {
+        print("No employee details found");
+        return;
+      }
+
+      employeeData = dataList[0];
+      storage.write(KStorageKey.employeeName, (dataList.isNotEmpty ? employeeData!.employeeName : '') ?? '');
+      storage.write(KStorageKey.employeeGender, (dataList.isNotEmpty ? employeeData!.employeeGender : '') ?? '');
+      storage.write(KStorageKey.employeeMobile, (dataList.isNotEmpty ? employeeData!.employeePhone : '') ?? '');
+      storage.write(KStorageKey.employeeEmail, (dataList.isNotEmpty ? employeeData!.employeeEmail : '') ?? '');
+      storage.write(KStorageKey.employeeDOB, (dataList.isNotEmpty ? employeeData!.employeeDob : '') ?? '');
+      storage.write(KStorageKey.employeeAnniversary, (dataList.isNotEmpty ? employeeData!.employeeAnniversaryDate : '') ?? '');
+      storage.write(KStorageKey.employeeAddress, (dataList.isNotEmpty ? employeeData!.employeeAddress : '') ?? '');
+      print('EMP_Name1:${storage.read(KStorageKey.employeeName)}');
+
+      setState(() {
+        _isLoading = false;
+      });
+    } else {
+      print("Unexpected response type or failed to parse response");
+    }
+  }
+}
 
 /// --- design upcoming leave with card back ground.
 class UpcomingLeavesCard extends StatelessWidget {

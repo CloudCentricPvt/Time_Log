@@ -58,6 +58,7 @@ class KDateAndTime {
       return "";
     }
   }
+
   /// --- calculate difference between  checkIn time and current time
   String getTimeDifferenceFromNow(String checkIn) {
     if (checkIn.isEmpty) return "00:00:00";
@@ -118,6 +119,7 @@ class KDateAndTime {
     final formatter = DateFormat('HH:mm:ss');
     return formatter.format(now);
   }
+
   String getMonthName(String formattedDate) {
     final date = parseFormattedDate(formattedDate);
     return date != null ? DateFormat.MMMM().format(date) : '';

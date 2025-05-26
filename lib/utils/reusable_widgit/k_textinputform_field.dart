@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../constants/k_colors.dart';
@@ -29,6 +30,7 @@ class KTextInputFormField extends StatelessWidget {
   final double? fontSize;
   final FontWeight? fontWeight;
   final List<TextInputFormatter>? inputFormatters;
+
 
   const KTextInputFormField({
     super.key,
@@ -134,3 +136,6 @@ class KTextInputFormField extends StatelessWidget {
     );
   }
 }
+
+
+

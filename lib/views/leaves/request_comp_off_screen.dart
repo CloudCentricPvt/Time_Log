@@ -38,7 +38,7 @@ class _CompOffScreenState extends State<RequestCompOFF> {
   int? _differenceInDays;
 
   Future<void> _selectStartDate() async {
-    String? selectedDate = await KDateDialog.futureDate(context: context);
+    String? selectedDate = await KDateDialog.selectDate(context: context);
     if (selectedDate != null) {
       setState(() {
         _startDate = selectedDate;
@@ -48,7 +48,7 @@ class _CompOffScreenState extends State<RequestCompOFF> {
   }
 
   Future<void> _selectEndDate() async {
-    String? selectedDate = await KDateDialog.futureDate(context: context);
+    String? selectedDate = await KDateDialog.selectDate(context: context);
     if (selectedDate != null) {
       setState(() {
         _endDate = selectedDate;
@@ -218,7 +218,7 @@ class _CompOffScreenState extends State<RequestCompOFF> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _startDate == null ? "Select Start Date" : "From Date",
+                              _startDate == null ? "From Date" : "From Date",
                               style: const TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontFamily: 'Poppins',
@@ -269,7 +269,7 @@ class _CompOffScreenState extends State<RequestCompOFF> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              _endDate == null ? "Select End Date" : "To Date",
+                              _endDate == null ? "To Date" : "To Date",
                               style: const TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontFamily: 'Poppins',
@@ -308,10 +308,10 @@ class _CompOffScreenState extends State<RequestCompOFF> {
                     useMaxLength: true,
                     maxLines: 4,
                     maxLength: 1000,
-                    onChange: (value) {
+                    /*onChange: (value) {
                       _controller.descriptionController.text = value!;
                       return null;
-                    },
+                    },*/
                   ),
                   GestureDetector(
                     child: Row(

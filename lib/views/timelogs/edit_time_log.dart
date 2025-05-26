@@ -106,7 +106,6 @@ class _EditTimeLogState extends State<EditTimeLog> {
   void _startListening() async {
     bool available = await _speech.initialize(
       onStatus: (status) {
-        print("Speech recognition status: $status");
         if (status == "notListening") {
           Navigator.pop(context); // Close dialog when speech stops
         }
@@ -117,7 +116,6 @@ class _EditTimeLogState extends State<EditTimeLog> {
       setState(() => _isListening = true);
       _speech.listen(
         onResult: (result) {
-          print("Recognized words: ${result.recognizedWords}");
           setState(() {
             _text = result.recognizedWords;
             _controller.descriptionController.text =
@@ -132,7 +130,6 @@ class _EditTimeLogState extends State<EditTimeLog> {
         },
       ).onError((error) {
         // Handle errors using `.onError`
-        print("Speech recognition error: $error");
         setState(() => _isListening = false);
         Navigator.pop(context); // Close dialog
       } as FutureOr Function(Object error, StackTrace stackTrace));
@@ -185,7 +182,6 @@ class _EditTimeLogState extends State<EditTimeLog> {
     var status = await Permission.microphone.request();
     if (status.isDenied) {
       // Permission denied by the user
-      print("Microphone permission denied");
     } else if (status.isPermanentlyDenied) {
       // Open app settings if the permission is permanently denied
       openAppSettings();
@@ -210,72 +206,70 @@ class _EditTimeLogState extends State<EditTimeLog> {
           },
         ),
       ),
-      body: Expanded(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: KInfoCard(
-                      children: [
-                        Column(
-                          children: [
-                            /// --- Design for select project list
-                            KSizedBox.h20,
-                            _selectProject(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: KInfoCard(
+                    children: [
+                      Column(
+                        children: [
+                          /// --- Design for select project list
+                          KSizedBox.h20,
+                          _selectProject(),
 
-                            /// --- Design for select task list
-                            KSizedBox.h20,
-                            _selectTask(),
+                          /// --- Design for select task list
+                          KSizedBox.h20,
+                          _selectTask(),
 
-                            /// --- Design for select Hours and Minutes
-                            KSizedBox.h20,
-                            _selectHrsAndMin(),
+                          /// --- Design for select Hours and Minutes
+                          KSizedBox.h20,
+                          _selectHrsAndMin(),
 
-                            /// --- Design for select date
-                            KSizedBox.h20,
-                             _selectDate(),
+                          /// --- Design for select date
+                          KSizedBox.h20,
+                           _selectDate(),
 
-                            /// --- Design for Time Log description
-                            KSizedBox.h20,
+                          /// --- Design for Time Log description
+                          KSizedBox.h20,
 
-                            _description(),
-                          KSizedBox.h10,
-                          /// --- text voice reorganisation
-                          _performSpeakAndSetTextInTextField(),
-                          ],
-                        )
-                      ],
-                    ),
+                          _description(),
+                        KSizedBox.h10,
+                        /// --- text voice reorganisation
+                        _performSpeakAndSetTextInTextField(),
+                        ],
+                      )
+                    ],
                   ),
-                  KSizedBox.h20,
-                  Center(
-                    child: _isLoading
-                        ? const KLoader()
-                        : CustomElevatedButton(
-                            text: 'SUBMIT',
-                            onPressed: () async {
-                              setState(() {
-                                _isLoading = true;
-                              });
+                ),
+                KSizedBox.h20,
+                Center(
+                  child: _isLoading
+                      ? const KLoader()
+                      : CustomElevatedButton(
+                          text: 'SUBMIT',
+                          onPressed: () async {
+                            setState(() {
+                              _isLoading = true;
+                            });
 
-                              await _controller.updateTimeLog(context,timeLogId,projectId,selectedTask,_controller.dateController.text,_controller.hrsController.text,_controller.minController.text,_controller.descriptionController.text);
-                              // If not successful, stop loader
-                              setState(() {
-                                _isLoading = false;
-                              });
-                            },
-                          ),
-                  ),
-                  const SizedBox(
-                    height: 40,
-                  ),
-                ],
-              ),
+                            await _controller.updateTimeLog(context,timeLogId,projectId,selectedTask,_controller.dateController.text,_controller.hrsController.text,_controller.minController.text,_controller.descriptionController.text);
+                            // If not successful, stop loader
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          },
+                        ),
+                ),
+                const SizedBox(
+                  height: 40,
+                ),
+              ],
             ),
           ),
         ),
@@ -400,10 +394,10 @@ class _EditTimeLogState extends State<EditTimeLog> {
       useMaxLines: true,
       isRequired: true,
       maxLines: 3,
-      onChange: (value) {
+      /*onChange: (value) {
         _controller.descriptionController.text = value!;
         return null;
-      },
+      },*/
     );
   }
 

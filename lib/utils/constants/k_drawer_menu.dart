@@ -152,6 +152,7 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                                       ),
                                     ),
                                     onTap: () {
+                                      Navigator.pop(context);
                                       Navigator.pushNamed(context, '/edit_profile_screen');
                                     },
                                   ),

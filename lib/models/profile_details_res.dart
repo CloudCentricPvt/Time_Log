@@ -33,28 +33,6 @@ Future<dynamic>getProfileDetails(BuildContext context)async{
   }
 }
 
-/*Future<ProfileDetailsResponse?> getProfileDetails(BuildContext context) async {
-  var apiNetwork = KNetworkApiServices();
-  final storage = GetStorage();
-  var empID = storage.read('EMP_ID');
-
-  try {
-    var response = await apiNetwork.getRequest('${KApiEndPoints.getProfileDetails}?employeeId=$empID', context);
-    print("GET_URL_Profile: ${KApiEndPoints.getProfileDetails}?employeeId=$empID");
-    print("RAW_RESPONSE: $response");
-
-    if (response != null && response['status'] == true) {
-      return ProfileDetailsResponse.fromJson(response);
-    } else {
-      print("Invalid API status or response is null");
-      return null;
-    }
-  } catch (e) {
-    print("Error in getProfileDetails: $e");
-    return null;
-  }
-}*/
-
 
 class ProfileDetailsResponse {
   ProfileDetails data;
