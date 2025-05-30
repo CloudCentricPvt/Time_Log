@@ -209,7 +209,7 @@ class _CreateTimelogState extends State<CreateTimeLog> {
                                   labelText: 'Minutes',
                                   hintText: '00',
                                   keyboardType: TextInputType.number,
-                                  isRequired: false,
+                                  isRequired: true,
                                   controller: _controller.minController,
                                   maxLength: 2,
                                   inputFormatters: [
@@ -256,7 +256,10 @@ class _CreateTimelogState extends State<CreateTimeLog> {
                             controller: _controller.descriptionController,
                             useMaxLines: true,
                             isRequired: true,
+                            useMaxLength: true,
+                            maxLength: 32768,
                             maxLines: 3,
+
                            /* onChange: (value) {
                               _controller.descriptionController.text = value!;
                               return null;

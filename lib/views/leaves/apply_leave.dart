@@ -387,7 +387,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
                   useMaxLength: true,
                   isRequired: true,
                   maxLines: 4,
-                  maxLength: 1000,
+                  maxLength: 32768,
                 ),
 
                 /// --- text voice reorganisation

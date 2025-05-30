@@ -67,7 +67,31 @@ Future<dynamic> termsAndCondition(BuildContext context)async{
   var empID = storage.read("EMP_ID");
   try{
     var response = await apiNetwork.getRequest(KApiEndPoints.termsAndConditionPDF,context);
-    print("GET_URL_Privacy: ${KApiEndPoints.privacyPolicyPDF}");
+    print("GET_URL_Privacy: ${KApiEndPoints.termsAndConditionPDF}");
+
+    if(response!=null && response['status']==true){
+      print('PRIVACY_SUCCESS:$response');
+      PrivacyPolicyResponse policyResponse = PrivacyPolicyResponse.fromJson(response);
+      return policyResponse;
+    }else{
+      return [];
+    }
+
+  }catch(e){
+    print("Error in getAllTimeLog: $e");
+    return []; // or rethrow if you want to handle it higher up
+  }
+
+}
+
+/// --- This function used for get Posh Policy.
+Future<dynamic> getPoshPolicy(BuildContext context)async{
+  var apiNetwork = KNetworkApiServices();
+  final storage = GetStorage();
+  var empID = storage.read("EMP_ID");
+  try{
+    var response = await apiNetwork.getRequest(KApiEndPoints.poshPolicy,context);
+    print("GET_URL_Privacy: ${KApiEndPoints.poshPolicy}");
 
     if(response!=null && response['status']==true){
       print('PRIVACY_SUCCESS:$response');

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,13 +7,13 @@ import 'k_colors.dart';
 class KCustomDrawer {
   static PreferredSizeWidget customDrawer({
     required BuildContext context,
-    required String title,   // Required Title
+    required String title, // Required Title
     bool hello = false,
     String? subtitle, // Optional Subtitle (nullable)
     bool showBellIcon = false, // Optional Bell Icon
     bool showProfileIcon = false, // Optional Profile Icon
-    List<Widget>? actions,   // Additional Actions
-    Color backgroundColor = KColors.appPrimary,  // Default AppBar Color
+    List<Widget>? actions, // Additional Actions
+    Color backgroundColor = KColors.appPrimary, // Default AppBar Color
     Color titleColor = KColors.appColorWhite, // Default Title Color
   }) {
     return AppBar(
@@ -41,7 +40,6 @@ class KCustomDrawer {
           },
         ),
       ),
-
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -50,52 +48,53 @@ class KCustomDrawer {
             children: [
               hello == true
                   ? RichText(
-                text: TextSpan(
-                  style: const TextStyle(
-                    fontFamily: "Poppins",
-                    letterSpacing: 1,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: 'Hello ',
-                      style: TextStyle(
-                        color: titleColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
+                      text: TextSpan(
+                        style: const TextStyle(
+                          fontFamily: "Poppins",
+                          letterSpacing: 1,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: 'Hello ',
+                            style: TextStyle(
+                              color: titleColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          TextSpan(
+                            text: title,
+                            style: TextStyle(
+                              color: titleColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    TextSpan(
-                      text: title,
-                      style: TextStyle(
-                        color: titleColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              )
+                    )
                   : Text(
-                title,
-                style: TextStyle(
-                  color: titleColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: "Poppins",
-                  letterSpacing: 0.5
-                ),
-              ),
-
-
+                      title,
+                      style: TextStyle(
+                          color: titleColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: "Poppins",
+                          letterSpacing: 0.5),
+                    ),
             ],
           ),
-
-          SizedBox(width: 4,),
-
-          if (subtitle != null && subtitle.isNotEmpty) // Only show subtitle if it's provided
+          SizedBox(
+            width: 4,
+          ),
+          if (subtitle != null &&
+              subtitle.isNotEmpty) // Only show subtitle if it's provided
             Text(
               subtitle,
-              style: TextStyle(color: titleColor.withOpacity(0.8), fontSize: 14,letterSpacing: 0.5),
+              style: TextStyle(
+                  color: titleColor.withOpacity(0.8),
+                  fontSize: 14,
+                  letterSpacing: 0.5),
             ),
         ],
       ),
@@ -127,11 +126,22 @@ class KCustomDrawer {
               border: Border.all(color: Colors.white, width: 2),
             ),
             child: InkWell(
-              child: const CircleAvatar(
+              /*child: const CircleAvatar(
                 radius: 20,
                 backgroundImage: AssetImage('assets/images/profile_img.jpeg'),
+              ),*/
+              child: CircleAvatar(
+                radius: 30,
+                backgroundColor: KColors.grayLight,
+                child: Icon(
+                  Icons.person,
+                  size: 30,
+                  color: KColors.colorGray,
+                ),
               ),
-              onTap: (){Navigator.pushNamed(context, '/profile_screen');},
+              onTap: () {
+                Navigator.pushNamed(context, '/profile_screen');
+              },
             ),
           ),
         if (actions != null) ...actions,
@@ -139,6 +149,4 @@ class KCustomDrawer {
       ],
     );
   }
-
 }
-

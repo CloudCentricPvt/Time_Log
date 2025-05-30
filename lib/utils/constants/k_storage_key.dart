@@ -4,6 +4,7 @@ class KStorageKey{
   static const userName = "USER_NAME";
   static const authorizationToken = 'access_token';
   static const empId="EMP_ID";
+  static const attendeeId="Attendee_Id";
   static const annualLeaveId="ANNUAL_LEAVE_ID";
   static const userId="User_Id";
   static const designation="DESIGNATION";

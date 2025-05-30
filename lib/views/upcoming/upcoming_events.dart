@@ -24,6 +24,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
   final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
 
   List<Event> eventsList = [];
+  List<Event> todayEvents = [];
   bool _isLoading = true;
   List<bool> expandedCards = [];
 
@@ -34,8 +35,6 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
   }
 
   Future<void> _refreshData() async {
-    // Your logic to refresh data
-    //await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
     setState(() {
       _isLoading = true;
       _fetchEvents();
@@ -77,7 +76,8 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
         backgroundColor: KColors.appPrimary,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Color(0xFF84DBFF), // Same as app bar
-          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+          statusBarIconBrightness:
+              Brightness.dark, // or .light depending on contrast
         ),
         title: KCustomAppBar(
           screenTitle: 'Upcoming Events',
@@ -94,9 +94,8 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                   child: Text("No Upcoming events found!"),
                 )
               : RefreshIndicator(
-                onRefresh: _refreshData,
-
-                child: Padding(
+                  onRefresh: _refreshData,
+                  child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,11 +124,15 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                               style: KFonts.normalBold,
                             )),
 
-                        _showUpcomingBirthdayAndAnniversary(),
+                        //_showUpcomingBirthdayAndAnniversary(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        _showUpcomingEvents()
                       ],
                     ),
                   ),
-              ),
+                ),
     );
   }
 
@@ -159,10 +162,14 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
     final response = await getDashboard(context);
     if (response is DashboardResponse) {
       setState(() {
+
         eventsList = response.data.events;
-        expandedCards = List.generate(eventsList.length, (index) => false);
+        print('#Events List1');
+        todayEvents = response.data.todayEvents;
+        expandedCards = List.generate(todayEvents.length, (index) => false);
         _isLoading = false;
-        print('Check working hrs');
+        print('#Events List2');
+        print('#Today events:$todayEvents');
       });
     }
   }
@@ -174,89 +181,57 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
     return Visibility(
       visible: eventsList.isEmpty ? false : true,
       child: SizedBox(
-        height: 165, // Max height needed when a card is expanded
+        height: 140,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: eventsList.length,
+          itemCount: todayEvents.length,
           itemBuilder: (context, index) {
-            final events = eventsList[index];
-            final isExpanded = expandedCards[index];
+            final item = todayEvents[index];
 
             return Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  width: screenWidth * 0.90,
-                  height: isExpanded ? 230 : 140,
-                  // Vary height dynamically
-                  decoration: BoxDecoration(
+              child: SizedBox(
+                width: screenWidth * 0.90,
+                child: Card(
+                  elevation: 0,
+                  color: KColors.appPrimary,
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
-                    color: KColors.appPrimary,
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            events.eventName ?? '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              letterSpacing: 1,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                              fontSize: screenWidth * 0.045,
-                              fontFamily: 'Poppins',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 0),
                         Text(
-                          events.eventDescription ?? '',
-                          maxLines: isExpanded ? 4 : 2,
-                          overflow: isExpanded
-                              ? TextOverflow.visible
-                              : TextOverflow.ellipsis,
+                          item.eventDescription ?? " ",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: screenWidth * 0.035,
+                            letterSpacing: 1,
                             color: Colors.white,
                             fontWeight: FontWeight.w400,
+                            fontSize: 12,
                             fontFamily: 'Poppins',
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              expandedCards[index] = !expandedCards[index];
-                            });
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Text(
-                              isExpanded ? 'Show less' : 'Read more',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: screenWidth * 0.035,
-                                fontWeight: FontWeight.w500,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
+                        const SizedBox(height: 10),
+                        Text(
+                          item.personName ?? '',
+                          maxLines: 3,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Poppins',
                           ),
                         ),
                         const Spacer(),
                         Align(
                           alignment: Alignment.bottomRight,
                           child: Text(
-                            KDateAndTime()
-                                .useFormatDateInMyApp(events.eventDate ?? ''),
+                            KDateAndTime().useFormatDateInMyApp(
+                                todayEvents[0].eventDate.toString() ?? ''),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.end,
@@ -281,22 +256,93 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
   }
 
   /// ---  show anniversary and birthday
-  Widget _showUpcomingBirthdayAndAnniversary() {
+  Widget _showUpcomingEvents() {
     return Visibility(
-      visible: eventsList.isEmpty ? false : true,
-      child: Expanded(
-        child: ListView.builder(
+      visible: eventsList.isNotEmpty,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: ListView.separated(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          // prevent inner scroll
           itemCount: eventsList.length,
+          separatorBuilder: (context, index) => SizedBox(height: 10),
+          // space between cards
           itemBuilder: (context, index) {
-            final events = eventsList[index];
-            return UpcomingEventsList(
-              type: events.personName ?? '',
-              consumed: events.eventName ?? '',
-              color: KColors.appPrimary,
-              remain: KDateAndTime().getDay(events.eventDate ?? ''),
-              iconAsset: events.eventName == "Birthday"
-                  ? KAssets.birthday_image
-                  : KAssets.aniversary_image,
+            final item = eventsList[index];
+            return Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: KColors.appColorWhite,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: KColors.cardShadowColor,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: SizedBox(
+                height: 65,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Center(
+                        child: Image.asset(
+                          item.eventName == "Birthday"
+                              ? KAssets.birthday_image
+                              : KAssets.anniversary,
+                          height: 40,
+                          width: 40,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      flex: 6,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(item.personName ?? '',
+                              style: KFonts.normalHeading),
+                          SizedBox(height: 5),
+                          Text(item.eventName ?? '', style: KFonts.thin),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Row(
+                        children: [
+                          Container(
+                              width: 2, height: 30, color: KColors.colorGray),
+                          SizedBox(width: 10),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                (item.remainingDays ?? '').toString(),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: KColors.appPrimary,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                              Text('Days'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           },
         ),

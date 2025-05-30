@@ -88,6 +88,7 @@ class LeaveBal {
   double sickLeaveBal;
   double compOffLeaveBal;
   double elLeaveBal;
+  double lwpAvailed;
   String calendarYear;
 
   LeaveBal({
@@ -102,6 +103,7 @@ class LeaveBal {
     required this.sickLeaveBal,
     required this.compOffLeaveBal,
     required this.elLeaveBal,
+    required this.lwpAvailed,
     required this.calendarYear,
   });
 
@@ -117,6 +119,7 @@ class LeaveBal {
     sickLeaveBal: json["sickLeaveBal"],
     compOffLeaveBal: json["compOffLeaveBal"],
     elLeaveBal: json["elLeaveBal"],
+    lwpAvailed: json["lwpAvailed"],
     calendarYear: json["calendarYear"],
   );
 
@@ -132,6 +135,7 @@ class LeaveBal {
     "sickLeaveBal": sickLeaveBal,
     "compOffLeaveBal": compOffLeaveBal,
     "elLeaveBal": elLeaveBal,
+    "lwpAvailed": lwpAvailed,
     "calendarYear": calendarYear,
   };
 }

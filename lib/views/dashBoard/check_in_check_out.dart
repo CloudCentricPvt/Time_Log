@@ -6,14 +6,16 @@ import 'package:get_storage/get_storage.dart';
 import 'package:location/location.dart';
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:time_log/controllers/check_in_check_out_controller.dart';
-import 'package:time_log/models/dashboard_res.dart';
+import 'package:time_log/models/upcoming_holidays_res.dart';
 import 'package:time_log/utils/constants/k_date_and_time.dart';
 import 'package:time_log/utils/constants/k_storage_key.dart';
 import 'package:time_log/utils/reusable_widgit/k_elevated_button.dart';
 import '../../models/chech_in_out_details_res.dart';
+import '../../models/dashboard_res.dart';
 import '../../models/profile_details_res.dart';
 import '../../models/upcoming_leaves_res.dart';
 import '../../utils/constants/check_internet.dart';
+import '../../utils/constants/k_annual_leave_graph.dart';
 import '../../utils/constants/k_asstes.dart';
 import '../../utils/constants/k_drawer_menu.dart';
 import '../../utils/constants/k_colors.dart';
@@ -27,10 +29,10 @@ class CheckInCheckOut extends StatefulWidget {
   const CheckInCheckOut({super.key});
 
   @override
-  State<CheckInCheckOut> createState() => _CheckInCheckOutState();
+  State<CheckInCheckOut> createState() => CheckInCheckOutState();
 }
 
-class _CheckInCheckOutState extends State<CheckInCheckOut> {
+class CheckInCheckOutState extends State<CheckInCheckOut> {
   final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
   final CheckInCheckOutController _controller = CheckInCheckOutController();
   final storage = GetStorage();
@@ -38,7 +40,6 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
   List<UpcomingLeave> leaveList = [];
   List<Event> eventsList = [];
   List<Holiday> upcomingHolidays = [];
-  List<Dashboard> dashboardData = [];
   LstemployeeDetail? employeeData;
 
   double lat = 0.000;
@@ -48,16 +49,15 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
   String leaveTaken = '';
   String totalWorkingHrs = '';
 
-
-
   @override
   void initState() {
     super.initState();
     _getUserLocation();
-    _checkInternetConnection();
 
+    fetchData();
 
   }
+
   void _checkInternetConnection() async {
     bool connected = await _checkInternet.isConnected();
     if (!connected) {
@@ -83,19 +83,31 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
     _fetchCheckInOutDetails();
     _fetchLeaveList();
     _fetchDashboardDetails();
+    _buildWorkingHoursChart();
+    _buildAnnualLeaveChart();
+
+
+
+  }
+
+  void fetchData() {
+
+    _checkInternetConnection();
+
   }
 
   Future<void> _refreshData() async {
     // Your logic to refresh data
     //await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
     setState(() {
-       _fetchProfileDetailsData();
+      _fetchProfileDetailsData();
       _fetchCheckInOutDetails();
       _fetchLeaveList();
       _fetchDashboardDetails();
+      _buildWorkingHoursChart();
+      _buildAnnualLeaveChart();
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +115,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
     return Scaffold(
       appBar: KCustomDrawer.customDrawer(
         context: context,
-        title: storage.read(KStorageKey.userName ??''),
+        title: storage.read(KStorageKey.userName ?? ''),
         hello: true,
         subtitle: "Welcome to TimeSync",
         showBellIcon: true,
@@ -114,8 +126,8 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
       body: _isLoading
           ? KLoader()
           : RefreshIndicator(
-            onRefresh: _refreshData,
-            child: SingleChildScrollView(
+              onRefresh: _refreshData,
+              child: SingleChildScrollView(
                 child: Column(
                   children: [
                     Column(
@@ -201,7 +213,9 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                                           },
                                         ]),
                                         const SizedBox(height: 10),
-                                        _buildAnnualLeaveChart(),
+                                        SizedBox(
+                                            height: 160,
+                                            child: _buildAnnualLeaveChart()),
                                         const SizedBox(height: 20),
                                         const Text(
                                           "Working Hours Details",
@@ -221,7 +235,9 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                                           },
                                         ]),
                                         const SizedBox(height: 10),
-                                        _buildWorkingHoursChart(),
+                                        SizedBox(
+                                          height: 160,
+                                            child: _buildWorkingHoursChart()),
                                       ],
                                     ),
                                   ),
@@ -235,116 +251,18 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                   ],
                 ),
               ),
-          ),
+            ),
     );
   }
 
   ///--- Annual Leave Chart
   Widget _buildAnnualLeaveChart() {
-    return _buildChart(
-      [
-        LineChartBarData(
-          spots: [
-            const FlSpot(1, 1.0), // January
-            const FlSpot(2, 0.5), // March
-            const FlSpot(3, 0.0), // May
-            const FlSpot(4, 0.0), // July
-            const FlSpot(5, 0.0), // September
-            const FlSpot(6, 0.0), // December
-          ],
-          isCurved: true,
-          color: Colors.blue,
-          barWidth: 2,
-          isStrokeCapRound: true,
-          belowBarData: BarAreaData(show: false),
-        ),
-      ],
-    );
+    return KAnnualLeaveGraph();
   }
 
   ///--- Working Hours Chart
   Widget _buildWorkingHoursChart() {
-    return _buildChart(
-      [
-        LineChartBarData(
-          spots: [
-            const FlSpot(1, 200), // January
-            const FlSpot(2, 100), // March
-            const FlSpot(3, 50), // May
-            const FlSpot(4, 0), // July
-            const FlSpot(5, 0), // September
-            const FlSpot(6, 0), // December
-          ],
-          isCurved: true,
-          color: Colors.blue,
-          barWidth: 2,
-          isStrokeCapRound: true,
-          belowBarData: BarAreaData(show: false),
-        ),
-        LineChartBarData(
-          spots: [
-            const FlSpot(1, 50), // January
-            const FlSpot(2, 25), // March
-            const FlSpot(3, 10), // May
-            const FlSpot(4, 0), // July
-            const FlSpot(5, 0), // September
-            const FlSpot(6, 0), // December
-          ],
-          isCurved: true,
-          color: Colors.orange,
-          barWidth: 2,
-          isStrokeCapRound: true,
-          belowBarData: BarAreaData(show: false),
-        ),
-      ],
-    );
-  }
-
-  ///--- General Chart Builder
-  Widget _buildChart(List<LineChartBarData> lineBarsData) {
-    return Container(
-      height: 140,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: KColors.appColorWhite,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: LineChart(
-        LineChartData(
-          gridData: FlGridData(show: true),
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  const months = [
-                    "",
-                    "January",
-                    "March",
-                    "May",
-                    "July",
-                    "September",
-                    "December"
-                  ];
-                  return SideTitleWidget(
-                    axisSide: meta.axisSide, //  Required argument
-                    fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
-                    child: Text(
-                      months[value.toInt()],
-                      style: const TextStyle(fontSize: 10),
-                    ),
-                  );
-                },
-                interval: 1,
-              ),
-            ),
-          ),
-          borderData: FlBorderData(show: false),
-          lineBarsData: lineBarsData,
-        ),
-      ),
-    );
+    return KWorkingHrsGraph();
   }
 
   Widget buildLegend(List<Map<String, dynamic>> items) {
@@ -412,8 +330,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
     return Column(
       children: [
         Visibility(
-          visible: allCheckInOut.isNotEmpty &&
-              !(allCheckInOut[0].checkInCheckOut ?? true),
+          visible: allCheckInOut.isNotEmpty && !(allCheckInOut[0].checkInCheckOut ?? true),
           child: Padding(
             padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
             child: SizedBox(
@@ -460,7 +377,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                       child: TextFormField(
                         controller: _controller.descriptionController,
                         maxLines: 2,
-                        maxLength: 500,
+                        maxLength: 32768,
                         decoration: InputDecoration(
                           alignLabelWithHint: true,
                           border: OutlineInputBorder(
@@ -589,17 +506,16 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                       height: 10,
                     ),
                     Text(
-                      allCheckInOut.isEmpty?'':
-
-                      KDateAndTime().getTimeDifferenceFromNow(
-                          allCheckInOut[0].checkInTime),
+                      allCheckInOut.isEmpty
+                          ? ''
+                          : KDateAndTime().getTimeDifferenceFromNow(
+                              allCheckInOut[0].checkInTime),
                       style: TextStyle(
                         fontSize: 36,
                         fontFamily: "Poppins",
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-
                     const SizedBox(
                       height: 10,
                     ),
@@ -608,7 +524,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                           left: 20, right: 20, bottom: 20),
                       child: TextFormField(
                         maxLines: 2,
-                        maxLength: 500,
+                        maxLength: 32768,
                         controller: _controller.descriptionController,
                         decoration: InputDecoration(
                           alignLabelWithHint: true,
@@ -788,9 +704,14 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                             width: 8,
                           ),
                           Expanded(
-                              child: Text(
+                            child: Text(
                               allCheckInOut.isNotEmpty
-                              ? KDateAndTime().formatCustomDateMonthYearWithTime(allCheckInOut[0].checkInTime.toString() ?? '')
+                                  ? KDateAndTime()
+                                      .formatCustomDateMonthYearWithTime(
+                                          allCheckInOut[0]
+                                                  .checkInTime
+                                                  .toString() ??
+                                              '')
                                   : '',
                               style: TextStyle(
                                   color: KColors.textColor,
@@ -899,7 +820,12 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                           Expanded(
                             child: Text(
                               allCheckInOut.isNotEmpty
-                                  ? KDateAndTime().formatCustomDateMonthYearWithTime(allCheckInOut[0].checkOutTime.toString() ?? '')
+                                  ? KDateAndTime()
+                                      .formatCustomDateMonthYearWithTime(
+                                          allCheckInOut[0]
+                                                  .checkOutTime
+                                                  .toString() ??
+                                              '')
                                   : '',
                               style: TextStyle(
                                 color: KColors.textColor,
@@ -931,8 +857,10 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
     setState(() {
       if (res is CheckInOutResponse) {
         allCheckInOut = res.checkInOutDetails;
+        storage.write(KStorageKey.attendeeId, allCheckInOut[0].checkInCheckOutId);
+        print('##CHECK_OUT:${allCheckInOut[0].checkInCheckOut}');
+        print('##AttendeeID:${storage.read(KStorageKey.attendeeId)}');
       } else {
-
         allCheckInOut = [];
       }
       _isLoading = false;
@@ -942,7 +870,6 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
   /// --- fetch upcoming leave list from SF.
   Future<void> _fetchLeaveList() async {
     var response = await getUpcomingLeaves(context);
-
 
     if (response is UpcomingLeavesResponse) {
       setState(() {
@@ -962,6 +889,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
     return connectivityResult != ConnectivityResult.none;
   }
 
+  /// --- fetch dashboard details list from SF.
   Future<void> _fetchDashboardDetails() async {
     final response = await getDashboard(context);
     if (response is DashboardResponse) {
@@ -971,8 +899,9 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
         pendingCount = response.data.pendingTimeLogEntryCount;
         eventsList = response.data.events;
         upcomingHolidays = response.data.holidays;
-        storage.write(KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs?? '');
-        storage.write(KStorageKey.leaveTakenInThisMonth, leaveTaken?? '');
+        storage.write(
+            KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs ?? '');
+        storage.write(KStorageKey.leaveTakenInThisMonth, leaveTaken ?? '');
       });
     }
   }
@@ -1091,7 +1020,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                                   Image.asset(
                                     item.eventName == "Birthday"
                                         ? KAssets.birthday_image
-                                        : KAssets.aniversary_image,
+                                        : KAssets.anniversary,
                                     height: 40,
                                     width: 40,
                                     fit: BoxFit.cover,
@@ -1196,8 +1125,8 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                       maxLines: 3,
                       style: TextStyle(
                         fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: KColors.textColorGray,
+                        fontWeight: FontWeight.bold,
+                        color: KColors.textColorGray,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -1283,6 +1212,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
     );
   }
 
+  /// --- show upcoming leaves
   Widget _upcomingLeave() {
     return Visibility(
       visible: leaveList.isEmpty ? false : true,
@@ -1321,6 +1251,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
     );
   }
 
+  /// --- show upcoming holidays
   Widget _upcomingHolidays() {
     double screenWidth = MediaQuery.of(context).size.width;
     return Visibility(
@@ -1415,10 +1346,10 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
 
   Widget _checkOutForToadyCard() {
     return Visibility(
-      visible: allCheckInOut.isNotEmpty && allCheckInOut[0].checkInTime.isNotEmpty,
+      visible:
+          allCheckInOut.isNotEmpty && allCheckInOut[0].checkInTime.isNotEmpty,
       child: Padding(
-        padding: const EdgeInsets.only(
-            top: 20, right: 15, left: 15),
+        padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
         child: SizedBox(
           width: double.infinity,
           child: Card(
@@ -1430,7 +1361,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                   height: 20,
                 ),
                 const Text(
-                  "Your are check out for today",
+                  "Total Hours Logged For Today",
                   style: TextStyle(fontSize: 14),
                 ),
                 const SizedBox(
@@ -1439,8 +1370,7 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
                 SizedBox(
                   width: 64,
                   height: 64,
-                  child: SvgPicture.asset(
-                      'assets/icons/watch_icon.svg'),
+                  child: SvgPicture.asset('assets/icons/watch_icon.svg'),
                 ),
                 const SizedBox(
                   height: 10,
@@ -1448,17 +1378,18 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
 
                 Text(
                   allCheckInOut.isNotEmpty
-                      ? KDateAndTime().getDifferenceBetweenCheckInAndCheckOutTime(
-                    allCheckInOut[0].checkInTime ?? '',
-                    allCheckInOut[0].checkOutTime ?? '',
-                  ) : '',
+                      ? KDateAndTime()
+                          .getDifferenceBetweenCheckInAndCheckOutTime(
+                          allCheckInOut[0].checkInTime ?? '',
+                          allCheckInOut[0].checkOutTime ?? '',
+                        )
+                      : '',
                   style: const TextStyle(
                     fontSize: 36,
                     fontFamily: "Poppins",
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-
 
                 const SizedBox(
                   height: 10,
@@ -1494,13 +1425,22 @@ class _CheckInCheckOutState extends State<CheckInCheckOut> {
       }
 
       employeeData = dataList[0];
-      storage.write(KStorageKey.employeeName, (dataList.isNotEmpty ? employeeData!.employeeName : '') ?? '');
-      storage.write(KStorageKey.employeeGender, (dataList.isNotEmpty ? employeeData!.employeeGender : '') ?? '');
-      storage.write(KStorageKey.employeeMobile, (dataList.isNotEmpty ? employeeData!.employeePhone : '') ?? '');
-      storage.write(KStorageKey.employeeEmail, (dataList.isNotEmpty ? employeeData!.employeeEmail : '') ?? '');
-      storage.write(KStorageKey.employeeDOB, (dataList.isNotEmpty ? employeeData!.employeeDob : '') ?? '');
-      storage.write(KStorageKey.employeeAnniversary, (dataList.isNotEmpty ? employeeData!.employeeAnniversaryDate : '') ?? '');
-      storage.write(KStorageKey.employeeAddress, (dataList.isNotEmpty ? employeeData!.employeeAddress : '') ?? '');
+      storage.write(KStorageKey.employeeName,
+          (dataList.isNotEmpty ? employeeData!.employeeName : '') ?? '');
+      storage.write(KStorageKey.employeeGender,
+          (dataList.isNotEmpty ? employeeData!.employeeGender : '') ?? '');
+      storage.write(KStorageKey.employeeMobile,
+          (dataList.isNotEmpty ? employeeData!.employeePhone : '') ?? '');
+      storage.write(KStorageKey.employeeEmail,
+          (dataList.isNotEmpty ? employeeData!.employeeEmail : '') ?? '');
+      storage.write(KStorageKey.employeeDOB,
+          (dataList.isNotEmpty ? employeeData!.employeeDob : '') ?? '');
+      storage.write(
+          KStorageKey.employeeAnniversary,
+          (dataList.isNotEmpty ? employeeData!.employeeAnniversaryDate : '') ??
+              '');
+      storage.write(KStorageKey.employeeAddress,
+          (dataList.isNotEmpty ? employeeData!.employeeAddress : '') ?? '');
       print('EMP_Name1:${storage.read(KStorageKey.employeeName)}');
 
       setState(() {
@@ -1588,3 +1528,231 @@ class UpcomingLeavesCard extends StatelessWidget {
     );
   }
 }
+
+class KWorkingHrsGraph extends StatefulWidget {
+  @override
+  State<KWorkingHrsGraph> createState() => _CustomMonthlyChartState();
+}
+
+class _CustomMonthlyChartState extends State<KWorkingHrsGraph> {
+  final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
+  List<WorkingHourDetail> workingHrsDetails = [];
+  List<FlSpot> workingHours = [];
+
+
+  final List<String> allMonths = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+
+  final List<String> fullMonthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+
+  @override
+  void initState() {
+    _checkInternetConnection();
+    super.initState();
+  }
+  void _checkInternetConnection() async {
+    bool connected = await _checkInternet.isConnected();
+    if (!connected) {
+      // Show no internet dialog or handle no connectivity case
+      KMaterialDialogs.noInternetFound(
+        context,
+        IconsButton(
+          onPressed: () {
+            Navigator.pop(context);
+            // Maybe retry or do something else
+          },
+          text: 'Okay',
+          color: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          iconColor: Colors.white,
+        ),
+        "No Internet Connection",
+        "Please check your internet connection and try again.",
+      );
+      return; // Stop further API calls
+    }
+    _fetchDashboardDetails();
+
+  }
+  Future<void> _fetchDashboardDetails() async {
+    final response = await getDashboard(context);
+
+    if (response is DashboardResponse) {
+      // Create a list with 12 months initialized to 0.0
+      List<double> monthHourMap = List.filled(12, 0.0);
+
+      // Loop through each working hour detail from the API
+      for (var detail in response.data.workingHourDetails) {
+        // Find the index of the month (e.g., January = 0)
+        int index = fullMonthNames.indexOf(detail.strMonthName);
+
+        // If the month name is valid
+        if (index != -1) {
+          // Get the hour count or use 0 if it's null
+          int hours = detail.intHourCount ?? 0;
+
+          // Limit the hour count to a maximum of 250
+          double cappedHours = hours > 250 ? 250.0 : hours.toDouble();
+
+          // Store the value in the correct month index
+          monthHourMap[index] = cappedHours;
+        }
+      }
+
+      // Update the chart data with the new values
+      setState(() {
+        workingHrsDetails = response.data.workingHourDetails;
+        workingHours = List.generate(12, (index) => FlSpot(index.toDouble(), monthHourMap[index]),
+        );
+      });
+    }
+  }
+
+
+  // Show labels only for these months (odd indexes)
+  final Set<int> visibleMonthIndexes = {0, 2, 4, 6, 8, 10};
+
+  /*final List<FlSpot> workingHours = [
+    FlSpot(0, 250),
+    FlSpot(1, 250),
+    FlSpot(2, 100),
+    FlSpot(3, 150),
+    FlSpot(4, 180),
+    FlSpot(5, 210),
+    FlSpot(6, 120),
+    FlSpot(7, 100),
+    FlSpot(8, 0),
+    FlSpot(9, 0),
+    FlSpot(10, 0),
+    FlSpot(11, 0),
+  ];*/
+
+  final List<FlSpot> selfStudyHours = [
+    FlSpot(0, 0),
+    FlSpot(1, 0),
+    FlSpot(2, 50),
+    FlSpot(3, 0),
+    FlSpot(4, 120),
+    FlSpot(5, 0),
+    FlSpot(6, 0),
+    FlSpot(7, 0),
+    FlSpot(8, 0),
+    FlSpot(9, 0),
+    FlSpot(10, 0),
+    FlSpot(11, 0),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        height: double.infinity,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: KColors.appColorWhite,
+          borderRadius: BorderRadius.circular(4),
+        ),
+
+        child: Padding(
+          padding: const EdgeInsets.only(top: 15),
+          child: Column(
+            children: [
+              AspectRatio(
+                aspectRatio: 2.9,
+                child: LineChart(
+                  LineChartData(
+                    minX: 0,
+                    maxX: 11,
+                    minY: 0,
+                    maxY: 250,
+                    gridData: FlGridData(show: true),
+                    borderData: FlBorderData(show: false),
+                    lineBarsData: [
+                      LineChartBarData(
+                        spots: workingHours,
+                        isCurved: false,
+                        color: Colors.blue,
+                        barWidth: 2,
+                        dotData: FlDotData(show: true),
+                      ),
+                      LineChartBarData(
+                        spots: selfStudyHours,
+                        isCurved: false,
+                        color: Colors.orange,
+                        barWidth: 2,
+                        dotData: FlDotData(show: true),
+                      ),
+                    ],
+                    titlesData: FlTitlesData(
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          interval: 1,
+                          getTitlesWidget: (value, _) {
+                            int index = value.toInt();
+                            if (index >= 0 &&
+                                index < allMonths.length &&
+                                visibleMonthIndexes.contains(index)) {
+                              return SideTitleWidget(
+                                axisSide: AxisSide.bottom,
+                                child: Text(
+                                  allMonths[index],
+                                  style: TextStyle(fontSize: 10),
+                                ),
+                              );
+                            }
+                            return SideTitleWidget(
+                              axisSide: AxisSide.bottom,
+                              child: Text(""),
+                            );
+                          },
+                        ),
+                      ),
+                      leftTitles: AxisTitles( // Show Y-axis on left
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          interval: 50,
+                          getTitlesWidget: (value, _) {
+                            return Text(
+                              value.toInt().toString(),
+                              style: TextStyle(fontSize: 10),
+                            );
+                          },
+                          reservedSize: 30, // space to fit text
+                        ),
+                      ),
+                      rightTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      topTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                    ),
+
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String label) {
+    return Row(
+      children: [
+        Container(width: 16, height: 16, color: color),
+        SizedBox(width: 4),
+        Text(label),
+      ],
+    );
+  }
+}
+

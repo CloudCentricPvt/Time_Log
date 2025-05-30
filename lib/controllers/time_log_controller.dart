@@ -40,7 +40,18 @@ class TimeLogController {
       return;
     }
 
-    if (hrsController.text.trim().isEmpty) {
+    if (hrsController.text.trim().isEmpty && minController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter either Hours or Minutes."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+
+    /*if (hrsController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Please enter Hours."),
@@ -48,10 +59,10 @@ class TimeLogController {
         ),
       );
       return;
-    }
+    }*/
 
     int? value = int.tryParse(hrsController.text.trim());
-    if (value == null) {
+   /* if (value == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Enter a valid number."),
@@ -59,18 +70,18 @@ class TimeLogController {
         ),
       );
       return;
-    }
+    }*/
 
-    if (value < 1 || value > 8) {
+   /* if (value! < 0 || value > 8) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Hours must be between 1 and 8."),
+          content: Text("Hours must be between 0 and 8."),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
-
+*/
     /*if (minController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -80,6 +91,30 @@ class TimeLogController {
       );
       return;
     }*/
+
+    if (hrsController.text.isNotEmpty) {
+      int? minValue = int.tryParse(hrsController.text);
+
+      if (minValue == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Enter a valid number for Hrs."),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      if (minValue < 1 || minValue > 8) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Hours must be between 1 and 8."),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    }
 
 
     if (minController.text.isNotEmpty) {
@@ -137,7 +172,7 @@ class TimeLogController {
       "projectName": projectName,
       "taskName": taskName,
       "date": formattedDate,
-      "hours": hours,
+      "hours": (hours == null || hours.isEmpty) ? '0' : hours,
       "minutes": (minutes == null || minutes.isEmpty) ? '0' : minutes,
       "description": description
     };

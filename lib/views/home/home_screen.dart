@@ -23,6 +23,12 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isDrawerOpen = false;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  // Create GlobalKeys for each screen's state to access refresh methods
+  final GlobalKey<CheckInCheckOutState> _checkInKey = GlobalKey<CheckInCheckOutState>();
+  final GlobalKey<TimeLogsScreenState> _timeLogKey = GlobalKey<TimeLogsScreenState>();
+  final GlobalKey<LeaveScreenState> _leaveKey = GlobalKey<LeaveScreenState>();
+  final GlobalKey<ProfileScreenState> _profileKey = GlobalKey<ProfileScreenState>();
+
 
 
   static final List<Widget> _widgetOptions = <Widget>[
@@ -32,10 +38,18 @@ class _HomeScreenState extends State<HomeScreen> {
     const ProfileScreen(),
   ];
 
+
+  late final List<Widget> _pages;
+
   @override
   void initState() {
     super.initState();
-    _selectedIndex = widget.initialIndex;
+    _pages = [
+      CheckInCheckOut(key: _checkInKey),
+      TimeLogsScreen(key: _timeLogKey),
+      LeaveScreen(key: _leaveKey),
+      ProfileScreen(key: _profileKey),
+    ];
   }
 
   @override
@@ -56,7 +70,24 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedIndex = index;
     });
+
+    // Trigger fetch API on screen load
+    switch (index) {
+      case 0:
+        _checkInKey.currentState?.fetchData();
+        break;
+      case 1:
+        _timeLogKey.currentState?.fetchData();
+        break;
+      case 2:
+        _leaveKey.currentState?.fetchData();
+        break;
+      case 3:
+        _profileKey.currentState?.fetchData();
+        break;
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
       key: _scaffoldKey,
       body: IndexedStack(
         index: _selectedIndex,
-        children: _widgetOptions,
+        children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [

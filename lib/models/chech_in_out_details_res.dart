@@ -32,21 +32,6 @@ String checkInOutResponseToJson(CheckInOutResponse data) => json.encode(data.toJ
 
      }else{
        print("expiredtoken");
-       /*KMaterialDialogs.sessionTimeOut(
-         context,
-         IconsButton(
-           onPressed: () {
-             Navigator.pop(context); // Dismiss dialog
-             Navigator.pushReplacementNamed(context, '/login_screen');
-           },
-           text: 'Okay',
-           color: Colors.red,
-           textStyle: const TextStyle(color: Colors.white),
-           iconColor: Colors.white,
-         ),
-         "Session Expired",
-         "Your session has expired. Please login again.",
-       );*/
        if(response.status==false && response.code == 401){
          print("expiredtoken");
 
@@ -106,6 +91,7 @@ class CheckInOutList {
   String checkInTime;
   String checkInLocation;
   String checkIndescription;
+  String checkInCheckOutId;
   bool checkInCheckOut;
 
   CheckInOutList({
@@ -117,6 +103,7 @@ class CheckInOutList {
     required this.checkInTime,
     required this.checkInLocation,
     required this.checkIndescription,
+    required this.checkInCheckOutId,
     required this.checkInCheckOut,
   });
 
@@ -129,6 +116,7 @@ class CheckInOutList {
     checkInTime: json["checkInTime"],
     checkInLocation: json["checkInLocation"],
     checkIndescription: json["checkIndescription"],
+    checkInCheckOutId: json["checkInCheckOutId"],
     checkInCheckOut: json["checkInCheckOut"],
   );
 
@@ -142,5 +130,6 @@ class CheckInOutList {
     "checkInLocation": checkInLocation,
     "checkIndescription": checkIndescription,
     "checkInCheckOut": checkInCheckOut,
+    "checkInCheckOutId":checkInCheckOutId
   };
 }

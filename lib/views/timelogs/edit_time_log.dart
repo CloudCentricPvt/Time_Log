@@ -306,11 +306,13 @@ class _EditTimeLogState extends State<EditTimeLog> {
           useMaxLines: true,
           isRequired: true,
           readOnly: true,
+          disableBgColor: true,
           maxLines: 1,
           onChange: (value) {
             _controller.projectController.text = value!;
             return null;
           },
+
         ),
       ],
     );
@@ -393,6 +395,8 @@ class _EditTimeLogState extends State<EditTimeLog> {
       controller: _controller.descriptionController,
       useMaxLines: true,
       isRequired: true,
+      useMaxLength: true,
+      maxLength: 32768,
       maxLines: 3,
       /*onChange: (value) {
         _controller.descriptionController.text = value!;
@@ -427,7 +431,7 @@ class _EditTimeLogState extends State<EditTimeLog> {
             labelText: 'Minutes',
             hintText: '00',
             keyboardType: TextInputType.number,
-            isRequired: false,
+            isRequired: true,
             controller: _controller.minController,
             maxLength: 2,
             inputFormatters: [

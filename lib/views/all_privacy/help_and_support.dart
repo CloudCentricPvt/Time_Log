@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import '../utils/constants/check_internet.dart';
-import '../utils/constants/k_colors.dart';
-import '../utils/popups/k_material_dialog.dart';
-import '../utils/reusable_widgit/k_custom_app_bar.dart';
+import '../../utils/constants/check_internet.dart';
+import '../../utils/constants/k_colors.dart';
+import '../../utils/popups/k_material_dialog.dart';
+import '../../utils/reusable_widgit/k_custom_app_bar.dart';
 
 class HelpAndSupport extends StatefulWidget {
   const HelpAndSupport({Key? key}) : super(key: key);

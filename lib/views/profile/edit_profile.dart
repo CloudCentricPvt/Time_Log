@@ -120,6 +120,7 @@ class _EditProfileState extends State<EditProfile> {
                       return null;
                     },*/
                     readOnly: true,
+                    disableBgColor: true,
                     prefixIcon: null,
                   ),
 
@@ -133,6 +134,7 @@ class _EditProfileState extends State<EditProfile> {
                       _editProfileController.genderController.text = value!;
                       return null;
                     },*/
+                    disableBgColor: true,
                     readOnly: true,
                     prefixIcon: null,
                   ),
@@ -163,6 +165,7 @@ class _EditProfileState extends State<EditProfile> {
                       _editProfileController.emailController.text = value!;
                       return null;
                     },*/
+                    disableBgColor: true,
                     readOnly: true,
                     prefixIcon: null,
                   ),
@@ -177,6 +180,7 @@ class _EditProfileState extends State<EditProfile> {
                       _editProfileController.dobController.text = value!;
                       return null;
                     },*/
+                    disableBgColor: true,
                     readOnly: true,
                     prefixIcon: null,
                   ),
@@ -212,7 +216,7 @@ class _EditProfileState extends State<EditProfile> {
                     useMaxLines: true,
                     useMaxLength: true,
                     maxLines: 3,
-                    maxLength: 500,
+                    maxLength: 32768,
                     controller: _editProfileController.mailingAddressController,
                     keyboardType: TextInputType.text,
                     /*onChange: (value) {
