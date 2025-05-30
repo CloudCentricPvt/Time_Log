@@ -9,6 +9,7 @@ import 'package:time_log/utils/reusable_widgit/k_size_box.dart';
 import 'package:time_log/views/leaves/request_comp_off_screen.dart';
 import 'package:time_log/views/leaves/request_work_from_home.dart';
 import '../../models/dashboard_res.dart';
+import '../../models/upcoming_holidays_res.dart';
 import '../../models/upcoming_leaves_res.dart';
 import '../../utils/constants/check_internet.dart';
 import '../../utils/constants/k_colors.dart';
@@ -22,10 +23,10 @@ class LeaveScreen extends StatefulWidget {
   const LeaveScreen({super.key});
 
   @override
-  State<LeaveScreen> createState() => _LeaveScreenState();
+  State<LeaveScreen> createState() => LeaveScreenState();
 }
 
-class _LeaveScreenState extends State<LeaveScreen> {
+class LeaveScreenState extends State<LeaveScreen> {
   final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
   bool _isLoading = false;
   String leaveBal = '';
@@ -53,8 +54,8 @@ class _LeaveScreenState extends State<LeaveScreen> {
 
   @override
   void initState() {
-    _checkInternetConnection();
     super.initState();
+    fetchData();
   }
 
 
@@ -83,6 +84,10 @@ class _LeaveScreenState extends State<LeaveScreen> {
     fetchAnnualLeaveDetails();
     fetchLeaveList();
     fetUpcomingHolidays();
+  }
+
+  void fetchData() {
+    _checkInternetConnection();
   }
   /// --- refresh data when swap down screen
   Future<void> _refreshData() async {
@@ -169,7 +174,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
           casualLeave = (casualLeaveBal % 1 == 0)
               ? casualLeaveBal.toInt().toString()
               : casualLeaveBal.toString();
-          usedLeave1 = usedLeave;
+          usedLeave1 = usedLeave.toInt();
           sickLeave = (sickLeaveBal % 1 == 0)
               ? sickLeaveBal.toInt().toString()
               : sickLeaveBal.toString();
@@ -636,7 +641,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "Upcoming Your Leaves",
+            "Your Upcoming Leaves",
             style: TextStyle(
               fontFamily: "Poppins",
               fontWeight: FontWeight.w600,
@@ -757,6 +762,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
     final response = await getDashboard(context);
     if (response is DashboardResponse) {
       setState(() {
+        //upcomingHolidays = response.data.holidays!;
         upcomingHolidays = response.data.holidays;
         print('Check working hrs');
       });

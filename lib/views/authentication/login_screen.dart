@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:time_log/controllers/login_controller.dart';
 import 'package:time_log/utils/constants/k_asstes.dart';
+import 'package:time_log/utils/popups/k_material_dialog.dart';
 
 import '../../utils/constants/k_colors.dart';
 
@@ -153,18 +155,34 @@ class _LoginScreenState extends State<LoginScreen> {
         const SizedBox(
           height: 20,
         ),
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              "Forgot Password?",
-              style: TextStyle(
-                color: Colors.blue,
-                fontSize: 14,
-                fontFamily: 'Poppins',
+        InkWell(
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                "Forgot Password?",
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 14,
+                  fontFamily: 'Poppins',
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
+          onTap: (){
+            KMaterialDialogs.noInternetFound(
+              context,
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("OK",style: TextStyle(color: KColors.appPrimary),),
+              ),
+              "Alert!",
+              "Please contact your reporting manager.",
+            );
+
+          },
         ),
         const SizedBox(
           height: 20,

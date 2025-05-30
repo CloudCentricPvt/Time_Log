@@ -13,6 +13,7 @@ class KAssets{
   static const birthday_image="assets/images/birthday_img.png";
   static const aniversary_image="assets/images/aniversay_img.png";
   static const login_image="assets/images/login_img.png";
+  static const anniversary="assets/images/anniversary_img1.png";
 
 
   /// --- SVGs

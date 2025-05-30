@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -27,7 +29,6 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
   double casualLeaveBal = 0.0;
   LeaveBal? data;
 
-
   @override
   void initState() {
     _checkInternetConnection();
@@ -40,13 +41,10 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
 
       if (response is AnnualLeaveDetailsResponse) {
         setState(() {
-
           final dataList = response.data;
           data = dataList;
           _isLoading = false;
-
         });
-
       } else {
         setState(() {
           _isLoading = false;
@@ -103,47 +101,63 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
         backgroundColor: KColors.appPrimary,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Color(0xFF84DBFF), // Same as app bar
-          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+          statusBarIconBrightness:
+              Brightness.dark, // or .light depending on contrast
         ),
         title: const KCustomAppBar(
           screenTitle: 'Balance Leave',
         ),
       ),
-      body: _isLoading ? KLoader() : RefreshIndicator(
-        onRefresh: _refreshData,
-        child: SingleChildScrollView(
-          physics: AlwaysScrollableScrollPhysics(), // <- Required!
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                data?.totalCasualLeave != null && data!.totalCasualLeave != 0
-                    ? _showCasualLeave()
-                    : SizedBox(),
+      body: _isLoading
+          ? KLoader()
+          : RefreshIndicator(
+              onRefresh: _refreshData,
+              child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(), // <- Required!
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      data?.totalCasualLeave != null &&
+                              data!.totalCasualLeave != 0
+                          ? _showCasualLeave()
+                          : SizedBox(),
 
-                data?.totalSickLeave != null && data!.totalSickLeave != 0
-                    ? _showSickLeave()
-                    : SizedBox(),// or SizedBox.shrink() if you want it to take no space
+                      data?.totalSickLeave != null && data!.totalSickLeave != 0
+                          ? _showSickLeave()
+                          : SizedBox(),
+                      // or SizedBox.shrink() if you want it to take no space
 
-                data?.totalElLeave != null && data!.totalElLeave != 0
-                    ? _showEarnLeave()
-                    : SizedBox(),
+                      data?.totalElLeave != null && data!.totalElLeave != 0
+                          ? _showEarnLeave()
+                          : SizedBox(),
 
-                data?.totalCompOffLeave != null && data!.totalCompOffLeave != 0
-                    ? _showCompOffLeave()
-                    : SizedBox(),
+                      data?.totalCompOffLeave != null &&
+                              data!.totalCompOffLeave != 0
+                          ? _showCompOffLeave()
+                          : SizedBox(),
 
-                //_showLWPLeave(),
-                //_showMaternityLeave(),
-                //_showPaternityLeave(),
-                SizedBox(height: 10,),
-                CustomElevatedButton(text: 'Apply Leave', onPressed: () { Navigator.pushNamed(context, '/apply_leave_screen');},),
-                KSizedBox.h14,
-              ],
+                      data?.totalCompOffLeave != null &&
+                              data!.totalCompOffLeave != 0
+                          ? _showLWPLeave()
+                          : SizedBox(),
+                      //_showMaternityLeave(),
+                      //_showPaternityLeave(),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      CustomElevatedButton(
+                        text: 'Apply Leave',
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/apply_leave_screen');
+                        },
+                      ),
+                      KSizedBox.h14,
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -165,69 +179,179 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
       case "Comp Off Leave":
         return KColors.pinkColor;
       default:
-        return Colors.grey;  // Default color if no match
+        return Colors.grey; // Default color if no match
     }
   }
 
   Widget _showCasualLeave() {
-    int left = data?.casualLeaveBal?.toInt() ?? 0;
-    int total = data?.totalCasualLeave?.toInt() ?? 0;
-    int consumed = total - left;
+    double left = data?.casualLeaveBal != null ? data!.casualLeaveBal : 0.0;
+    double total = data?.totalCasualLeave != null ? data!.totalCasualLeave  : 0.0;
+    double consumed = total - left;
+
+    log("LeftValue : $left");
+    log("TotalValue : $total");
+
+    var splitLeft = left.toString().split(".");
+    var splitTotal = total.toString().split(".");
+
+    var finalLeft = "";
+    var finalTotal = "";
+
+    if(splitLeft[1] == "0"){
+      finalLeft = left.toInt().toString();
+    }else{
+      finalLeft = left.toString();
+    }
+
+    if(splitTotal[1] == "0"){
+      finalTotal = total.toInt().toString();
+    }else{
+      finalTotal = total.toString();
+    }
+
     return BalanceLeave(
-      type: "Casual Leave/Paid Leave",
-      consumed: ('$consumed Day'),
-      left: data?.casualLeaveBal.toInt() ?? 0,
-      total: data?.totalCasualLeave.toInt() ?? 0,
+      type: "Casual Leave",
+      consumed: ('$consumed Day').toString(),
+      left: finalLeft,
+      total: finalTotal,
       color: KColors.purpleColor,
       iconAsset: KAssets.casualLeave,
     );
   }
 
   Widget _showSickLeave() {
-    int left = data?.sickLeaveBal?.toInt() ?? 0;
-    int total = data?.totalSickLeave?.toInt() ?? 0;
-    int consumed = total - left;
+    double left = data?.sickLeaveBal != null ? data!.sickLeaveBal : 0.0;
+    double total = data?.totalSickLeave != null ? data!.totalSickLeave : 0.0;
+    double consumed = total - left;
+
+    log("LeftValue : $left");
+    log("TotalValue : $total");
+
+    var splitLeft = left.toString().split(".");
+    var splitTotal = total.toString().split(".");
+
+    var finalLeft = "";
+    var finalTotal = "";
+
+    if(splitLeft[1] == "0"){
+      finalLeft = left.toInt().toString();
+    }else{
+      finalLeft = left.toString();
+    }
+
+    if(splitTotal[1] == "0"){
+      finalTotal = total.toInt().toString();
+    }else{
+      finalTotal = total.toString();
+    }
+
     return BalanceLeave(
       type: "Sick Leaves",
       consumed: ('$consumed Day'),
-      left: data?.sickLeaveBal.toInt() ?? 0,
-      total: data?.totalSickLeave.toInt() ?? 0,
+      left: finalLeft,
+      total: finalTotal,
       color: KColors.greenColor,
       iconAsset: KAssets.sickLeave,
     );
   }
 
   Widget _showEarnLeave() {
-    int left = data?.elLeaveBal?.toInt() ?? 0;
-    int total = data?.totalElLeave?.toInt() ?? 0;
-    int consumed = total - left;
+    double left = data?.elLeaveBal != null ? data!.elLeaveBal : 0.0;
+    double total = data?.totalElLeave != null ? data!.totalElLeave : 0.0;
+    double consumed = total - left;
+
+    log("LeftValue : $left");
+    log("TotalValue : $total");
+
+    var splitLeft = left.toString().split(".");
+    var splitTotal = total.toString().split(".");
+
+    var finalLeft = "";
+    var finalTotal = "";
+
+    if(splitLeft[1] == "0"){
+      finalLeft = left.toInt().toString();
+    }else{
+      finalLeft = left.toString();
+    }
+
+    if(splitTotal[1] == "0"){
+      finalTotal = total.toInt().toString();
+    }else{
+      finalTotal = total.toString();
+    }
     return BalanceLeave(
       type: "Earn Leave",
       consumed: ('$consumed Day'),
-      left: data?.elLeaveBal.toInt() ?? 0,
-      total: data?.totalElLeave.toInt() ?? 0,
+      left: finalLeft,
+      total: finalTotal,
       color: KColors.orangeColor,
       iconAsset: KAssets.earnLeave,
     );
   }
 
   Widget _showCompOffLeave() {
+    double left = data?.compOffLeaveBal != null ? data!.compOffLeaveBal : 0.0;
+    double total = data?.totalCompOffLeave != null ? data!.totalCompOffLeave : 0.0;
+    double consumed = total - left;
+
+    log("LeftValue : $left");
+    log("TotalValue : $total");
+
+    var splitLeft = left.toString().split(".");
+    var splitTotal = total.toString().split(".");
+
+    var finalLeft = "";
+    var finalTotal = "";
+
+    if(splitLeft[1] == "0"){
+      finalLeft = left.toInt().toString();
+    }else{
+      finalLeft = left.toString();
+    }
+
+    if(splitTotal[1] == "0"){
+      finalTotal = total.toInt().toString();
+    }else{
+      finalTotal = total.toString();
+    }
+
     return BalanceLeave(
       type: "Comp Off Leave",
-      consumed: '0 days',
-      left: data?.compOffLeaveBal.toInt() ?? 0,
-      total: data?.totalCompOffLeave.toInt() ?? 0,
+      consumed: ('$consumed Day'),
+      left: finalLeft,
+      total: finalTotal,
       color: KColors.pinkColor,
       iconAsset: KAssets.compOffLeave,
     );
   }
 
   Widget _showLWPLeave() {
+
+    //double left = data?.lwpAvailed != null ? data!.lwpAvailed : 0.0;
+    double total = data?.lwpAvailed != null ? data!.lwpAvailed : 0.0;
+    //double consumed = total - left;
+
+
+    var splitTotal = total.toString().split(".");
+
+    var finalLeft = "";
+    var finalTotal = "";
+
+
+    if(splitTotal[1] == "0"){
+      finalTotal = total.toInt().toString();
+    }else{
+      finalTotal = total.toString();
+    }
+
+
+
     return BalanceLeave(
       type: "LWP Leave",
       consumed: '0 days',
-      left: 1,
-      total: (casualLeave.toInt()),
+      left: "0",
+      total: finalTotal,
       color: KColors.appPrimary,
       iconAsset: KAssets.lwpLeave,
     );
@@ -237,8 +361,8 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
     return BalanceLeave(
       type: "Maternity Leave",
       consumed: '0 days',
-      left: 1,
-      total: (casualLeave.toInt()),
+      left: "",
+      total: "",
       color: KColors.appPrimaryRed,
       iconAsset: KAssets.compOffLeave,
     );
@@ -248,8 +372,8 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
     return BalanceLeave(
       type: "Paternity Leave",
       consumed: '0 days',
-      left: 1,
-      total: (casualLeave.toInt()),
+      left: "",
+      total: "",
       color: KColors.appPrimaryYellow,
       iconAsset: KAssets.compOffLeave,
     );
@@ -259,20 +383,19 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
 class BalanceLeave extends StatelessWidget {
   final String type;
   final String consumed;
-  final int left;
-  final int total;
+  final String left;
+  final String total;
   final Color color;
   final String iconAsset;
 
-  const BalanceLeave({
-    super.key,
-    required this.type,
-    required this.consumed,
-    required this.left,
-    required this.total,
-    required this.color,
-    required this.iconAsset
-  });
+  const BalanceLeave(
+      {super.key,
+      required this.type,
+      required this.consumed,
+      required this.left,
+      required this.total,
+      required this.color,
+      required this.iconAsset});
 
   @override
   Widget build(BuildContext context) {
@@ -282,7 +405,8 @@ class BalanceLeave extends StatelessWidget {
       ),
       elevation: 2,
       color: Colors.white,
-      shadowColor: KColors.cardShadowColor,// Card background set to white
+      shadowColor: KColors.cardShadowColor,
+      // Card background set to white
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: SizedBox(
         height: 75,
@@ -291,7 +415,7 @@ class BalanceLeave extends StatelessWidget {
           children: [
             ///---Vertical Colored Line (Only at Start)
             Padding(
-              padding: const EdgeInsets.only(top: 1,bottom: 1),
+              padding: const EdgeInsets.only(top: 1, bottom: 1),
               child: Container(
                 width: 4,
                 height: double.infinity,
@@ -306,7 +430,9 @@ class BalanceLeave extends StatelessWidget {
             ),
 
             ///-- Set Icons
-            const SizedBox(width: 20,),
+            const SizedBox(
+              width: 20,
+            ),
             Center(
               child: SvgPicture.asset(
                 iconAsset,
@@ -347,11 +473,11 @@ class BalanceLeave extends StatelessWidget {
                           // Consumed Days Tag
                           Container(
                             //padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4,),
-                            padding: const EdgeInsets.only(left: 8,right: 8,top: 1,bottom: 1),
+                            padding: const EdgeInsets.only(
+                                left: 8, right: 8, top: 1, bottom: 1),
                             decoration: BoxDecoration(
                               color: color,
                               borderRadius: BorderRadius.circular(0),
-
                             ),
                             child: Text(
                               consumed,
@@ -360,7 +486,6 @@ class BalanceLeave extends StatelessWidget {
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
                                 fontFamily: 'Poppins',
-
                               ),
                             ),
                           ),
@@ -373,7 +498,7 @@ class BalanceLeave extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         const Text(
-                          "Left/Total",
+                          "Used/Total",
                           style: TextStyle(
                             fontSize: 10,
                             color: Colors.black54,

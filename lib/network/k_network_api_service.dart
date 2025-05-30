@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as https;
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
+import '../utils/constants/k_colors.dart';
 import '../utils/popups/k_material_dialog.dart';
 import '../utils/toasts/k_snack_bar_events.dart';
 import 'k_base_api_service.dart';
@@ -217,19 +218,19 @@ class KNetworkApiServices extends KBaseApiServices {
       case 401:
         KMaterialDialogs.sessionTimeOut(
           context,
-          IconsButton(
+          TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/login_screen');
             },
-            text: 'Login',
-            color: Colors.red,
-            textStyle: const TextStyle(color: Colors.white),
-            iconColor: Colors.white,
+            child: Text(
+              "OK",
+              style: TextStyle(color: KColors.appPrimaryRed),
+            ),
           ),
           "Session Expired",
           "Your session has expired. Please login again.",
         );
+
 
         log("GetAPIStatusCode:401 : ${response.statusCode}");
         throw KSnackBarEvents.errorSnackBar(

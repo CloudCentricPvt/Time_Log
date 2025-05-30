@@ -2,29 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:time_log/utils/constants/k_colors.dart';
-
+import 'package:time_log/views/all_privacy/help_and_support.dart';
+import 'package:time_log/views/all_privacy/leaves_policy_screen.dart';
+import 'package:time_log/views/all_privacy/posh_policy.dart';
+import 'package:time_log/views/all_privacy/privacy_policies_screen.dart';
+import 'package:time_log/views/all_privacy/terms_and_condition_screen.dart';
 import 'package:time_log/views/authentication/change_password.dart';
 import 'package:time_log/views/authentication/login_screen.dart';
-import 'package:time_log/views/help_and_support.dart';
 import 'package:time_log/views/leaves/comp_off_history_screen.dart';
 import 'package:time_log/views/leaves/request_comp_off_screen.dart';
 import 'package:time_log/views/dashBoard/check_in_check_out.dart';
 import 'package:time_log/views/holidaysList/holiday_List.dart';
 import 'package:time_log/views/home/home_screen.dart';
-import 'package:time_log/views/leavePolicy/leaves_policy_screen.dart';
 import 'package:time_log/views/leaves/apply_leave.dart';
 import 'package:time_log/views/leaves/balance_leave_screen.dart';
 import 'package:time_log/views/leaves/leave_history.dart';
 import 'package:time_log/views/leaves/leave_screen.dart';
 import 'package:time_log/views/leaves/work_from_home_history.dart';
 import 'package:time_log/views/notification/notification_screen.dart';
-import 'package:time_log/views/privacy_policies/privacy_policies_screen.dart';
 import 'package:time_log/views/profile/edit_profile.dart';
 import 'package:time_log/views/profile/profile_screen.dart';
 import 'package:time_log/views/leaves/request_work_from_home.dart';
 import 'package:time_log/views/splash/splash_screen.dart';
-import 'package:time_log/views/terms_and_condition/terms_and_condition_screen.dart';
 import 'package:time_log/views/timelogs/create_time_log.dart';
 import 'package:time_log/views/timelogs/edit_time_log.dart';
 import 'package:time_log/views/timelogs/time_logs_screen.dart';
@@ -77,6 +76,8 @@ class MyApp extends StatelessWidget {
         '/leave_policy_screen': (context) => const LeavesPolicyScreen(),
         '/privacy_policy_screen': (context) => const PrivacyPoliciesScreen(),
         '/terms_and_condition_screen': (context) => const TermsAndConditionScreen(),
+        '/posh_policy_screen': (context) => const PoshPolicy(),
+        '/help_and_support_screen': (context) => const HelpAndSupport(),
         '/holiday_list_screen': (context) => const HolidayList(),
         '/comp_off_screen': (context) => const RequestCompOFF(),
         '/comp_off_history_screen': (context) => const CompOffHistoryScreen(),
@@ -87,7 +88,6 @@ class MyApp extends StatelessWidget {
         '/balance_leave_screen': (context) => const BalanceLeaveScreen(),
         '/notification_screen': (context) => const NotificationScreen(),
         '/upcoming_events_screen': (context) => const UpcomingEvents(),
-        '/help_and_support_screen': (context) => const HelpAndSupport(),
 
       },
     );

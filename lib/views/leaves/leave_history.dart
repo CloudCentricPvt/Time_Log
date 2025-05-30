@@ -285,7 +285,7 @@ class _LeaveHistoryState extends State<LeaveHistory> {
     }
   }
 
-  /// --- Show WFH History data in ListView
+  /// --- Show Leave History data in ListView
   Widget _showLeaveHistoryDataInList(AppliedLeaveHistory leave) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),

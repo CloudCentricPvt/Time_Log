@@ -19,33 +19,43 @@ class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class ProfileScreenState extends State<ProfileScreen> {
   final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
   final storage = GetStorage();
   LstemployeeDetail? employeeData;
   bool _isLoading = true;
 
-  @override
-  void initState() {
-    _checkInternetConnection();
-    super.initState();
-
+  // 👇 This is your refresh method
+  void refreshProfileData() {
+    print("Refreshing profile data...");
+    _checkInternetConnection(); // your actual data reload logic
   }
 
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
 
   void _checkInternetConnection() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     bool connected = await _checkInternet.isConnected();
     if (!connected) {
-      // Show no internet dialog or handle no connectivity case
+      setState(() {
+        _isLoading = false;
+      });
+
       KMaterialDialogs.noInternetFound(
         context,
         IconsButton(
           onPressed: () {
             Navigator.pop(context);
-            // Maybe retry or do something else
           },
           text: 'Okay',
           color: Colors.red,
@@ -55,11 +65,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         "No Internet Connection",
         "Please check your internet connection and try again.",
       );
-      return; // Stop further API calls
+      return;
     }
 
     fetchProfileDetailsData();
+
   }
+  void fetchData() {
+    _checkInternetConnection();
+
+  }
+
 
   /// --- refresh data when swap down screen
   Future<void> _refreshData() async {
@@ -95,10 +111,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 const SizedBox(height: 40,),
                 const Center(
-                  child: CircleAvatar(
-                    radius: 65, // Adjust size
-                    backgroundImage: AssetImage('assets/images/profile_img.jpeg'), // Directly load the image
-                  ),
+                    child: CircleAvatar(
+                      radius: 30,
+                      backgroundColor: KColors.grayLight,
+                      child: Icon(
+                        Icons.person,
+                        size: 30,
+                        color: KColors.colorGray,
+                      ),
+                    )
                 ),
                 const SizedBox(height: 10,),
                  Text(employeeData?.employeeName ?? '',style: KFonts.heading),
@@ -164,6 +185,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       onTap: (){
+                        KMaterialDialogs.noInternetFound(
+                          context,
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text("OK",style: TextStyle(color: KColors.appPrimary),),
+                          ),
+                          "Alert!",
+                          "Please contact your reporting manager.",
+                        );
+                        return;
                         Navigator.pushNamed(context, '/change_password_screen',);},
                     ),
                   ],
@@ -222,7 +255,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 10,),
                 KInfoCard(
                   children: [
-                    buildRowForManager("Manager Name:", employeeData?.employeeManagerName ?? '', context,color:KColors.appBlackColor,fontFamily: 'Poppins'),
+                    buildRowForManager("Manager Name:", employeeData?.employeeManagerName ?? '', context,color:KColors.textColor,fontFamily: 'Poppins'),
                     buildRowForManager("Manager Email:", employeeData?.employeeManagerEmail ?? '', context, color: KColors.appSecondary),
                     buildRowForManager("Manager Phone:", employeeData?.employeeManagerPhone ?? '', context, color: KColors.appSecondary),
                   ],
@@ -258,7 +291,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontSize: 14,
                 fontWeight: FontWeight.normal,
                 color: color ?? Colors.black,
-                letterSpacing: 0.12,
+                letterSpacing: 0.5,
               ),
             ),
           ),
@@ -289,7 +322,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontSize: 14,
                 fontWeight: FontWeight.normal,
                 color: color ?? Colors.black,
-                letterSpacing: 0.12,
+                letterSpacing: 0.5,
               ),
 
             ),
@@ -318,10 +351,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Text(
               value,
               style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: color ?? Colors.black,
-                letterSpacing: 0.12,
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                  color: color ?? Colors.black,
+                  letterSpacing: 0.5
               ),
             ),
           ),

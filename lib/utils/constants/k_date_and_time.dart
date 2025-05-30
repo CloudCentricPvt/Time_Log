@@ -90,7 +90,7 @@ class KDateAndTime {
   String getDifferenceBetweenCheckInAndCheckOutTime(String checkIn, String checkOut) {
     // Check if either string is null or empty
     if (checkIn == null || checkIn.isEmpty || checkOut == null || checkOut.isEmpty) {
-      return "00:00:00";
+      return "";
     }
 
     try {

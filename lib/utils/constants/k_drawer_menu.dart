@@ -40,9 +40,18 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const CircleAvatar(
+                      /*const CircleAvatar(
                         radius: 30,
                         backgroundImage: AssetImage('assets/images/profile_img.jpeg'),
+                      ),*/
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundColor: KColors.grayLight,
+                        child: Icon(
+                          Icons.person,
+                          size: 30,
+                          color: KColors.colorGray,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       Column(
@@ -86,7 +95,7 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(storage.read(KStorageKey.tWorkingHrsInTHisMonth), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              Text(storage.read(KStorageKey.tWorkingHrsInTHisMonth)?? '', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                               Text("Total working hours in month", style: TextStyle(color: KColors.textColorGray, fontSize: 12)),
                             ],
                           ),
@@ -98,7 +107,7 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(storage.read(KStorageKey.leaveTakenInThisMonth), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              Text(storage.read(KStorageKey.leaveTakenInThisMonth)?? '', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                               Text("Leave taken in month", style: TextStyle(color: KColors.textColorGray, fontSize: 12)),
                             ],
                           ),
@@ -211,6 +220,7 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                           _buildPolicyItem('assets/icons/privacy_policy.svg', 'Leave Policy', '/leave_policy_screen'),
                           _buildPolicyItem('assets/icons/privacy_policy.svg', 'Privacy Policies', '/privacy_policy_screen'),
                           _buildPolicyItem('assets/icons/terms_conditions.svg', 'Terms & Conditions', '/terms_and_condition_screen'),
+                          _buildPolicyItem('assets/icons/terms_conditions.svg', 'Posh Policy', '/posh_policy_screen'),
                         ],
                       ),
                     ),

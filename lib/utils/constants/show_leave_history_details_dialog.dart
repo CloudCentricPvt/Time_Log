@@ -241,14 +241,14 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
   String getIconForType(String? type) {
     switch (type) {
       case 'SL':
-        return KAssets.casualLeave;
-      case 'CL':
         return KAssets.sickLeave;
+      case 'CL':
+        return KAssets.casualLeave;
       case 'EL':
         return KAssets.earnLeave;
       case 'Comp Off':
         return KAssets.compOffLeave;
-      case 'Leave Without Pay':
+      case 'LWP':
         return KAssets.lwpLeave;
       default:
         return KAssets.casualLeave; // fallback icon

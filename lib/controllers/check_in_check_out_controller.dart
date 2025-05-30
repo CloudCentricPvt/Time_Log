@@ -4,6 +4,7 @@ import 'dart:ffi';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:time_log/utils/constants/k_storage_key.dart';
 
 import '../network/k_network_api_service.dart';
 import '../utils/constants/api_container.dart';
@@ -47,7 +48,11 @@ class CheckInCheckOutController{
       if(response!=null){
         if(response['code']==200 && response['status']==true){
 
+          storage.write("${KStorageKey.attendeeId}", response['attendeeId']);
+          print('#Attendee_ID:${storage.read(KStorageKey.attendeeId)}');
+
           KShowInfo.showSuccessMessage(context, response['message']?.toString() ?? 'No message');
+
         }else{
           KShowInfo.showInfoMessage(context, response['message']?.toString() ?? 'No message');
           
@@ -77,6 +82,7 @@ class CheckInCheckOutController{
     /// --- call Check Out API
     var checkOutPayLoad = {
       "empId": storage.read("EMP_ID"),
+      "atendeeId": storage.read(KStorageKey.attendeeId),
       "latitude": lat.toString(),
       "longitude": long.toString(),
       "description": des,

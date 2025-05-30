@@ -308,7 +308,7 @@ class _CompOffScreenState extends State<RequestCompOFF> {
                     useMaxLines: true,
                     useMaxLength: true,
                     maxLines: 4,
-                    maxLength: 1000,
+                    maxLength: 32768,
                     /*onChange: (value) {
                       _controller.descriptionController.text = value!;
                       return null;

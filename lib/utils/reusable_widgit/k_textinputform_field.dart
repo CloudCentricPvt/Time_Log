@@ -21,6 +21,7 @@ class KTextInputFormField extends StatelessWidget {
   final bool useMaxLines;
   final int? maxLines;
 
+
   final bool useMaxLength;
   final int? maxLength;
 
@@ -30,6 +31,8 @@ class KTextInputFormField extends StatelessWidget {
   final double? fontSize;
   final FontWeight? fontWeight;
   final List<TextInputFormatter>? inputFormatters;
+  final bool disableBgColor;
+
 
 
   const KTextInputFormField({
@@ -53,6 +56,7 @@ class KTextInputFormField extends StatelessWidget {
     this.fontSize, // New optional fontSize
     this.fontWeight, // New optional fontWeight
     this.inputFormatters,
+    this.disableBgColor = false, // default false
   });
 
   @override
@@ -77,6 +81,11 @@ class KTextInputFormField extends StatelessWidget {
       inputFormatters: inputFormatters, // ✅ apply formatters here
       decoration: InputDecoration(
         alignLabelWithHint: true,
+        filled: true,
+        fillColor: (readOnly ?? false) && disableBgColor
+            ? Colors.grey.shade200
+            : Colors.white,
+
         floatingLabelBehavior: FloatingLabelBehavior.always,
         label: isRequired
             ? RichText(
