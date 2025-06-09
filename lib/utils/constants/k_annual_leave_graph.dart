@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 
+import '../../models/annual_leave_graph_res.dart';
+import '../popups/k_material_dialog.dart';
+import 'check_internet.dart';
 import 'k_colors.dart';
 
 class KAnnualLeaveGraph extends StatefulWidget {
@@ -9,74 +13,199 @@ class KAnnualLeaveGraph extends StatefulWidget {
 }
 
 class _CustomMonthlyChartState extends State<KAnnualLeaveGraph> {
+  final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
+  List<AnnualLeaveData> monthlyLeave = [];
+  List<AnnualLeaveData> annualLeave = [];
+  List<AnnualLeaveData> compOffRequest = [];
+  List<AnnualLeaveData> wfhRequest = [];
+
+  /// --- define month for FLSpot.
+  List<FlSpot> monthlyTakenLeave = [];
+  List<FlSpot> annuallyTakenLeave = [];
+  List<FlSpot> compOffTakenLeave = [];
+  List<FlSpot> wfhTakenLeave = [];
+
+
   final List<String> allMonths = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
 
+  final List<String> fullMonthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  @override
+  void initState() {
+    _checkInternetConnection();
+    super.initState();
+  }
+  void _checkInternetConnection() async {
+    bool connected = await _checkInternet.isConnected();
+    if (!connected) {
+      // Show no internet dialog or handle no connectivity case
+      KMaterialDialogs.noInternetFound(
+        context,
+        IconsButton(
+          onPressed: () {
+            Navigator.pop(context);
+            // Maybe retry or do something else
+          },
+          text: 'Okay',
+          color: Colors.red,
+          textStyle: const TextStyle(color: Colors.white),
+          iconColor: Colors.white,
+        ),
+        "No Internet Connection",
+        "Please check your internet connection and try again.",
+      );
+      return; // Stop further API calls
+    }
+    _fetchMonthlyLeaveDataForShowingGraph();
+    _fetchAnnualLeaveDataForShowingGraph();
+    _fetchCompOffLeaveForShowingGraph();
+    _fetchWFHLeaveForShowingGraph();
+
+  }
+  /// --- this method used for fetch monthly leave from SF.
+  Future<void> _fetchMonthlyLeaveDataForShowingGraph() async {
+    final response = await getAnnualLeaveDetailsForGraph(context);
+
+    if (response is AnnualLeaveGraphResponse) {
+      // Create a list with 12 months initialized to 0.0
+      List<double> monthHourMap = List.filled(12, 0.0);
+
+      // Loop through each working hour detail from the API
+      for (var detail in response.annualDataForGraph) {
+        // Find the index of the month (e.g., January = 0)
+        int index = fullMonthNames.indexOf(detail.strMonthName);
+
+        // If the month name is valid
+        if (index != -1) {
+          // Get the hour count or use 0 if it's null
+          double monthlyLeave = detail.intLeaveCount ?? 0;
+          // Limit the hour count to a maximum of 250
+          double cappedHours = monthlyLeave > 40 ? 40.0 : monthlyLeave.toDouble();
+
+          // Store the value in the correct month index
+          monthHourMap[index] = cappedHours;
+        }
+      }
+
+      // Update the chart data with the new values
+      setState(() {
+        monthlyLeave = response.annualDataForGraph;
+        monthlyTakenLeave = List.generate(12, (index) => FlSpot(index.toDouble(), monthHourMap[index]),
+        );
+      });
+    }
+  }
+
+  /// --- this method used for fetch Annual leave from SF.
+  Future<void> _fetchAnnualLeaveDataForShowingGraph() async {
+    final response = await getAnnualLeaveDetailsForGraph(context);
+
+    if (response is AnnualLeaveGraphResponse) {
+      // Create a list with 12 months initialized to 0.0
+      List<double> monthHourMap = List.filled(12, 0.0);
+
+      // Loop through each working hour detail from the API
+      for (var detail in response.annualDataForGraph) {
+        // Find the index of the month (e.g., January = 0)
+        int index = fullMonthNames.indexOf(detail.strMonthName);
+
+        // If the month name is valid
+        if (index != -1) {
+          // Get the hour count or use 0 if it's null
+          double annualLeave = detail.intCumulativeLeaveCount ?? 0;
+          // Limit the hour count to a maximum of 250
+          double cappedHours = annualLeave > 40 ? 40.0 : annualLeave.toDouble();
+
+          // Store the value in the correct month index
+          monthHourMap[index] = cappedHours;
+        }
+      }
+
+      // Update the chart data with the new values
+      setState(() {
+        annualLeave = response.annualDataForGraph;
+        annuallyTakenLeave = List.generate(12, (index) => FlSpot(index.toDouble(), monthHourMap[index]),
+        );
+      });
+    }
+  }
+
+  /// --- this method used for fetch Comp Off leave from SF.
+  Future<void> _fetchCompOffLeaveForShowingGraph() async {
+    final response = await getAnnualLeaveDetailsForGraph(context);
+
+    if (response is AnnualLeaveGraphResponse) {
+      // Create a list with 12 months initialized to 0.0
+      List<double> monthHourMap = List.filled(12, 0.0);
+
+      // Loop through each working hour detail from the API
+      for (var detail in response.annualDataForGraph) {
+        // Find the index of the month (e.g., January = 0)
+        int index = fullMonthNames.indexOf(detail.strMonthName);
+
+        // If the month name is valid
+        if (index != -1) {
+          // Get the hour count or use 0 if it's null
+          double compOff = detail.intCompOffCount ?? 0;
+          // Limit the hour count to a maximum of 250
+          double cappedHours = compOff > 40 ? 40.0 : compOff.toDouble();
+
+          // Store the value in the correct month index
+          monthHourMap[index] = cappedHours;
+        }
+      }
+
+      // Update the chart data with the new values
+      setState(() {
+        compOffRequest = response.annualDataForGraph;
+        compOffTakenLeave= List.generate(12, (index) => FlSpot(index.toDouble(), monthHourMap[index]),
+        );
+      });
+    }
+  }
+
+  /// --- this method used for fetch WFH leave from SF.
+  Future<void> _fetchWFHLeaveForShowingGraph() async {
+    final response = await getAnnualLeaveDetailsForGraph(context);
+
+    if (response is AnnualLeaveGraphResponse) {
+      // Create a list with 12 months initialized to 0.0
+      List<double> monthHourMap = List.filled(12, 0.0);
+
+      // Loop through each working hour detail from the API
+      for (var detail in response.annualDataForGraph) {
+        // Find the index of the month (e.g., January = 0)
+        int index = fullMonthNames.indexOf(detail.strMonthName);
+
+        // If the month name is valid
+        if (index != -1) {
+          // Get the hour count or use 0 if it's null
+          double compOff = detail.intWfhCount ?? 0;
+          // Limit the hour count to a maximum of 250
+          double cappedHours = compOff > 40 ? 40.0 : compOff.toDouble();
+
+          // Store the value in the correct month index
+          monthHourMap[index] = cappedHours;
+        }
+      }
+
+      // Update the chart data with the new values
+      setState(() {
+        wfhRequest = response.annualDataForGraph;
+        wfhTakenLeave= List.generate(12, (index) => FlSpot(index.toDouble(), monthHourMap[index]),
+        );
+      });
+    }
+  }
+
   // Show labels only for selected months
   final Set<int> visibleMonthIndexes = {0, 2, 4, 6, 8, 10};
-
-  // Sample data
-  final List<FlSpot> monthlyLeave = [
-    FlSpot(0, 11),
-    FlSpot(1, 03),
-    FlSpot(2, 08),
-    FlSpot(3, 0),
-    FlSpot(4, 0),
-    FlSpot(5, 0),
-    FlSpot(6, 0),
-    FlSpot(7, 0),
-    FlSpot(8, 0),
-    FlSpot(9, 0),
-    FlSpot(10, 0),
-    FlSpot(11, 0),
-  ];
-
-  final List<FlSpot> annualLeave = [
-    FlSpot(0, 0),
-    FlSpot(1, 0),
-    FlSpot(2, 21),
-    FlSpot(3, 0),
-    FlSpot(4, 0),
-    FlSpot(5, 0),
-    FlSpot(6, 0),
-    FlSpot(7, 0),
-    FlSpot(8, 0),
-    FlSpot(9, 0),
-    FlSpot(10, 0),
-    FlSpot(11, 0),
-  ];
-
-  final List<FlSpot> compOff = [
-    FlSpot(0, 20),
-    FlSpot(1, 30),
-    FlSpot(2, 10),
-    FlSpot(3, 0),
-    FlSpot(4, 0),
-    FlSpot(5, 0),
-    FlSpot(6, 0),
-    FlSpot(7, 9),
-    FlSpot(8, 4),
-    FlSpot(9, 5),
-    FlSpot(10, 0),
-    FlSpot(11, 0),
-  ];
-
-  final List<FlSpot> wfhRequest = [
-    FlSpot(0, 10),
-    FlSpot(1, 15),
-    FlSpot(2, 25),
-    FlSpot(3, 0),
-    FlSpot(4, 0),
-    FlSpot(5, 0),
-    FlSpot(6, 0),
-    FlSpot(7, 20),
-    FlSpot(8, 12),
-    FlSpot(9, 0),
-    FlSpot(10, 0),
-    FlSpot(11, 0),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -99,33 +228,33 @@ class _CustomMonthlyChartState extends State<KAnnualLeaveGraph> {
                     minX: 0,
                     maxX: 11,
                     minY: 0,
-                    maxY: 30,
+                    maxY: 40,
                     gridData: FlGridData(show: true),
                     borderData: FlBorderData(show: false),
                     lineBarsData: [
                       LineChartBarData(
-                        spots: monthlyLeave,
+                        spots: monthlyTakenLeave,
                         isCurved: false,
                         color: Colors.blue,
                         barWidth: 2,
                         dotData: FlDotData(show: true),
                       ),
                       LineChartBarData(
-                        spots: annualLeave,
+                        spots: annuallyTakenLeave,
                         isCurved: false,
                         color: Colors.yellow[800],
                         barWidth: 2,
                         dotData: FlDotData(show: true),
                       ),
                       LineChartBarData(
-                        spots: compOff,
+                        spots: compOffTakenLeave,
                         isCurved: false,
                         color: Colors.red,
                         barWidth: 2,
                         dotData: FlDotData(show: true),
                       ),
                       LineChartBarData(
-                        spots: wfhRequest,
+                        spots: wfhTakenLeave,
                         isCurved: false,
                         color: Colors.green,
                         barWidth: 2,

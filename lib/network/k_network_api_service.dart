@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as https;
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
+import 'package:time_log/utils/constants/k_storage_key.dart';
 import '../utils/constants/k_colors.dart';
 import '../utils/popups/k_material_dialog.dart';
 import '../utils/toasts/k_snack_bar_events.dart';
@@ -17,60 +18,6 @@ class KNetworkApiServices extends KBaseApiServices {
 
   final localStorage = GetStorage();
   bool _isNoInternetDialogShowing = false;
-
-
-  /* @override
-  Future<dynamic> getRequest(String url) async {
-
-    var auth = localStorage.read("Access_token")?? "";
-    var userId = localStorage.read("User_Id")?? "";
-    var empId = localStorage.read("EMP_ID")?? "";
-    log("API Url: $url");
-    log("UserId: $userId");
-    log("AuthToken: $auth");
-    final headers = {
-      "Content-Type": "application/json",
-      'auth_token': auth!.toString(),
-      'user_code': userId!.toString(),
-      'Authorization': 'Bearer $auth',
-    };
-    dynamic responseJson;
-    try {
-      final response = await https.get(
-        Uri.parse(url.toString()),
-        headers: headers,
-      ).timeout(const Duration(seconds: 10));
-      responseJson = returnApiResponse(response);
-      if (responseJson['status'] == false && responseJson['code'] == 401) {
-        return KMaterialDialogs.sessionTimeOut(
-            Get.context!,
-            IconsButton(
-              onPressed: () {
-                final localStorage = GetStorage();
-                localStorage.erase();
-                //Get.offAll(() => const OtpScreen());
-                Get.offAll(() => const LoginScreen());
-                //Navigator.pushReplacementNamed(context, '/login_screen');
-              },
-              text: 'Okay',
-              color: Colors.red,
-              textStyle: const TextStyle(color: Colors.white),
-              iconColor: Colors.white,
-            ),
-            "Session time out!",
-            "Your sessions has been expired, please do login again to continue.");
-      }
-    } on SocketException {
-      throw KSnackBarEvents.errorSnackBar(title: "Opps", message: "No internet connectivity.");
-    } on TimeoutException {
-      throw KSnackBarEvents.errorSnackBar(
-          title: "Opps", message: "Request timeout");
-    } catch (e) {
-      log("Catch On Get API");
-      //throw KSnackBarEvents.errorSnackBar(title: "Opps", message: "Something went wrong");
-    }
-    return responseJson;
-  }*/
 
   @override
   Future<dynamic> getRequest(String url, BuildContext context) async {
@@ -216,11 +163,17 @@ class KNetworkApiServices extends KBaseApiServices {
         dynamic responseJson = jsonDecode(response.body);
         return responseJson;
       case 401:
+        dynamic responseJson = jsonDecode(response.body);
+        return
         KMaterialDialogs.sessionTimeOut(
           context,
           TextButton(
             onPressed: () {
               Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, '/login_screen');
+              localStorage.remove("Auth_Token");
+              localStorage.remove(KStorageKey.isActive);
+
             },
             child: Text(
               "OK",
@@ -230,8 +183,7 @@ class KNetworkApiServices extends KBaseApiServices {
           "Session Expired",
           "Your session has expired. Please login again.",
         );
-
-
+        
         log("GetAPIStatusCode:401 : ${response.statusCode}");
         throw KSnackBarEvents.errorSnackBar(
             title: "Opps", message: "Invalid request");

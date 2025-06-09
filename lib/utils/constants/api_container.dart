@@ -31,6 +31,7 @@ class KApiEndPoints {
   static String applyWFH = "${KApiContainer.BASE_URL}apexrest/RequestWorkFromHome";
   static String wfhHistory = "${KApiContainer.BASE_URL}apexrest/AppliedWFHDetails";
   static String getAnnualLeaveDetails = "${KApiContainer.BASE_URL}apexrest/AnnualLeaveDetailsAPI";
+  static String getAnnualLeaveDetailsForGraph = "${KApiContainer.BASE_URL}apexrest/AnnualLeaveGraphDetailsAPI";
   static String getUpcomingAllLeave = "${KApiContainer.BASE_URL}apexrest/UpcomingLeave";
   static String getUpcomingHolidays = "${KApiContainer.BASE_URL}apexrest/UpcomingHolidays";
   static String getOfficialHolidays = "${KApiContainer.BASE_URL}apexrest/HolidayList";
