@@ -149,7 +149,7 @@ class _CustomMonthlyChartState extends State<KAnnualLeaveGraph> {
         // Find the index of the month (e.g., January = 0)
         int index = fullMonthNames.indexOf(detail.strMonthName);
 
-        // If the month name is valid
+        // If the month name is valid.
         if (index != -1) {
           // Get the hour count or use 0 if it's null
           double compOff = detail.intCompOffCount ?? 0;
