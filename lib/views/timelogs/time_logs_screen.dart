@@ -42,14 +42,6 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
     "Self Study (April 2024 - March 2025)",
     "UI/UX Designing FY 24-25"
   ];
-  final List<String> taskItems = [
-    "UI/ux CloudCentric",
-    "Uux FieldBan",
-    "ui/ux CloudConics",
-    "UI/ux SocialPols",
-    "ui/ux Desers",
-    "Other"
-  ];
 
   /// time log filter chip functions.....
   int selectedIndex = 0;
@@ -990,12 +982,13 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
       child: isLoading
           ? Center(child: KLoader())
           : timeLogs.isEmpty
-              ? Center(child: Text("No Data Found!"))
+              ? SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  child: Center(child: Text("No Data Found!")),
+                )
               : ListView.builder(
                   shrinkWrap: true,
-                  // 👈 Let the list take minimum height needed
                   physics: NeverScrollableScrollPhysics(),
-                  // 👈 Prevent scroll conflict
                   padding: EdgeInsets.zero,
                   itemCount: getFilteredProjects().length,
                   itemBuilder: (BuildContext context, int index) {
@@ -1425,10 +1418,7 @@ class DetailDialog extends StatelessWidget {
                           Spacer(),
                           Column(
                             children: [
-                              Text(
-                                  min == '0'
-                                      ? "$hrs"
-                                      : "$hrs:$min",
+                              Text(min == '0' ? "$hrs" : "$hrs:$min",
                                   style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,

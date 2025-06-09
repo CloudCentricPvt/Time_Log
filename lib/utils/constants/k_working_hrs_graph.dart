@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
@@ -76,7 +78,7 @@ class _CustomMonthlyChartState extends State<KWorkingHrsGraph> {
           int hours = detail.intHourCount ?? 0;
 
           // Limit the hour count to a maximum of 250
-          double cappedHours = hours > 250 ? 250.0 : hours.toDouble();
+          double cappedHours = hours > 300 ? 300.0 : hours.toDouble();
 
           // Store the value in the correct month index
           monthHourMap[index] = cappedHours;
@@ -93,23 +95,11 @@ class _CustomMonthlyChartState extends State<KWorkingHrsGraph> {
   }
 
 
+
   // Show labels only for these months (odd indexes)
   final Set<int> visibleMonthIndexes = {0, 2, 4, 6, 8, 10};
 
-/*final List<FlSpot> workingHours = [
-    FlSpot(0, 250),
-    FlSpot(1, 250),
-    FlSpot(2, 100),
-    FlSpot(3, 150),
-    FlSpot(4, 180),
-    FlSpot(5, 210),
-    FlSpot(6, 120),
-    FlSpot(7, 100),
-    FlSpot(8, 0),
-    FlSpot(9, 0),
-    FlSpot(10, 0),
-    FlSpot(11, 0),
-  ];*/
+
 
 
   final List<FlSpot> selfStudyHours = [
@@ -149,7 +139,7 @@ class _CustomMonthlyChartState extends State<KWorkingHrsGraph> {
                     minX: 0,
                     maxX: 11,
                     minY: 0,
-                    maxY: 250,
+                    maxY: 300,
                     gridData: FlGridData(show: true),
                     borderData: FlBorderData(show: false),
                     lineBarsData: [

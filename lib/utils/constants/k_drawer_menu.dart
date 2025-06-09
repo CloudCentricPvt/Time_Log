@@ -250,6 +250,7 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                           onTap: () {
                             LogoutDialog.showAlertDialog(context, onConfirm: () {
                               storage.remove('Is_Active');
+                              storage.remove(KStorageKey.attendeeId);
                               Navigator.pushReplacementNamed(context, '/login_screen');
                             });
                           },

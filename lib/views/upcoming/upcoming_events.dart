@@ -95,41 +95,47 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                 )
               : RefreshIndicator(
                   onRefresh: _refreshData,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Visibility(
-                            visible: eventsList.isEmpty ? false : true,
-                            child: Text(
-                              'Today Events',
-                              style: KFonts.normalBold,
-                            )),
-                        SizedBox(
-                          height: 10,
-                        ),
+                  child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Visibility(
+                            visible:  todayEvents.isEmpty ? false: true,
+                              child: Text(
+                                'Today Events',
+                                style: KFonts.normalBold,
+                              )),
+                          SizedBox(
+                            height: 10,
+                          ),
 
-                        _showTodayEvents(),
+                          _showTodayEvents(),
 
-                        /// ---- Leave balance List UI
-                        SizedBox(
-                          height: 10,
-                        ),
+                          /// ---- Leave balance List UI
+                          Visibility(
+                            visible:  todayEvents.isEmpty ? false : true,
+                            child: SizedBox(
+                              height: 10,
+                            ),
+                          ),
 
-                        Visibility(
-                            visible: eventsList.isEmpty ? false : true,
-                            child: Text(
-                              'Upcoming Birthday & Anniversary',
-                              style: KFonts.normalBold,
-                            )),
+                          Visibility(
+                              visible: eventsList.isEmpty ? false : true,
+                              child: Text(
+                                'Upcoming Birthday & Anniversary',
+                                style: KFonts.normalBold,
+                              )),
 
-                        //_showUpcomingBirthdayAndAnniversary(),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        _showUpcomingEvents()
-                      ],
+                          //_showUpcomingBirthdayAndAnniversary(),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          _upcomingBirthdayAndAnniversary()
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -179,7 +185,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     return Visibility(
-      visible: eventsList.isEmpty ? false : true,
+      visible: todayEvents.isEmpty ? false : true,
       child: SizedBox(
         height: 140,
         child: ListView.builder(
@@ -256,7 +262,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
   }
 
   /// ---  show anniversary and birthday
-  Widget _showUpcomingEvents() {
+  Widget _upcomingBirthdayAndAnniversary() {
     return Visibility(
       visible: eventsList.isNotEmpty,
       child: Padding(
