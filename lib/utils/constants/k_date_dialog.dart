@@ -14,7 +14,6 @@ class KDateDialog {
       firstDate: DateTime(1900), // Far past date
       lastDate: DateTime(2100),  // Far future date
     );
-
     if (pickedDate != null) {
       return DateFormat('dd, MMM yyyy').format(pickedDate); // Format changed here
     }
