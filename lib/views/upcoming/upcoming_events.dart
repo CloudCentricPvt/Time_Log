@@ -76,8 +76,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
         backgroundColor: KColors.appPrimary,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Color(0xFF84DBFF), // Same as app bar
-          statusBarIconBrightness:
-              Brightness.dark, // or .light depending on contrast
+          statusBarIconBrightness: Brightness.dark,
         ),
         title: KCustomAppBar(
           screenTitle: 'Upcoming Events',
@@ -91,7 +90,13 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
           ? KLoader()
           : eventsList.isEmpty
               ? const Center(
-                  child: Text("No Upcoming events found!"),
+                  child: Text(
+                    "No Upcoming events found!",
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w400),
+                  ),
                 )
               : RefreshIndicator(
                   onRefresh: _refreshData,
@@ -103,7 +108,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Visibility(
-                            visible:  todayEvents.isEmpty ? false: true,
+                              visible: todayEvents.isEmpty ? false : true,
                               child: Text(
                                 'Today Events',
                                 style: KFonts.normalBold,
@@ -116,7 +121,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
 
                           /// ---- Leave balance List UI
                           Visibility(
-                            visible:  todayEvents.isEmpty ? false : true,
+                            visible: todayEvents.isEmpty ? false : true,
                             child: SizedBox(
                               height: 10,
                             ),
@@ -159,7 +164,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
       case "Comp Off Leave":
         return KColors.pinkColor;
       default:
-        return Colors.grey; // Default color if no match
+        return Colors.grey;
     }
   }
 
@@ -168,9 +173,8 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
     final response = await getDashboard(context);
     if (response is DashboardResponse) {
       setState(() {
-
         eventsList = response.data.events;
-        print('#Events List1');
+        print('#Events List1:$eventsList');
         todayEvents = response.data.todayEvents;
         expandedCards = List.generate(todayEvents.length, (index) => false);
         _isLoading = false;

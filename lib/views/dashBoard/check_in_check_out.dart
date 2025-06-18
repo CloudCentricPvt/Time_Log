@@ -1,5 +1,6 @@
 import 'package:app_settings/app_settings.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -1096,6 +1097,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     double screenWidth = MediaQuery.of(context).size.width;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
             height: 112,
@@ -1112,16 +1114,16 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                     height: 10,
                   ),
                   Text(
-                    totalWorkingHrs ?? '0',
+                    totalWorkingHrs+" hrs" ?? '0',
                     style: const TextStyle(
                       fontSize: 22,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text(
-                      "Total working hours this months",
+                      "Total working hours this month",
                       maxLines: 3,
                       style: TextStyle(
                         fontSize: 10,
@@ -1134,80 +1136,90 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                 ],
               ),
             )),
-        SizedBox(
-            height: 112,
-            width: screenWidth * 0.3,
-            child: Card(
-              elevation: 2,
-              color: KColors.appLightBlue,
-              shadowColor: KColors.cardShadowColor,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0)),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    leaveTaken ?? '0',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
+        InkWell(
+          onTap: (){
+            Navigator.pushNamed(context, '/leaves_screen');
+          },
+          child: SizedBox(
+              height: 112,
+              width: screenWidth * 0.3,
+              child: Card(
+                elevation: 2,
+                color: KColors.appLightBlue,
+                shadowColor: KColors.cardShadowColor,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0)),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 10,
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      "Leaves Taken in this months",
-                      maxLines: 3,
+                    Text(
+                      leaveTaken ?? '0',
                       style: TextStyle(
-                        color: KColors.textColorGray,
-                        fontSize: 10,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  )
-                ],
-              ),
-            )),
-        SizedBox(
-            height: 112,
-            width: screenWidth * 0.3,
-            child: Card(
-              elevation: 2,
-              color: KColors.appLightYellow,
-              shadowColor: KColors.cardShadowColor,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0)),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    pendingCount ?? '0',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        "Leaves Taken in this month",
+                        maxLines: 3,
+                        style: TextStyle(
+                          color: KColors.textColorGray,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  ],
+                ),
+              )),
+        ),
+        InkWell(
+          onTap:(){
+            Navigator.pushNamed(context, '/time_logs_screen');
+          },
+          child: SizedBox(
+              height: 112,
+              width: screenWidth * 0.3,
+              child: Card(
+                elevation: 2,
+                color: KColors.appLightYellow,
+                shadowColor: KColors.cardShadowColor,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0)),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 10,
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      "Pending Time Logs",
-                      maxLines: 3,
+                    Text(
+                      pendingCount ?? '0',
                       style: TextStyle(
-                        color: KColors.textColorGray,
-                        fontSize: 10,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                ],
-              ),
-            )),
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        "Pending Time Logs",
+                        maxLines: 3,
+                        style: TextStyle(
+                          color: KColors.textColorGray,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+        ),
       ],
     );
   }

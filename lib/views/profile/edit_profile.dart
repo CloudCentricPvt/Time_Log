@@ -111,7 +111,7 @@ class _EditProfileState extends State<EditProfile> {
                 padding: const EdgeInsets.all(8.0),
                 child: Column(children: [
                   KTextInputFormField(
-                    labelText: 'Full Name',
+                    labelText: 'Name',
                     hintText: 'Enter your full name',
                     controller: _editProfileController.fullNameController,
                     keyboardType: TextInputType.text,

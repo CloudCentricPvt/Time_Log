@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "499285065253",
+    "project_id": "time-log-9e99c",
+    "storage_bucket": "time-log-9e99c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:499285065253:android:8441d28b94a5ba0eddc9cc",
+        "android_client_info": {
+          "package_name": "com.example.time_log"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAxtbb9UH9LSSHUTKnFcD-AzUnNAd39Ms"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
