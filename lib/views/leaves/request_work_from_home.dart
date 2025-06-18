@@ -36,7 +36,7 @@ class _RequestWorkFromHomeState extends State<RequestWorkFromHome> {
   double _soundLevel = 0.0;
 
   Future<void> _selectStartDate() async {
-    String? selectedDate = await KDateDialog.selectDate(context: context);
+    String? selectedDate = await KDateDialog.futureDate(context: context);
     if (selectedDate != null) {
       setState(() {
         _startDate = selectedDate;
@@ -46,7 +46,7 @@ class _RequestWorkFromHomeState extends State<RequestWorkFromHome> {
   }
 
   Future<void> _selectEndDate() async {
-    String? selectedDate = await KDateDialog.selectDate(context: context);
+    String? selectedDate = await KDateDialog.futureDate(context: context);
     if (selectedDate != null) {
       setState(() {
         _endDate = selectedDate;

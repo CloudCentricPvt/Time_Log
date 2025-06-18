@@ -43,7 +43,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
 
   Future<void> _selectStartDate() async {
 
-    String? selectedStartDate = await KDateDialog.selectDate(context: context);
+    String? selectedStartDate = await KDateDialog.pastOneMonthDate(context: context);
     if (selectedStartDate != null) {
       setState(() {
         _startDate = selectedStartDate;
@@ -54,7 +54,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
 
   Future<void> _selectEndDate() async {
     String? selectedEndDate =
-        await KDateDialog.selectDate(context: context);
+        await KDateDialog.pastOneMonthDate(context: context);
     if (selectedEndDate != null) {
       setState(() {
         _endDate = selectedEndDate;

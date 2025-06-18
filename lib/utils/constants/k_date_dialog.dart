@@ -11,8 +11,8 @@ class KDateDialog {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate ?? DateTime.now(),
-      firstDate: firstDate ?? DateTime.now(),
-      lastDate: lastDate ?? DateTime(2026),
+      firstDate: DateTime(1900), // Far past date
+      lastDate: DateTime(2100),  // Far future date
     );
 
     if (pickedDate != null) {
@@ -40,6 +40,30 @@ class KDateDialog {
     }
     return null;
   }
+
+  /// --- select date from befoe one month
+
+  static Future<String?> pastOneMonthDate({
+    required BuildContext context,
+    DateTime? initialDate,
+    DateTime? lastDate,
+  }) async {
+    DateTime now = DateTime.now();
+    DateTime oneMonthAgo = DateTime(now.year, now.month - 1, now.day);
+
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate ?? now,
+      firstDate: oneMonthAgo,
+      lastDate: lastDate ?? now,
+    );
+
+    if (pickedDate != null) {
+      return DateFormat('dd, MMM yyyy').format(pickedDate);
+    }
+    return null;
+  }
+
 
   ///--- Current date and Future date(open date picker)
   static Future<String?> selectFutureOrCurrentDate({required BuildContext context, DateTime? initialDate, DateTime? lastDate,}) async {
