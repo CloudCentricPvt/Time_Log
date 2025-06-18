@@ -38,7 +38,7 @@ class _CompOffScreenState extends State<RequestCompOFF> {
   int? _differenceInDays;
 
   Future<void> _selectStartDate() async {
-    String? selectedDate = await KDateDialog.selectDate(context: context);
+    String? selectedDate = await KDateDialog.futureDate(context: context);
     if (selectedDate != null) {
       setState(() {
         _startDate = selectedDate;
@@ -48,7 +48,7 @@ class _CompOffScreenState extends State<RequestCompOFF> {
   }
 
   Future<void> _selectEndDate() async {
-    String? selectedDate = await KDateDialog.selectDate(context: context);
+    String? selectedDate = await KDateDialog.futureDate(context: context);
     if (selectedDate != null) {
       setState(() {
         _endDate = selectedDate;
