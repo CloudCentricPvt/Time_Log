@@ -17,86 +17,107 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final LoginController _controller = LoginController();
+  final FocusNode _focusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+
   bool _isPasswordObscure = true;
   bool _isLoading = false;
+  bool _isFormValid = false;
+  bool _isHighlightedMessage = false;
+  bool _isHighlightedPassword = false;
 
   @override
   void initState() {
     super.initState();
+    _controller.userNameController.addListener(_validateForm);
+    _controller.passwordPassController.addListener(_validateForm);
+    _focusNode.addListener(() {
+      setState(() {
+        _isHighlightedMessage = _focusNode.hasFocus;
+      });
+    });
+    _passwordFocusNode.addListener(() {
+      setState(() {
+        _isHighlightedPassword = _passwordFocusNode.hasFocus;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: KColors.appPrimary,
-        body: Column(
-          children: [
-            ///image column.....
-            SizedBox(
-              height: 350,
-              child: Image.asset(
-                KAssets.login_image,
-              ),
+      backgroundColor: KColors.appPrimary,
+      body: Column(
+        children: [
+          ///image column.....
+          SizedBox(
+            height: 350,
+            child: Image.asset(
+              KAssets.login_image,
             ),
-            /// card  .....
-            Expanded(
-              child: SizedBox(
-                width: double.infinity,
-                child: Card(
-                  margin: EdgeInsets.zero, // REMOVE extra space outside the card
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(50),
-                      topRight: Radius.circular(50),
-                    ),
-                  ),
-                  elevation: 0,
-                  color: Colors.white,
-                  /// design part of inside card.....
-                  child: Padding(
-                    padding:
-                    EdgeInsets.only(top: 51, left: 21, right: 21, bottom: 21),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Welcome Back",
-                            style: TextStyle(
-                              color: Color(0XFF38C4FF),
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          const Text(
-                            "Account Login",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontFamily: 'Poppins',
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          /// Login Box....
-                          userLoginForm(),
-                          onClickLoginButton()
+          ),
 
-                        ],
-                      ),
+          /// card  .....
+          Expanded(
+            child: SizedBox(
+              width: double.infinity,
+              child: Card(
+                margin: EdgeInsets.zero,
+                // REMOVE extra space outside the card
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                ),
+                elevation: 0,
+                color: Colors.white,
+
+                /// design part of inside card.....
+                child: Padding(
+                  padding:
+                      EdgeInsets.only(top: 51, left: 21, right: 21, bottom: 21),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Welcome Back",
+                          style: TextStyle(
+                            color: Color(0XFF38C4FF),
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const Text(
+                          "Account Login",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: 'Poppins',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+
+                        /// Login Box....
+                        userLoginForm(),
+                        onClickLoginButton()
+                      ],
                     ),
                   ),
                 ),
               ),
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
   }
 
   ///--- user Input field UI i.e User name and Password
@@ -104,18 +125,18 @@ class _LoginScreenState extends State<LoginScreen> {
     return Column(
       children: [
         TextFormField(
+          focusNode: _focusNode,
           controller: _controller.userNameController,
           decoration: InputDecoration(
             suffixIcon: IconButton(
               onPressed: () {
                 setState(() {
-                  _isPasswordObscure =
-                      !_isPasswordObscure; // Toggle the password visibility
+                  _isHighlightedMessage = !_isHighlightedMessage;
                 });
               },
-              icon: SvgPicture.asset(
-                _isPasswordObscure ? KAssets.emailIcon : '',
-              ),
+              icon: _isHighlightedMessage
+                  ? SvgPicture.asset(KAssets.highlightedIconMessage)
+                  : SvgPicture.asset(KAssets.emailIcon),
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
@@ -129,8 +150,10 @@ class _LoginScreenState extends State<LoginScreen> {
           height: 20,
         ),
         TextFormField(
+          focusNode: _passwordFocusNode,
           controller: _controller.passwordPassController,
-          obscureText: _isPasswordObscure, // Toggle password visibility
+          obscureText: _isPasswordObscure,
+          // Toggle password visibility
           decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
@@ -141,13 +164,13 @@ class _LoginScreenState extends State<LoginScreen> {
               suffixIcon: IconButton(
                 onPressed: () {
                   setState(() {
-                    _isPasswordObscure =
-                        !_isPasswordObscure; // Toggle the password visibility
+                    _isHighlightedPassword = !_isHighlightedPassword;
+                    _isPasswordObscure = !_isPasswordObscure;
                   });
                 },
-                icon: SvgPicture.asset(
-                  _isPasswordObscure ? KAssets.eyeIcon : KAssets.eyeClose,
-                ),
+                icon: _isHighlightedPassword
+                    ? SvgPicture.asset(KAssets.highlightedIconPassword)
+                    : SvgPicture.asset(KAssets.eyeIcon),
               )),
 
           style: const TextStyle(),
@@ -169,19 +192,21 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ],
           ),
-          onTap: (){
+          onTap: () {
             KMaterialDialogs.noInternetFound(
               context,
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text("OK",style: TextStyle(color: KColors.appPrimary),),
+                child: const Text(
+                  "OK",
+                  style: TextStyle(color: KColors.appPrimary),
+                ),
               ),
               "Alert!",
               "Please contact your reporting manager.",
             );
-
           },
         ),
         const SizedBox(
@@ -189,6 +214,14 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ],
     );
+  }
+
+  void _validateForm() {
+    final isValid = _controller.userNameController.text.isNotEmpty &&
+        _controller.passwordPassController.text.isNotEmpty;
+    setState(() {
+      _isFormValid = isValid;
+    });
   }
 
   ///--- Login button UI and click for action perform
@@ -202,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
         padding: const EdgeInsets.symmetric(vertical: 16),
         minimumSize: const Size(double.infinity, 0),
       ),
-      onPressed: _isLoading
+      onPressed: (!_isFormValid || _isLoading)
           ? null
           : () async {
               setState(() {
@@ -236,5 +269,14 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.userNameController.removeListener(_validateForm);
+    _focusNode.dispose();
+    _passwordFocusNode.dispose();
+    _controller.passwordPassController.removeListener(_validateForm);
+    super.dispose();
   }
 }

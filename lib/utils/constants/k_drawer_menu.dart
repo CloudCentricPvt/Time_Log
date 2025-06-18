@@ -16,7 +16,7 @@ class CustomDrawerMenu extends StatefulWidget {
 
 class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
   final storage = GetStorage();
-  String _selectedMenu = 'Dashboard'; // default selected menu
+  String _selectedMenu = 'Dashboard';
 
   @override
   Widget build(BuildContext context) {

@@ -11,8 +11,8 @@ class KDateDialog {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate ?? DateTime.now(),
-      firstDate: firstDate ?? DateTime(1950),
-      lastDate: lastDate ?? DateTime(2100),
+      firstDate: firstDate ?? DateTime.now(),
+      lastDate: lastDate ?? DateTime(2026),
     );
 
     if (pickedDate != null) {

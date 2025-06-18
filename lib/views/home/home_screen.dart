@@ -29,16 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<LeaveScreenState> _leaveKey = GlobalKey<LeaveScreenState>();
   final GlobalKey<ProfileScreenState> _profileKey = GlobalKey<ProfileScreenState>();
 
-
-
-  static final List<Widget> _widgetOptions = <Widget>[
-    const CheckInCheckOut(),
-    const TimeLogsScreen(),
-    const LeaveScreen(),
-    const ProfileScreen(),
-  ];
-
-
   late final List<Widget> _pages;
 
   @override
@@ -180,11 +170,14 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           FittedBox(
+            alignment: Alignment.center,
             child: Container(
               height: 35,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
               decoration: BoxDecoration(
                 color: isSelected ? KColors.appBlackColor : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),

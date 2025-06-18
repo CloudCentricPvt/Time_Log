@@ -46,5 +46,9 @@ class KAssets{
   static const maternityIcon="assets/icons/comp_off_rejected_icon.svg";
   static const paternityIcon="assets/icons/comp_off_rejected_icon.svg";
 
+  //highlighted Icon
+  static const highlightedIconMessage="assets/icons/highlighted_message_icon.svg";
+  static const highlightedIconPassword="assets/icons/highlighted_eye_icon.svg";
+
 
 }

@@ -50,6 +50,8 @@ dependencies:
   connectivity_plus: ^5.0.2
   dropdown_search: ^5.0.6
   url_launcher: ^6.2.5
+  firebase_messaging: 14.7.10
+  firebase_core: ^2.30.0
 
 
 
