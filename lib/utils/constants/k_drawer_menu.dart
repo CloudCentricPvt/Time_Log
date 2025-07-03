@@ -138,10 +138,21 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                                         ),
                                       ),
                                     ),
-                                    onTap: () {
+                                    /*onTap: () {
                                       Navigator.pop(context);
                                       Navigator.pushNamed(context, '/profile_screen');
-                                    },
+                                    },*/
+
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        Future.delayed(const Duration(milliseconds: 100), () {
+                                          Navigator.pushReplacementNamed(
+                                            context,
+                                            '/home_screen',
+                                            arguments: 3,  // 👉 Pass index 3 here
+                                          );
+                                        });
+                                      }
                                   ),
                                   const Spacer(),
                                   InkWell(
@@ -336,7 +347,7 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
       ),
       onTap: () {
         Navigator.pop(context);
-        Future.delayed(const Duration(milliseconds: 200), () {
+        Future.delayed(const Duration(milliseconds: 100), () {
           Navigator.pushReplacementNamed(
             context,
             '/home_screen',  // <-- Use the correct route name here

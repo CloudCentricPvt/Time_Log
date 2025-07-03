@@ -191,6 +191,17 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
     log("LeftValue : $left");
     log("TotalValue : $total");
 
+    var splitConsume = consumed.toString().split(".");
+    var finalConsume = "";
+
+    if(splitConsume[1] == "0"){
+      finalConsume = consumed.toInt().toString();
+    }else{
+      finalConsume = consumed.toString();
+    }
+
+
+
     var splitLeft = left.toString().split(".");
     var splitTotal = total.toString().split(".");
 
@@ -211,7 +222,7 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
 
     return BalanceLeave(
       type: "Casual Leave",
-      consumed: ('$consumed Day').toString(),
+      consumed: ('$finalConsume Day').toString(),
       left: finalLeft,
       total: finalTotal,
       color: KColors.purpleColor,
@@ -226,6 +237,15 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
 
     log("LeftValue : $left");
     log("TotalValue : $total");
+
+    var splitConsume = consumed.toString().split(".");
+    var finalConsume = "";
+
+    if(splitConsume[1] == "0"){
+      finalConsume = consumed.toInt().toString();
+    }else{
+      finalConsume = consumed.toString();
+    }
 
     var splitLeft = left.toString().split(".");
     var splitTotal = total.toString().split(".");
@@ -247,7 +267,7 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
 
     return BalanceLeave(
       type: "Sick Leaves",
-      consumed: ('$consumed Day'),
+      consumed: ('$finalConsume Day'),
       left: finalLeft,
       total: finalTotal,
       color: KColors.greenColor,
@@ -262,6 +282,15 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
 
     log("LeftValue : $left");
     log("TotalValue : $total");
+
+    var splitConsume = consumed.toString().split(".");
+    var finalConsume = "";
+
+    if(splitConsume[1] == "0"){
+      finalConsume = consumed.toInt().toString();
+    }else{
+      finalConsume = consumed.toString();
+    }
 
     var splitLeft = left.toString().split(".");
     var splitTotal = total.toString().split(".");
@@ -282,7 +311,7 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
     }
     return BalanceLeave(
       type: "Earn Leave",
-      consumed: ('$consumed Day'),
+      consumed: ('$finalConsume Day'),
       left: finalLeft,
       total: finalTotal,
       color: KColors.orangeColor,
@@ -301,6 +330,15 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
     var splitLeft = left.toString().split(".");
     var splitTotal = total.toString().split(".");
 
+    var splitConsume = consumed.toString().split(".");
+    var finalConsume = "";
+
+    if(splitConsume[1] == "0"){
+      finalConsume = consumed.toInt().toString();
+    }else{
+      finalConsume = consumed.toString();
+    }
+
     var finalLeft = "";
     var finalTotal = "";
 
@@ -318,7 +356,7 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
 
     return BalanceLeave(
       type: "Comp Off Leave",
-      consumed: ('$consumed Day'),
+      consumed: ('$finalConsume Day'),
       left: finalLeft,
       total: finalTotal,
       color: KColors.pinkColor,
@@ -498,7 +536,7 @@ class BalanceLeave extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         const Text(
-                          "Used/Total",
+                          "Left/Total",
                           style: TextStyle(
                             fontSize: 10,
                             color: Colors.black54,

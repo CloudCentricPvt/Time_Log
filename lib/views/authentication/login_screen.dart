@@ -143,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             contentPadding:
                 const EdgeInsets.only(left: 20, top: 10, bottom: 10, right: 10),
-            labelText: 'Enter Username or Email',
+            labelText: 'Enter Email',
           ),
         ),
         const SizedBox(
@@ -226,7 +226,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   ///--- Login button UI and click for action perform
   Widget onClickLoginButton() {
-    return ElevatedButton(
+    return
+      ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: KColors.appPrimary,
         shape: const RoundedRectangleBorder(
@@ -244,8 +245,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
               await _controller.login(
                 context,
-                _controller.userNameController.text,
-                _controller.passwordPassController.text,
+                _controller.userNameController.text.trim(),
+                _controller.passwordPassController.text.trim(),
               );
 
               setState(() {

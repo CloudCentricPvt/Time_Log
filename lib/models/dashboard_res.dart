@@ -25,14 +25,6 @@ Future<dynamic> getDashboard(BuildContext context) async {
 
   var response = await apiNetwork.getRequest("${KApiEndPoints.getDashboardDetails}?employeeId=$empID", context);
   print("GET_URL_Dashboard: ${KApiEndPoints.getDashboardDetails}?=$empID");
-
-  if (response != null && response['status'] == true) {
-    DashboardResponse dashboardResponse = DashboardResponse.fromJson(response);
-    return dashboardResponse;
-  } else {
-    return []; // or throw an exception / show an error
-  }
-
   try {
     var response = await apiNetwork.getRequest("${KApiEndPoints.getDashboardDetails}?employeeId=$empID", context);
     print("GET_URL_Dashboard: ${KApiEndPoints.getDashboardDetails}?=$empID");
@@ -120,7 +112,8 @@ class Data {
         todayEvents:
             List<Event>.from(json["todayEvents"].map((x) => Event.fromJson(x))),
         pendingTimeLogEntryCount: json["pending_time_log_entry_count"],
-        holidays: List<Holiday>.from(json["holidays"].map((x) => x)),
+        //holidays: List<Holiday>.from(json["holidays"].map((x) => x)),
+       holidays: List<Holiday>.from(json["holidays"].map((x) => Holiday.fromJson(x))),
         events: List<Event>.from(json["events"].map((x) => Event.fromJson(x))),
         annualLeaveDetails: List<AnnualLeaveDetail>.from(
             json["annualLeaveDetails"]
@@ -136,7 +129,8 @@ class Data {
         "total_leaves_taken": totalLeavesTaken,
         "todayEvents": List<dynamic>.from(todayEvents.map((x) => x.toJson())),
         "pending_time_log_entry_count": pendingTimeLogEntryCount,
-        "holidays": List<dynamic>.from(holidays.map((x) => x)),
+        //"holidays": List<dynamic>.from(holidays.map((x) => x)),
+        "holidays": List<dynamic>.from(holidays.map((x) => x.toJson())),
         "events": List<dynamic>.from(events.map((x) => x.toJson())),
         "annualLeaveDetails":
             List<dynamic>.from(annualLeaveDetails.map((x) => x.toJson())),

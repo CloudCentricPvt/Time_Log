@@ -1,3 +1,6 @@
+// To parse this JSON data, do
+//
+//     final appliedLeaveHistoryResponse = appliedLeaveHistoryResponseFromJson(jsonString);
 
 import 'dart:convert';
 
@@ -11,59 +14,30 @@ AppliedLeaveHistoryResponse appliedLeaveHistoryResponseFromJson(String str) => A
 
 String appliedLeaveHistoryResponseToJson(AppliedLeaveHistoryResponse data) => json.encode(data.toJson());
 
-Future<dynamic> getAllAppliedLeave(BuildContext context) async{
+Future<AppliedLeaveHistoryResponse?> getAllAppliedLeave(BuildContext context) async {
   var apiNetwork = KNetworkApiServices();
   final storage = GetStorage();
   var empID = storage.read("EMP_ID");
 
   try {
-    var response =
-    await apiNetwork.getRequest("${KApiEndPoints.getAppliedLeave}?employeeId=$empID",context);
-    print("GET_URL_Comm_Off_HISTORY: ${KApiEndPoints.getAppliedLeave}?=$empID");
+    var response = await apiNetwork.getRequest("${KApiEndPoints.getAppliedLeave}?employeeId=$empID", context);
+    print("#GET_URL_LEAVE_HISTORY: ${KApiEndPoints.getAppliedLeave}?employeeId=$empID");
+    print('Raw API Response: $response');
 
-    if (response != null && response['status'] == true) {
+    // Safely cast if response is Map
+    if (response != null && response is Map && response['status'] == true) {
       AppliedLeaveHistoryResponse appliedLeaveHistoryResponse =
-      AppliedLeaveHistoryResponse.fromJson(response);
+      AppliedLeaveHistoryResponse.fromJson(Map<String, dynamic>.from(response));
       return appliedLeaveHistoryResponse;
     } else {
-
-      return []; // or throw an exception / show an error
+      print('API returned null or invalid response');
+      return null;
     }
   } catch (e) {
     print("Error in getAllAppliedLeave Records: $e");
-    return []; // or rethrow if you want to handle it higher up
+    return null;
   }
 }
-
-/*Future<dynamic> getAllAppliedLeave(BuildContext context, int page, int pageSize) async {
-  final apiNetwork = KNetworkApiServices();
-  final storage = GetStorage();
-  final empID = storage.read("EMP_ID");
-
-  if (empID == null) {
-    print("EMP_ID is null");
-    return []; // or show a toast/snackbar
-  }
-
-  final url = "${KApiEndPoints.getAppliedLeave}?employeeId=$empID";
-  print("GET_URL_Comm_Off_HISTORY: $url");
-
-  try {
-    final response = await apiNetwork.getRequest(url, context);
-
-    if (response != null && response['status'] == true) {
-      final appliedLeaveHistoryResponse = AppliedLeaveHistoryResponse.fromJson(response);
-      return appliedLeaveHistoryResponse;
-    } else {
-      print("API returned unsuccessful status or null data");
-      return []; // Consider returning a default response model instead
-    }
-  } catch (e, stacktrace) {
-    print("Error in getAllAppliedLeave: $e");
-    print("StackTrace: $stacktrace");
-    return []; // or throw Exception("API error")
-  }
-}*/
 
 class AppliedLeaveHistoryResponse {
   bool status;
@@ -106,7 +80,7 @@ class AppliedLeaveHistory {
   String status;
   String startDate;
   dynamic remarks;
-  double numberOfDays;
+  dynamic numberOfDays;
   String leaveId;
   String endDate;
   String? description;
@@ -122,7 +96,7 @@ class AppliedLeaveHistory {
     required this.description,
   });
 
-  factory AppliedLeaveHistory.fromJson(Map<String, dynamic> json) => AppliedLeaveHistory(
+  /*factory AppliedLeaveHistory.fromJson(Map<String, dynamic> json) => AppliedLeaveHistory(
     type: json["type"]!,
     status: json["status"]!,
     startDate: json["startDate"],
@@ -131,11 +105,35 @@ class AppliedLeaveHistory {
     leaveId: json["leaveId"],
     endDate: json["endDate"],
     description: json["description"],
+  );*/
+
+  factory AppliedLeaveHistory.fromJson(Map<String, dynamic> json) => AppliedLeaveHistory(
+    type: json["type"] ?? "",
+    status: json["status"] ?? "",
+    startDate: json["startDate"] ?? "",
+    remarks: json["remarks"],
+    numberOfDays: json["numberOfDays"],
+    leaveId: json["leaveId"] ?? "",
+    endDate: json["endDate"] ?? "",
+    description: json["description"],
   );
 
-  Map<String, dynamic> toJson() => {
+
+  /*Map<String, dynamic> toJson() => {
     "type": typeValues.reverse[type],
     "status": statusValues.reverse[status],
+    "startDate": startDate,
+    "remarks": remarks,
+    "numberOfDays": numberOfDays,
+    "leaveId": leaveId,
+    "endDate": endDate,
+    "description": description,
+  };*/
+
+
+  Map<String, dynamic> toJson() => {
+    "type": type,
+    "status": status,
     "startDate": startDate,
     "remarks": remarks,
     "numberOfDays": numberOfDays,
@@ -147,23 +145,29 @@ class AppliedLeaveHistory {
 
 enum Status {
   APPROVED,
-  PENDING
+  PENDING,
+  REJECTED
 }
 
 final statusValues = EnumValues({
   "Approved": Status.APPROVED,
-  "Pending": Status.PENDING
+  "Pending": Status.PENDING,
+  "Rejected": Status.REJECTED
 });
 
 enum Type {
   CL,
+  COMP_OFF,
   EL,
+  LWP,
   SL
 }
 
 final typeValues = EnumValues({
   "CL": Type.CL,
+  "Comp off": Type.COMP_OFF,
   "EL": Type.EL,
+  "LWP": Type.LWP,
   "SL": Type.SL
 });
 

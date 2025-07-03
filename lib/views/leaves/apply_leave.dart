@@ -25,12 +25,18 @@ class ApplyLeave extends StatefulWidget {
   State<ApplyLeave> createState() => _ApplyLeaveState();
 }
 
-class _ApplyLeaveState extends State<ApplyLeave> {
-  stt.SpeechToText _speech = stt.SpeechToText();
-  String _text = "";
-  bool _isListening = false;
+class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateMixin  {
   bool _isLoading = false;
-  double _soundLevel = 0.0;
+
+  stt.SpeechToText _speech = stt.SpeechToText();
+
+
+  //late stt.SpeechToText _speech;
+  bool _isListening = false;
+  String _previousText = '';
+  BuildContext? _bottomSheetContext;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
 
   String? selectedLeaveType;
   String? _startDate;
@@ -100,86 +106,131 @@ class _ApplyLeaveState extends State<ApplyLeave> {
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
+    
     leaveLabels = leaveTypes.map((e) => e['label']!).toList(); // Initialize leaveLabels here
+
+
+    _animationController = AnimationController(
+      vsync: this, // Now this will work
+      duration: Duration(milliseconds: 500),
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(begin: 1.0, end: 1.4).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
   }
 
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
-  void _startListening() async {
+  /*void _addVoiceNote() async {
     bool available = await _speech.initialize(
       onStatus: (status) {
-        print("Speech recognition status: $status");
-        if (status == "notListening") {
-          Navigator.pop(context); // Close dialog when speech stops
+        print('Speech status: $status');
+        if (status == 'done' || status == 'notListening') {
+          setState(() => _isListening = false);
+          _animationController.stop();
+          _speech.stop();
+
+          if (_bottomSheetContext != null) {
+            Navigator.of(_bottomSheetContext!).pop();
+          }
+        }
+      },
+      onError: (error) {
+        print('Speech error: $error');
+        setState(() => _isListening = false);
+        _animationController.stop();
+
+        if (_bottomSheetContext != null) {
+          Navigator.of(_bottomSheetContext!).pop();
         }
       },
     );
 
     if (available) {
+      // Save the existing text when starting the mic
+      _previousText = _controller.descriptionController.text;
+
       setState(() => _isListening = true);
+      _animationController.repeat(reverse: true);
+
+      _showMicBottomSheet();
+
       _speech.listen(
         onResult: (result) {
-          print("Recognized words: ${result.recognizedWords}");
+          print('Recognized: ${result.recognizedWords}');
           setState(() {
-            _text = result.recognizedWords;
-            _controller.descriptionController.text =
-                _text; // Update TextField
-            _controller.descriptionController.selection =
-                TextSelection.fromPosition(
-              TextPosition(
-                  offset: _controller.descriptionController.text
-                      .length), // Move cursor to the end
+            /// Combine previous text + current recognized words
+            _controller.descriptionController.text = '$_previousText ${result.recognizedWords}'.trim();
+
+            _controller.descriptionController.selection = TextSelection.fromPosition(
+              TextPosition(offset: _controller.descriptionController.text.length),
             );
           });
         },
-      ).onError((error) {
-        // Handle errors using `.onError`
-        print("Speech recognition error: $error");
-        setState(() => _isListening = false);
-        Navigator.pop(context); // Close dialog
-      } as FutureOr Function(Object error, StackTrace stackTrace));
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Speech recognition not available')),
+      );
+    }
+  }*/
+
+  void _addVoiceNote() async {
+    if (_speech.isListening) {
+      await _speech.stop();
+      _animationController.stop();
+      if (_bottomSheetContext != null) {
+        Navigator.of(_bottomSheetContext!).pop();
+        _bottomSheetContext = null;
+      }
+    }
+
+    bool available = await _speech.initialize(
+      onStatus: (status) {
+        print('Speech status: $status');
+        if (status == 'done' || status == 'notListening') {
+          _stopListeningAndCloseDialog();
+        }
+      },
+      onError: (error) {
+        print('Speech error: $error');
+        _stopListeningAndCloseDialog();
+      },
+    );
+
+    if (available) {
+      _previousText = _controller.descriptionController.text;
+
+      setState(() => _isListening = true);
+      _animationController.repeat(reverse: true);
+
+      _showMicBottomSheet();
+
+      _speech.listen(
+        onResult: (result) {
+          print('Recognized: ${result.recognizedWords}');
+          setState(() {
+            _controller.descriptionController.text = '$_previousText ${result.recognizedWords}'.trim();
+            _controller.descriptionController.selection = TextSelection.fromPosition(
+              TextPosition(offset: _controller.descriptionController.text.length),
+            );
+          });
+        },
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Speech recognition not available')),
+      );
     }
   }
 
-  ///--- open dialog until the voice recording
-  Future<void> _showSpeakUpDialog() async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // Prevent closing manually
-      builder: (BuildContext context) {
-        bool isListening = true; // Track listening state
-        Timer? _timer;
 
-        return StatefulBuilder(
-          builder: (context, setState) {
-            // Start animation timer
-            _timer ??= Timer.periodic(Duration(milliseconds: 500), (timer) {
-              setState(() {
-                isListening = !isListening; // Toggle mic animation
-              });
-            });
-
-            return AlertDialog(
-              title: const Text('Please speak up'),
-              icon: AnimatedSwitcher(
-                duration: Duration(milliseconds: 600), // Smooth transition
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return ScaleTransition(scale: animation, child: child);
-                },
-                child: Icon(
-                  isListening ? Icons.mic : Icons.mic_none, // Toggle icon
-                  key: ValueKey<bool>(isListening), // Important for animation
-                  color: Colors.red,
-                  size: isListening ? 40 : 30, // Change size dynamically
-                ),
-              ),
-            );
-          },
-        );
-      },
-    ).then((_) {
-      _speech.stop(); // Stop speech when dialog closes
-    });
-  }
 
   /// --- request permission for mice
   Future<void> _requestPermission() async {
@@ -197,7 +248,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
     {"label": "Sick Leave", "value": "SL","icon": KAssets.sickLeave},
     {"label": "Casual Leave", "value": "CL","icon": KAssets.casualLeave},
     {"label": "Earned Leave", "value": "EL","icon": KAssets.earnLeave},
-    {"label": "Comp off", "value": "Comp off","icon": KAssets.compOffLeave},
+    {"label": "Comp Off", "value": "Comp off","icon": KAssets.compOffLeave},
     {"label": "Leave Without Pay", "value": "LWP","icon": KAssets.lwpLeave},
   ];
 
@@ -386,7 +437,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
                   useMaxLines: true,
                   useMaxLength: true,
                   isRequired: true,
-                  maxLines: 4,
+                  maxLines: 10,
                   maxLength: 32768,
                 ),
 
@@ -455,14 +506,83 @@ class _ApplyLeaveState extends State<ApplyLeave> {
           ),
         ],
       ),
-      onTap: () async {
-        await _requestPermission(); // Ensure mic permission is granted
-        _showSpeakUpDialog(); // Show dialog
-        Future.delayed(Duration(milliseconds: 500), () {
-          // Delay to allow UI update
-          _startListening(); // Start speech recognition after dialog is shown
-        });
-      },
+        onTap: () async {
+          await _requestPermission(); // Ensure mic permission is granted
+          _addVoiceNote();
+        }
+
     );
   }
+
+  void _showMicBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (bottomSheetContext) {
+        // Save the bottom sheet's own context
+        _bottomSheetContext = bottomSheetContext;
+
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ScaleTransition(
+                  scale: _animation,
+                  child: Icon(Icons.mic, size: 44, color: Colors.red),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Listening... Please speak",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500,color: KColors.appPrimary),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    _speech.stop();
+                    _animationController.stop();
+                    Navigator.of(bottomSheetContext).pop(); // Close the bottom sheet
+                  },
+                  child: const Text("Stop"),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    ).whenComplete(() {
+      // When bottom sheet is dismissed, clear the context
+      _bottomSheetContext = null;
+    });
+  }
+
+  void _stopListeningAndCloseDialog() async {
+    if (_speech.isListening) {
+      await _speech.stop(); // Stop the speech recognition
+    }
+
+    _animationController.stop(); // Stop the mic animation
+
+    if (mounted) { // Check if widget is still active
+      setState(() {
+        _isListening = false;
+      });
+    }
+
+    // Safely dismiss the bottom sheet if it's still open
+    if (_bottomSheetContext != null) {
+      if (Navigator.of(_bottomSheetContext!).canPop()) {
+        Navigator.of(_bottomSheetContext!).pop();
+      }
+      _bottomSheetContext = null; // Clear the context
+    }
+  }
+
+
 }

@@ -108,6 +108,7 @@ class LstTimeLog {
   String? projectId;
   String? taskName;
   String? status;
+  String? remarks;
   String? projectName;
   int? minutes;
   int? hours;
@@ -119,6 +120,7 @@ class LstTimeLog {
     this.projectId,
     this.taskName,
     this.status,
+    this.remarks,
     this.projectName,
     this.minutes,
     this.hours,
@@ -131,6 +133,7 @@ class LstTimeLog {
     projectId:json["projectId"],
     taskName: json["taskName"],
     status: json["status"],
+    remarks: json["Remarks"],
     projectName: json["projectName"],
     minutes: json["minutes"],
     hours: json["hours"],
@@ -143,6 +146,7 @@ class LstTimeLog {
     "projectId":timelogId,
     "taskName": taskName,
     "status": status,
+    "Remarks": remarks,
     "projectName": projectName,
     "minutes": minutes,
     "hours": hours,

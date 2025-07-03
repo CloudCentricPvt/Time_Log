@@ -272,18 +272,18 @@ class _LeaveHistoryState extends State<LeaveHistory> {
     //fetchAppliedLeaveData(page: _page);
   }
 
-
-
   List<AppliedLeaveHistory> _getFilteredList() {
     if (selectedStatus == 'All') {
       return List.from(appliedLeaveList);
     } else {
       return appliedLeaveList
           .where((item) =>
-              item.status?.trim().toLowerCase() == selectedStatus.toLowerCase())
+      item.status.trim().toLowerCase() == selectedStatus.trim().toLowerCase())
           .toList();
     }
   }
+
+
 
   /// --- Show Leave History data in ListView
   Widget _showLeaveHistoryDataInList(AppliedLeaveHistory leave) {
