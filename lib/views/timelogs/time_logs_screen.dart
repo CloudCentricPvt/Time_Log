@@ -1015,6 +1015,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                             date: KDateAndTime()
                                 .getDay(project.formattedDate ?? ""),
                             des: project.description,
+                            remarks: project.remarks,
                             monthYear: KDateAndTime()
                                 .getMonthYear(project.formattedDate ?? ""),
                             hrs: project.hours.toString(),
@@ -1199,6 +1200,7 @@ class DetailDialog extends StatelessWidget {
   final String? projectId;
   final String? task;
   final String? des;
+  final String? remarks;
   final String? date;
   final String? monthYear;
   final String? hrs;
@@ -1212,6 +1214,7 @@ class DetailDialog extends StatelessWidget {
       this.project,
       this.projectId,
       this.task,
+      this.remarks,
       this.date,
       this.des,
       this.monthYear,
@@ -1249,7 +1252,7 @@ class DetailDialog extends StatelessWidget {
                         padding: const EdgeInsets.only(left: 6, right: 6),
                         child: Text(
                           status ?? "",
-                          style: KFonts.normalBold,
+                          style: KFonts.normalBoldWithWhite,
                         ),
                       ),
                     ),
@@ -1371,12 +1374,36 @@ class DetailDialog extends StatelessWidget {
                 Expanded(
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.75,
-                    child: Text(
-                      des ?? "",
-                      style: KFonts.thin,
-                    ),
+                    child:Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+
+                        Text(
+                          "Description: ",
+                          style: KFonts.normalBold,
+                        ),
+                        Text(
+                          des ?? "",
+                          style: KFonts.thin,
+                        ),
+
+                        SizedBox(height: 5,),
+
+                        Text(
+                          "Remarks: ",
+                          style: KFonts.normalBold,
+                        ),
+                        Text(
+                          remarks ?? "",
+                          style: KFonts.thin,
+                        )
+
+                      ],
+                    )
+
                   ),
                 ),
+
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.25,
                   child: Column(

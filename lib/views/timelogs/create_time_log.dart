@@ -27,11 +27,16 @@ class CreateTimeLog extends StatefulWidget {
   State<CreateTimeLog> createState() => _CreateTimelogState();
 }
 
-class _CreateTimelogState extends State<CreateTimeLog> {
+class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProviderStateMixin{
   stt.SpeechToText _speech = stt.SpeechToText();
-  String _text = "";
+
   bool _isListening = false;
-  final TimeLogController _controller =  TimeLogController();
+  String _previousText = '';
+  BuildContext? _bottomSheetContext;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
+  final TimeLogController _controller = TimeLogController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>(); // Form key for validation
   List<Lstproject> assignProject = [];
   List<String> assignTask = [];
@@ -43,7 +48,8 @@ class _CreateTimelogState extends State<CreateTimeLog> {
   double lat = 0.000;
   double long = 0.000;
 
-
+  bool isProjectValid = true;
+  String? projectErrorMessage;
 
   @override
   void initState() {
@@ -52,81 +58,76 @@ class _CreateTimelogState extends State<CreateTimeLog> {
     fetchAssignProject();
     fetchAssignTask();
     _speech = stt.SpeechToText();
-    super.initState();
 
+    _animationController = AnimationController(
+      vsync: this, // Now this will work
+      duration: Duration(milliseconds: 500),
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(begin: 1.0, end: 1.4).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+    super.initState();
   }
-  void _startListening() async {
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _addVoiceNote() async {
     bool available = await _speech.initialize(
       onStatus: (status) {
-        if (status == "notListening") {
-          Navigator.pop(context); // Close dialog when speech stops
+        print('Speech status: $status');
+        if (status == 'done' || status == 'notListening') {
+          setState(() => _isListening = false);
+          _animationController.stop();
+          _speech.stop();
+
+          if (_bottomSheetContext != null) {
+            Navigator.of(_bottomSheetContext!).pop();
+          }
+        }
+      },
+      onError: (error) {
+        print('Speech error: $error');
+        setState(() => _isListening = false);
+        _animationController.stop();
+
+        if (_bottomSheetContext != null) {
+          Navigator.of(_bottomSheetContext!).pop();
         }
       },
     );
 
     if (available) {
+      // Save the existing text when starting the mic
+      _previousText = _controller.descriptionController.text;
+
       setState(() => _isListening = true);
+      _animationController.repeat(reverse: true);
+
+      _showMicBottomSheet();
+
       _speech.listen(
         onResult: (result) {
+          print('Recognized: ${result.recognizedWords}');
           setState(() {
-            _text = result.recognizedWords;
-            _controller.descriptionController.text =
-                _text; // Update TextField
-            _controller.descriptionController.selection =
-                TextSelection.fromPosition(
-                  TextPosition(
-                      offset: _controller.descriptionController.text
-                          .length), // Move cursor to the end
-                );
+            /// Combine previous text + current recognized words
+            _controller.descriptionController.text = '$_previousText ${result.recognizedWords}'.trim();
+            _controller.descriptionController.selection = TextSelection.fromPosition(
+              TextPosition(offset: _controller.descriptionController.text.length),
+            );
           });
         },
-      ).onError((error) {
-        // Handle errors using `.onError`
-        setState(() => _isListening = false);
-        Navigator.pop(context); // Close dialog
-      } as FutureOr Function(Object error, StackTrace stackTrace));
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Speech recognition not available')),
+      );
     }
-  }
-
-  ///--- open dialog until the voice recording
-  Future<void> _showSpeakUpDialog() async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // Prevent closing manually
-      builder: (BuildContext context) {
-        bool isListening = true; // Track listening state
-        Timer? _timer;
-
-        return StatefulBuilder(
-          builder: (context, setState) {
-            // Start animation timer
-            _timer ??= Timer.periodic(Duration(milliseconds: 500), (timer) {
-              setState(() {
-                isListening = !isListening; // Toggle mic animation
-              });
-            });
-
-            return AlertDialog(
-              title: const Text('Please speak up'),
-              icon: AnimatedSwitcher(
-                duration: Duration(milliseconds: 600), // Smooth transition
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return ScaleTransition(scale: animation, child: child);
-                },
-                child: Icon(
-                  isListening ? Icons.mic : Icons.mic_none, // Toggle icon
-                  key: ValueKey<bool>(isListening), // Important for animation
-                  color: Colors.red,
-                  size: isListening ? 40 : 30, // Change size dynamically
-                ),
-              ),
-            );
-          },
-        );
-      },
-    ).then((_) {
-      _speech.stop(); // Stop speech when dialog closes
-    });
   }
 
   /// --- request permission for mice
@@ -148,7 +149,8 @@ class _CreateTimelogState extends State<CreateTimeLog> {
         backgroundColor: KColors.appPrimary,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Color(0xFF84DBFF), // Same as app bar
-          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+          statusBarIconBrightness:
+              Brightness.dark, // or .light depending on contrast
         ),
         title: KCustomAppBar(
           screenTitle: 'Create Time Log',
@@ -156,7 +158,6 @@ class _CreateTimelogState extends State<CreateTimeLog> {
           onHistoryTap: () {
             Navigator.pushNamed(context, '/leave_history_screen');
           },
-
         ),
       ),
       body: SingleChildScrollView(
@@ -176,11 +177,9 @@ class _CreateTimelogState extends State<CreateTimeLog> {
                           KSizedBox.h20,
                           _selectProject(),
 
-
                           /// --- Design for select task list
                           KSizedBox.h20,
                           _selectTask(),
-
 
                           /// --- Design for select Hours and Minutes
                           KSizedBox.h20,
@@ -198,12 +197,13 @@ class _CreateTimelogState extends State<CreateTimeLog> {
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly,
                                     LengthLimitingTextInputFormatter(2),
-                                    MinuteRangeFormatter(), // Ensures value is between 1–59
+                                    MinuteRangeFormatter(),
+                                    // Ensures value is between 1–59
                                   ],
-
                                 ),
                               ),
-                              const SizedBox(width: 10), // Add spacing between fields
+                              const SizedBox(width: 10),
+                              // Add spacing between fields
                               Expanded(
                                 child: KTextInputFormField(
                                   labelText: 'Minutes',
@@ -215,7 +215,8 @@ class _CreateTimelogState extends State<CreateTimeLog> {
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly,
                                     LengthLimitingTextInputFormatter(2),
-                                    MinuteRangeFormatter(), // Ensures value is between 1–59
+                                    MinuteRangeFormatter(),
+                                    // Ensures value is between 1–59
                                   ],
                                 ),
                               ),
@@ -232,19 +233,20 @@ class _CreateTimelogState extends State<CreateTimeLog> {
                             readOnly: true,
                             suffixIcon: IconButton(
                               onPressed: () async {
-                                String? selectedDateStr = await KDateDialog.selectDate(context: context);
+                                String? selectedDateStr =
+                                    await KDateDialog.selectDate(
+                                        context: context);
 
                                 if (selectedDateStr != null) {
                                   setState(() {
-                                    _controller.dateController.text = selectedDateStr;
+                                    _controller.dateController.text =
+                                        selectedDateStr;
                                   });
                                 }
                               },
                               icon: SvgPicture.asset(KAssets.calenderIcon),
                             ),
-
                           ),
-
 
                           /// --- Design for Time Log description
                           KSizedBox.h20,
@@ -258,14 +260,15 @@ class _CreateTimelogState extends State<CreateTimeLog> {
                             isRequired: true,
                             useMaxLength: true,
                             maxLength: 32768,
-                            maxLines: 3,
+                            maxLines: 10,
 
-                           /* onChange: (value) {
+                            /* onChange: (value) {
                               _controller.descriptionController.text = value!;
                               return null;
                             },*/
                           ),
                           KSizedBox.h10,
+
                           /// --- text voice reorganisation
                           _performSpeakAndSetTextInTextField(),
                           KSizedBox.h10,
@@ -274,24 +277,29 @@ class _CreateTimelogState extends State<CreateTimeLog> {
                     ],
                   ),
                 ),
-
                 KSizedBox.h20,
                 Center(
-                  child: _isLoading ? const KLoader(): CustomElevatedButton(
-                    text: 'SUBMIT',
-                    onPressed: () async {
-                        setState(() {
-                          _isLoading = true;
-                        });
-
-                        await _controller.applyTimeLog(context,selectedProjectId,selectedTask,_controller.dateController.text,_controller.hrsController.text,_controller.minController.text,_controller.descriptionController.text);
-
-                        setState(() {
-                          _isLoading = false;
-                        });
-
-                    },
-                  ),
+                  child: _isLoading
+                      ? const KLoader()
+                      : CustomElevatedButton(
+                          text: 'SUBMIT',
+                          onPressed: () async {
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            await _controller.applyTimeLog(
+                                context,
+                                selectedProjectId,
+                                selectedTask,
+                                _controller.dateController.text,
+                                _controller.hrsController.text,
+                                _controller.minController.text,
+                                _controller.descriptionController.text);
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          },
+                        ),
                 ),
                 const SizedBox(
                   height: 40,
@@ -324,7 +332,7 @@ class _CreateTimelogState extends State<CreateTimeLog> {
   }
 
   /// --- Select Assign Project
-  Widget  _selectProject(){
+  Widget _selectProject() {
     return Column(
       children: [
         KDropdownField<Lstproject>(
@@ -333,7 +341,7 @@ class _CreateTimelogState extends State<CreateTimeLog> {
             setState(() {
               selectedProject = value;
               selectedProjectId = selectedProject?.projectId;
-
+              isProjectValid = true; // Hide error when project is selected
             });
           },
           title: 'Project',
@@ -350,24 +358,25 @@ class _CreateTimelogState extends State<CreateTimeLog> {
   }
 
   /// --- Select Assign Task
-  Widget  _selectTask(){
+  Widget _selectTask() {
     return Column(
       children: [
         KDropdownField<String>(
-        value: selectedTask,
-        onChanged: (value) {
-        setState(() {
-        selectedTask = value;
-        });
-      },
-       title: 'Task Type',
-       hint:'Select Task',
-       leaveTypes: _isLoading ? [] : assignTask,
-       getLabel: (task) => task,
-       isRequired: true, fontSize: 14,
-       fontWeight: FontWeight.w400,
-       dropdownIconType: DropdownIconType.chevronDown,
-       ),
+          value: selectedTask,
+          onChanged: (value) {
+            setState(() {
+              selectedTask = value;
+            });
+          },
+          title: 'Task Type',
+          hint: 'Select Task',
+          leaveTypes: _isLoading ? [] : assignTask,
+          getLabel: (task) => task,
+          isRequired: true,
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          dropdownIconType: DropdownIconType.chevronDown,
+        ),
       ],
     );
   }
@@ -393,13 +402,57 @@ class _CreateTimelogState extends State<CreateTimeLog> {
       ),
       onTap: () async {
         await _requestPermission(); // Ensure mic permission is granted
-        _showSpeakUpDialog(); // Show dialog
-        Future.delayed(Duration(milliseconds: 500), () {
-          // Delay to allow UI update
-          _startListening(); // Start speech recognition after dialog is shown
-        });
+        _addVoiceNote();
       },
     );
+  }
+
+  void _showMicBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (bottomSheetContext) {
+        // Save the bottom sheet's own context
+        _bottomSheetContext = bottomSheetContext;
+
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ScaleTransition(
+                  scale: _animation,
+                  child: Icon(Icons.mic, size: 44, color: Colors.red),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Listening... Please speak",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500,color: KColors.appPrimary),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    _speech.stop();
+                    _animationController.stop();
+                    Navigator.of(bottomSheetContext).pop(); // Close the bottom sheet
+                  },
+                  child: const Text("Stop"),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    ).whenComplete(() {
+      // When bottom sheet is dismissed, clear the context
+      _bottomSheetContext = null;
+    });
   }
 }
 
@@ -407,9 +460,9 @@ class _CreateTimelogState extends State<CreateTimeLog> {
 class MinuteRangeFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     if (newValue.text.isEmpty) return newValue;
 
     final int? value = int.tryParse(newValue.text);
@@ -419,7 +472,3 @@ class MinuteRangeFormatter extends TextInputFormatter {
     return newValue;
   }
 }
-
-
-
-

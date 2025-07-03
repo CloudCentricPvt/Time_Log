@@ -443,17 +443,17 @@ class LeaveScreenState extends State<LeaveScreen> {
       case "EL":
         return KColors.orangeColor;
       case "CL":
+        return KColors.purpleColor;
+      case "SL":
         return KColors.greenColor;
-      case "COMP OFF":
+      case "LWP":
+        return KColors.appPrimary;
+      case "Comp off":
         return KColors.pinkColor;
       case "Maternity Leave":
         return KColors.appPrimaryRed;
-      case "Earn Leave":
-        return KColors.orangeColor;
       case "Paternity Leave":
         return KColors.appPrimaryYellow;
-      case "Comp Off Leave":
-        return KColors.pinkColor;
       default:
         return Colors.grey; // Default color if no match
     }

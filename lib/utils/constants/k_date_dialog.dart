@@ -40,9 +40,30 @@ class KDateDialog {
     return null;
   }
 
-  /// --- select date from befoe one month
+  ///--- Current date to Previous date
+  static Future<String?> currentDateToPreviousDate({
+    required BuildContext context,
+    DateTime? initialDate,
+    DateTime? firstDate,
+  }) async {
+    DateTime now = DateTime.now();
 
-  static Future<String?> pastOneMonthDate({
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate ?? now,
+      firstDate: firstDate ?? DateTime(1990), // ✅ Allow past dates from the year 2000 (or any past limit)
+      lastDate: now, // ✅ Restrict to today (no future dates)
+    );
+
+    if (pickedDate != null) {
+      return DateFormat('dd, MMM yyyy').format(pickedDate);
+    }
+    return null;
+  }
+
+
+  /// ---user can select current date and before one month's date
+ /* static Future<String?> pastOneMonthDate({
     required BuildContext context,
     DateTime? initialDate,
     DateTime? lastDate,
@@ -61,42 +82,30 @@ class KDateDialog {
       return DateFormat('dd, MMM yyyy').format(pickedDate);
     }
     return null;
-  }
+  }*/
 
-
-  ///--- Current date and Future date(open date picker)
-  static Future<String?> selectFutureOrCurrentDate({required BuildContext context, DateTime? initialDate, DateTime? lastDate,}) async {
-    DateTime today = DateTime.now();
-    DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: initialDate ?? today,
-      firstDate: today, // Restricts selection to today and future dates
-      lastDate: lastDate ?? DateTime(2100), // Allows future dates
-    );
-
-    if (pickedDate != null) {
-      return DateFormat('dd, MMM yyyy').format(pickedDate); // Format changed here
-    }
-    return null;
-  }
-
-  static Future<String?> selectFutureOrCurrentDateYYYY_DD_MM({
+  static Future<String?> pastOneMonthDate({
     required BuildContext context,
     DateTime? initialDate,
     DateTime? lastDate,
   }) async {
-    DateTime today = DateTime.now();
+    DateTime now = DateTime.now();
+    DateTime oneMonthAgo = DateTime(now.year, now.month - 1, now.day);
+    DateTime oneMonthAhead = DateTime(now.year, now.month + 1, now.day);
+
     DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: initialDate ?? today,
-      firstDate: today, // Only future dates
-      lastDate: lastDate ?? DateTime(2100),
+      initialDate: initialDate ?? now,
+      firstDate: oneMonthAgo,
+      lastDate: lastDate ?? oneMonthAhead, // allow future dates up to 1 month ahead
     );
 
     if (pickedDate != null) {
-      return DateFormat('yyyy-MM-dd').format(pickedDate); // ← your desired format
+      return DateFormat('dd, MMM yyyy').format(pickedDate);
     }
     return null;
   }
+
+
 }
 

@@ -55,7 +55,6 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   void initState() {
     super.initState();
     _getUserLocation();
-
     fetchData();
 
   }
@@ -377,8 +376,9 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                           left: 20, right: 20, bottom: 20),
                       child: TextFormField(
                         controller: _controller.descriptionController,
-                        maxLines: 2,
-                        maxLength: 32768,
+                        maxLines: 10, // Max height = 10 lines
+                        minLines: 1,  // Optional: initial height of 1 line
+                        maxLength: 450, // Character limit
                         decoration: InputDecoration(
                           alignLabelWithHint: true,
                           border: OutlineInputBorder(
@@ -524,8 +524,9 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                       padding: const EdgeInsets.only(
                           left: 20, right: 20, bottom: 20),
                       child: TextFormField(
-                        maxLines: 2,
-                        maxLength: 32768,
+                        maxLines: 10, // Max height = 10 lines
+                        minLines: 1,  // Optional: initial height of 1 line
+                        maxLength: 450, // Character limit
                         controller: _controller.descriptionController,
                         decoration: InputDecoration(
                           alignLabelWithHint: true,
@@ -942,17 +943,17 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
       case "EL":
         return KColors.orangeColor;
       case "CL":
+        return KColors.purpleColor;
+      case "SL":
         return KColors.greenColor;
-      case "COMP OFF":
+      case "LWP":
+        return KColors.appPrimary;
+      case "Comp off":
         return KColors.pinkColor;
       case "Maternity Leave":
         return KColors.appPrimaryRed;
-      case "Earn Leave":
-        return KColors.orangeColor;
       case "Paternity Leave":
         return KColors.appPrimaryYellow;
-      case "Comp Off Leave":
-        return KColors.pinkColor;
       default:
         return Colors.grey; // Default color if no match
     }
@@ -1138,7 +1139,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
             )),
         InkWell(
           onTap: (){
-            Navigator.pushNamed(context, '/leaves_screen');
+            Navigator.pushNamed(context, '/leave_history_screen');
           },
           child: SizedBox(
               height: 112,

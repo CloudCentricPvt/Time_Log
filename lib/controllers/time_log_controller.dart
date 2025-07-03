@@ -171,7 +171,7 @@ class TimeLogController {
       "employeeId": storage.read('EMP_ID'),
       "projectName": projectName,
       "taskName": taskName,
-      "date": formattedDate,
+      "date": (formattedDate == null || formattedDate.isEmpty)? DateTime.now().toString().split(' ')[0] : formattedDate,
       "hours": (hours == null || hours.isEmpty) ? '0' : hours,
       "minutes": (minutes == null || minutes.isEmpty) ? '0' : minutes,
       "description": description

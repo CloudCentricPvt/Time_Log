@@ -10,6 +10,7 @@ import 'package:time_log/utils/constants/api_container.dart';
 UpcomingHolidaysResponse upcomingHolidaysResponseFromJson(String str) => UpcomingHolidaysResponse.fromJson(json.decode(str));
 
 String upcomingHolidaysResponseToJson(UpcomingHolidaysResponse data) => json.encode(data.toJson());
+
 Future<dynamic> getUpcomingHolidays(BuildContext context) async {
   var apiNetwork = KNetworkApiServices();
   final storage = GetStorage();
