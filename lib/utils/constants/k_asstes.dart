@@ -14,6 +14,8 @@ class KAssets{
   static const aniversary_image="assets/images/aniversay_img.png";
   static const login_image="assets/images/login_img.png";
   static const anniversary="assets/images/anniversary_img1.png";
+  static const appLogo="assets/images/app_logo.jpg";
+  static const appIcon="assets/images/app_icon.jpg";
 
 
   /// --- SVGs
@@ -46,7 +48,7 @@ class KAssets{
   static const maternityIcon="assets/icons/comp_off_rejected_icon.svg";
   static const paternityIcon="assets/icons/comp_off_rejected_icon.svg";
 
-  //highlighted Icon
+  /// --- highlighted Icon
   static const highlightedIconMessage="assets/icons/highlighted_message_icon.svg";
   static const highlightedIconPassword="assets/icons/highlighted_eye_icon.svg";
 

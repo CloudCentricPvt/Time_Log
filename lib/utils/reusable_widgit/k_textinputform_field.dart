@@ -63,90 +63,7 @@ class KTextInputFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return /*TextFormField(
-      style: TextStyle(
-        fontFamily: "Poppins",
-        fontWeight: fontWeight ?? FontWeight.w400,
-        fontSize: fontSize ?? 14.0, // Default to 14 if not provided
-        color: Colors.black,
-      ),
-      initialValue: initValue,
-      controller: controller,
-      keyboardType: keyboardType,
-      obscureText: (obscureText ?? false) && (maxLines == 1),
-      maxLines: useMaxLines ? maxLines : 1,
-      maxLength: useMaxLength ? maxLength : null,
-      validator: validator ??
-          (isRequired ? (value) => value?.isEmpty ?? true ? "This field is required" : null : null),
-      onChanged: onChange,
-      readOnly: readOnly ?? false,
-      inputFormatters: inputFormatters, // ✅ apply formatters here
-      decoration: InputDecoration(
-        alignLabelWithHint: true,
-        filled: true,
-        fillColor: (readOnly ?? false) && disableBgColor
-            ? Colors.grey.shade200
-            : Colors.white,
-
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        label: isRequired
-            ? RichText(
-          text: TextSpan(
-            text: labelText ?? '',
-            style: TextStyle(
-              fontFamily: "Poppins",
-              fontWeight: fontWeight ?? FontWeight.w400,
-              fontSize: fontSize ?? 14.0,
-              color: KColors.appSecondaryGrey,
-            ),
-            children: const [
-              TextSpan(
-                text: " *",
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        )
-            : Text(
-          labelText ?? '',
-          style: TextStyle(
-            fontFamily: "Poppins",
-            fontWeight: fontWeight ?? FontWeight.w400,
-            fontSize: fontSize ?? 14.0,
-            color: KColors.appSecondaryGrey,
-          ),
-        ),
-        hintText: hintText,
-        hintStyle: TextStyle(
-          fontFamily: "Poppins",
-          fontWeight: fontWeight ?? FontWeight.w400,
-          fontSize: fontSize ?? 14.0,
-          color: KColors.appSecondaryGrey,
-        ),
-        prefixIcon: prefixIcon,
-        suffixIcon: suffixIcon,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(
-            color: Colors.grey,
-            width: 1.0,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(
-            color: Colors.blue,
-            width: 1.0,
-          ),
-        ),
-        contentPadding: const EdgeInsets.only(left: 20, top: 10, bottom: 10, right: 10),
-      ),
-    );*/
-
-      TextFormField(
+    return TextFormField(
         style: TextStyle(
           fontFamily: "Poppins",
           fontWeight: fontWeight ?? FontWeight.w400,
@@ -226,7 +143,6 @@ class KTextInputFormField extends StatelessWidget {
           contentPadding: const EdgeInsets.only(left: 20, top: 10, bottom: 10, right: 10),
         ),
       );
-
   }
 }
 

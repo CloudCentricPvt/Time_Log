@@ -231,7 +231,6 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
   }
 
 
-
   /// --- request permission for mice
   Future<void> _requestPermission() async {
     var status = await Permission.microphone.request();

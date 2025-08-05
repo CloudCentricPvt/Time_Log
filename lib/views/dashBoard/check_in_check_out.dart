@@ -3,6 +3,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:location/location.dart';
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
@@ -28,7 +29,9 @@ import '../../utils/constants/k_working_hrs_graph.dart';
 import '../../utils/popups/k_material_dialog.dart';
 
 class CheckInCheckOut extends StatefulWidget {
-  const CheckInCheckOut({super.key});
+  final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
+
+  const CheckInCheckOut({super.key,this.isBottomNavVisible});
 
   @override
   State<CheckInCheckOut> createState() => CheckInCheckOutState();
@@ -113,12 +116,17 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
         context: context,
         title: storage.read(KStorageKey.userName ?? ''),
         hello: true,
-        subtitle: "Welcome to TimeSync",
+        subtitle: "Welcome to Ressourcia",
         showBellIcon: true,
         // Show Bell Icon
         showProfileIcon: true, // Hide Profile Icon
       ),
-      drawer: CustomDrawerMenu(context: context),
+      drawer: CustomDrawerMenu(context: context,isBottomNavVisible: widget.isBottomNavVisible,),
+
+      onDrawerChanged: (isOpened) {
+        // 👇 hide when drawer opens, show when closes
+        widget.isBottomNavVisible?.value = !isOpened;
+      },
       body: _isLoading
           ? KLoader()
           : RefreshIndicator(
@@ -145,7 +153,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                   ///--- Start check in UI
                                   _startCheckIn(),
 
-                                  ///-- Check out UI
+                                  ///--- Check out UI
                                   _startCheckOut(),
 
                                   ///--- Your are check out for today UI
@@ -209,9 +217,13 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                           },
                                         ]),
                                         const SizedBox(height: 10),
-                                        SizedBox(
+                                        /*SizedBox(
                                             height: 160,
-                                            child: _buildAnnualLeaveChart()),
+                                            child: _buildAnnualLeaveChart()),*/
+                                        SizedBox(
+                                          height: MediaQuery.of(context).size.height * 0.25, // 35% of screen height
+                                          child: _buildAnnualLeaveChart(),
+                                        ),
                                         const SizedBox(height: 20),
                                         const Text(
                                           "Working Hours Details",
@@ -232,8 +244,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                         ]),
                                         const SizedBox(height: 10),
                                         SizedBox(
-                                          height: 160,
-                                            child: _buildWorkingHoursChart()),
+                                          height: MediaQuery.of(context).size.height * 0.25,
+                                          child: _buildWorkingHoursChart()),
                                       ],
                                     ),
                                   ),
@@ -378,7 +390,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                         controller: _controller.descriptionController,
                         maxLines: 10, // Max height = 10 lines
                         minLines: 1,  // Optional: initial height of 1 line
-                        maxLength: 450, // Character limit
+                        maxLength: 32768, // Character limit
                         decoration: InputDecoration(
                           alignLabelWithHint: true,
                           border: OutlineInputBorder(
@@ -526,7 +538,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                       child: TextFormField(
                         maxLines: 10, // Max height = 10 lines
                         minLines: 1,  // Optional: initial height of 1 line
-                        maxLength: 450, // Character limit
+                        maxLength: 32768, // Character limit
                         controller: _controller.descriptionController,
                         decoration: InputDecoration(
                           alignLabelWithHint: true,
@@ -644,87 +656,106 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                 child: Padding(
                   padding: const EdgeInsets.only(
                       top: 10, left: 20, right: 20, bottom: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Check-In",
-                        style: TextStyle(
-                            color: KColors.appPrimary,
-                            fontSize: 16,
-                            fontFamily: "Poppins",
-                            fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        allCheckInOut.isNotEmpty
-                            ? allCheckInOut[0].checkIndescription ?? ''
-                            : '',
-                        style: TextStyle(
-                            color: KColors.textColor,
-                            fontSize: 12,
-                            fontFamily: "Poppins",
-                            fontWeight: FontWeight.w400),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          SizedBox(
-                            width: 12,
-                            height: 12,
-                            child: SvgPicture.asset(
-                                'assets/icons/location_icon.svg'),
+                  child: InkWell(
+                    onTap: (){
+                      final description = allCheckInOut.isNotEmpty ? allCheckInOut[0].checkIndescription ?? '' : '';
+
+                      if(description.length>400){
+                        showDialog(
+                          context: context,
+                          builder: (context) => CheckInOutDetailsInDialog(
+                              des: allCheckInOut[0].checkIndescription,
+                              location:  allCheckInOut[0].checkInLocation,
+                              date: allCheckInOut[0].checkInTime,
+                              type: "Check-In",
                           ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          Expanded(
-                            child: Text(
-                              allCheckInOut.isNotEmpty
-                                  ? allCheckInOut[0].checkInLocation ?? ''
-                                  : '',
-                              style: TextStyle(
-                                  color: KColors.textColor,
-                                  fontSize: 12,
-                                  fontFamily: "Poppins",
-                                  fontWeight: FontWeight.w400),
+                        );
+                      }
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Check-In",
+                          style: TextStyle(
+                              color: KColors.appPrimary,
+                              fontSize: 16,
+                              fontFamily: "Poppins",
+                              fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          allCheckInOut.isNotEmpty
+                              ? allCheckInOut[0].checkIndescription ?? ''
+                              : '',
+                          style: TextStyle(
+                              color: KColors.textColor,
+                              fontSize: 12,
+                              fontFamily: "Poppins",
+                              fontWeight: FontWeight.w400),
+                          maxLines: 10,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: SvgPicture.asset(
+                                  'assets/icons/location_icon.svg'),
                             ),
-                          ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          SizedBox(
-                            width: 12,
-                            height: 12,
-                            child:
-                                SvgPicture.asset('assets/icons/timer_icon.svg'),
-                          ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          Expanded(
-                            child: Text(
-                              allCheckInOut.isNotEmpty
-                                  ? KDateAndTime()
-                                      .formatCustomDateMonthYearWithTime(
-                                          allCheckInOut[0]
-                                                  .checkInTime
-                                                  .toString() ??
-                                              '')
-                                  : '',
-                              style: TextStyle(
-                                  color: KColors.textColor,
-                                  fontSize: 12,
-                                  fontFamily: "Poppins",
-                                  fontWeight: FontWeight.w400),
+                            const SizedBox(
+                              width: 8,
                             ),
-                          ),
-                        ],
-                      )
-                    ],
+                            Expanded(
+                              child: Text(
+                                allCheckInOut.isNotEmpty
+                                    ? allCheckInOut[0].checkInLocation ?? ''
+                                    : '',
+                                style: TextStyle(
+                                    color: KColors.textColor,
+                                    fontSize: 12,
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            SizedBox(
+                              width: 12,
+                              height: 12,
+                              child:
+                                  SvgPicture.asset('assets/icons/timer_icon.svg'),
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            Expanded(
+                              child: Text(
+                                allCheckInOut.isNotEmpty
+                                    ? KDateAndTime()
+                                        .formatCustomDateMonthYearWithTime(
+                                            allCheckInOut[0]
+                                                    .checkInTime
+                                                    .toString() ??
+                                                '')
+                                    : '',
+                                style: TextStyle(
+                                    color: KColors.textColor,
+                                    fontSize: 12,
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 )),
           ),
@@ -757,89 +788,108 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                 child: Padding(
                   padding: const EdgeInsets.only(
                       top: 10, left: 20, right: 20, bottom: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Check-Out",
-                        style: TextStyle(
-                            color: KColors.appPrimary,
-                            fontSize: 16,
-                            fontFamily: "Poppins",
-                            fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        allCheckInOut.isNotEmpty
-                            ? allCheckInOut[0].checkOutdescription ?? ''
-                            : '',
-                        style: TextStyle(
-                            color: KColors.textColor,
-                            fontSize: 12,
-                            fontFamily: "Poppins",
-                            fontWeight: FontWeight.w400),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          SizedBox(
-                            width: 12,
-                            height: 12,
-                            child: SvgPicture.asset(
-                                'assets/icons/location_icon.svg'),
+                  child: InkWell(
+
+                    onTap: (){
+                      final description = allCheckInOut.isNotEmpty ? allCheckInOut[0].checkOutdescription ?? '' : '';
+                      if(description.length>400){
+                        showDialog(
+                          context: context,
+                          builder: (context) => CheckInOutDetailsInDialog(
+                              des: allCheckInOut[0].checkOutdescription ,
+                              location:  allCheckInOut[0].checkOutLocation,
+                              date:  allCheckInOut[0].checkOutTime.toString() ?? '',
+                              type: "Check-Out",
                           ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          Expanded(
-                            child: Text(
-                              allCheckInOut.isNotEmpty
-                                  ? allCheckInOut[0].checkOutLocation ??
-                                      'Location Not found'
-                                  : '',
-                              style: TextStyle(
+                        );
+                      }
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Check-Out",
+                          style: TextStyle(
+                              color: KColors.appPrimary,
+                              fontSize: 16,
+                              fontFamily: "Poppins",
+                              fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          allCheckInOut.isNotEmpty
+                              ? allCheckInOut[0].checkOutdescription ?? ''
+                              : '',
+                          style: TextStyle(
+                              color: KColors.textColor,
+                              fontSize: 12,
+                              fontFamily: "Poppins",
+                              fontWeight: FontWeight.w400),
+                          maxLines: 10,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: SvgPicture.asset(
+                                  'assets/icons/location_icon.svg'),
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            Expanded(
+                              child: Text(
+                                allCheckInOut.isNotEmpty
+                                    ? allCheckInOut[0].checkOutLocation ??
+                                        'Location Not found'
+                                    : '',
+                                style: TextStyle(
+                                    color: KColors.textColor,
+                                    fontSize: 12,
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            SizedBox(
+                              width: 12,
+                              height: 12,
+                              child:
+                                  SvgPicture.asset('assets/icons/timer_icon.svg'),
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            Expanded(
+                              child: Text(
+                                allCheckInOut.isNotEmpty
+                                    ? KDateAndTime()
+                                        .formatCustomDateMonthYearWithTime(
+                                            allCheckInOut[0]
+                                                    .checkOutTime
+                                                    .toString() ??
+                                                '')
+                                    : '',
+                                style: TextStyle(
                                   color: KColors.textColor,
                                   fontSize: 12,
                                   fontFamily: "Poppins",
-                                  fontWeight: FontWeight.w400),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          SizedBox(
-                            width: 12,
-                            height: 12,
-                            child:
-                                SvgPicture.asset('assets/icons/timer_icon.svg'),
-                          ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          Expanded(
-                            child: Text(
-                              allCheckInOut.isNotEmpty
-                                  ? KDateAndTime()
-                                      .formatCustomDateMonthYearWithTime(
-                                          allCheckInOut[0]
-                                                  .checkOutTime
-                                                  .toString() ??
-                                              '')
-                                  : '',
-                              style: TextStyle(
-                                color: KColors.textColor,
-                                fontSize: 12,
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.w400,
+                                  fontWeight: FontWeight.w400,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      )
-                    ],
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 )),
           ),
@@ -1539,6 +1589,160 @@ class UpcomingLeavesCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+
+/// ---- Open dialog for show details
+class CheckInOutDetailsInDialog extends StatelessWidget {
+  final String? location;
+  final String? des;
+  final String? date;
+  final String? type;
+
+
+  const CheckInOutDetailsInDialog(
+      {
+        super.key,
+        this.location,
+        this.des,
+        this.date,
+        this.type
+      });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: Container(
+        //width: double.infinity, // Match parent
+        padding: EdgeInsets.all(12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // 👈 Wrap content height
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
+              child: Container(
+                  width: MediaQuery.of(context).size.width * double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    // Background color
+                    border: Border.all(
+                      color: Colors.grey,
+                      // Border color
+                      width: 1.0, // Border width
+                    ),
+                    borderRadius: BorderRadius.circular(5), // Rounded corners
+                  ),
+                  child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          top: 10, left: 20, right: 20, bottom: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            type ?? '',
+                            style: const TextStyle(
+                                color: KColors.appPrimary,
+                                fontSize: 16,
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.w500),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                           des ?? '',
+                            style: TextStyle(
+                                color: KColors.textColor,
+                                fontSize: 12,
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.w400),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              SizedBox(
+                                width: 12,
+                                height: 12,
+                                child: SvgPicture.asset(
+                                    'assets/icons/location_icon.svg'),
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  location ?? '',
+                                  style: TextStyle(
+                                      color: KColors.textColor,
+                                      fontSize: 12,
+                                      fontFamily: "Poppins",
+                                      fontWeight: FontWeight.w400),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              SizedBox(
+                                width: 12,
+                                height: 12,
+                                child:
+                                SvgPicture.asset('assets/icons/timer_icon.svg'),
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              Expanded(
+                                child: Text(
+                                    KDateAndTime()
+                                        .formatCustomDateMonthYearWithTime(
+                                         date ?? ''),
+                                  style: TextStyle(
+                                      color: KColors.textColor,
+                                      fontSize: 12,
+                                      fontFamily: "Poppins",
+                                      fontWeight: FontWeight.w400),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  )),
+            ),
+            SizedBox(height: 8,),
+            Padding(
+              padding: const EdgeInsets.only(top: 10,right: 16,left: 16,bottom: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  InkWell(
+                    onTap: (){
+                      Navigator.of(context).pop(); // This will close the dialog
+                    },
+                    child: Text("Close",style: TextStyle(color: KColors.appPrimaryRed,fontWeight: FontWeight.bold,fontSize: 14,),),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color getStatusColor1(String? status) {
+    return status == "Pending"
+        ? KColors.orangeColor
+        : status == "Approved"
+        ? KColors.greenColor
+        : KColors.appPrimaryRed;
   }
 }
 

@@ -20,7 +20,9 @@ import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_circular_progress.dart';
 import 'apply_leave.dart';
 class LeaveScreen extends StatefulWidget {
-  const LeaveScreen({super.key});
+  final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
+
+  const LeaveScreen({super.key,this.isBottomNavVisible});
 
   @override
   State<LeaveScreen> createState() => LeaveScreenState();
@@ -222,6 +224,7 @@ class LeaveScreenState extends State<LeaveScreen> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
     return Scaffold(
       appBar: KCustomDrawer.customDrawer(
         context: context,
@@ -232,7 +235,11 @@ class LeaveScreenState extends State<LeaveScreen> {
         // Show Bell Icon
         showProfileIcon: false, // Hide Profile Icon
       ),
-      drawer: CustomDrawerMenu(context: context),
+      drawer: CustomDrawerMenu(context: context,isBottomNavVisible: widget.isBottomNavVisible,),
+      onDrawerChanged: (isOpened) {
+        // 👇 hide when drawer opens, show when closes
+        widget.isBottomNavVisible?.value = !isOpened;
+      },
       body: _isLoading? KLoader() : RefreshIndicator(
         onRefresh: _refreshData,
         child: SingleChildScrollView(
@@ -259,13 +266,14 @@ class LeaveScreenState extends State<LeaveScreen> {
                       ),
                       KSizedBox.h10,
 
+
                       Center(
                         child: KCircularProgressBar.circularIndicator(
                           percent: leaveP,
                           value: leaveBal ?? '',
                           valueTextSize: 28,
                           label: 'Leave balance',
-                          radius: 60.0,
+                          radius: isTablet ? 80.0 : 60.0, // ✅ Correct dynamic sizing
                         ),
                       ),
                       Row(
@@ -308,7 +316,7 @@ class LeaveScreenState extends State<LeaveScreen> {
                                     percent: (clP ?? 0) > 0 ? clP : 0,
                                     value: casualLeave.toString(),
                                     valueTextSize: 18,
-                                    radius: 34.0,
+                                    radius: isTablet ? 60.0 : 32.0,
                                     bottomLabel: 'Casual Leave',
                                     bottomLabelColor: KColors.textColorGray)),
                             Expanded(
@@ -317,7 +325,7 @@ class LeaveScreenState extends State<LeaveScreen> {
                                     percent: (slP ?? 0) > 0 ? slP : 0,
                                     value: sickLeave.toString() ?? '',
                                     valueTextSize: 18,
-                                    radius: 34.0,
+                                    radius: isTablet ? 60.0 : 32.0,
                                     bottomLabel: 'Sick Leave',
                                     bottomLabelColor: KColors.textColorGray)),
                             Expanded(
@@ -326,7 +334,7 @@ class LeaveScreenState extends State<LeaveScreen> {
                                     percent: (elP ?? 0) > 0 ? elP : 0,
                                     value: earnLeave.toString() ?? '',
                                     valueTextSize: 18,
-                                    radius: 34.0,
+                                    radius: isTablet ? 60.0 : 32.0,
                                     bottomLabel: 'Earn Leave',
                                     bottomLabelColor: KColors.textColorGray)),
                             Expanded(
@@ -335,7 +343,7 @@ class LeaveScreenState extends State<LeaveScreen> {
                                     percent: (compOffP ?? 0) > 0 ? compOffP : 0.0,
                                     value: compOff.toString() ?? '',
                                     valueTextSize: 18,
-                                    radius: 34.0,
+                                    radius: isTablet ? 60.0 : 32.0,
                                     bottomLabel: 'Comp Off',
                                     bottomLabelColor: KColors.textColorGray)),
                           ],
@@ -861,11 +869,12 @@ class KFeatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 91,
-        height: 90,
+        height: isTablet ? 140.0 : 90.0, // ✅ Correct dynamic sizing,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6),
           color: KColors.appColorWhite,

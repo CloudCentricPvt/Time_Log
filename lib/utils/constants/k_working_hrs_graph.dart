@@ -119,21 +119,25 @@ class _CustomMonthlyChartState extends State<KWorkingHrsGraph> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        height: double.infinity,
+    final screenWidth = MediaQuery.of(context).size.width;
+    final chartHeight = screenWidth > 600
+        ? MediaQuery.of(context).size.height * 0.40  // For tablets
+        : MediaQuery.of(context).size.height * 0.28; // For mobile
+
+    return SizedBox(
+      height: chartHeight,
+      child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: KColors.appColorWhite,
           borderRadius: BorderRadius.circular(4),
         ),
-
-        child: Padding(
-          padding: const EdgeInsets.only(top: 15),
-          child: Column(
-            children: [
-              AspectRatio(
-                aspectRatio: 2.9,
+        child: Column(
+          children: [
+            const SizedBox(height: 15),
+            Expanded( // takes up remaining space in parent height
+              child: AspectRatio(
+                aspectRatio: 2.5,
                 child: LineChart(
                   LineChartData(
                     minX: 0,
@@ -176,24 +180,24 @@ class _CustomMonthlyChartState extends State<KWorkingHrsGraph> {
                                 ),
                               );
                             }
-                            return SideTitleWidget(
+                            return const SideTitleWidget(
                               axisSide: AxisSide.bottom,
                               child: Text(""),
                             );
                           },
                         ),
                       ),
-                      leftTitles: AxisTitles( // Show Y-axis on left
+                      leftTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
                           interval: 50,
                           getTitlesWidget: (value, _) {
                             return Text(
                               value.toInt().toString(),
-                              style: TextStyle(fontSize: 10),
+                              style: const TextStyle(fontSize: 10),
                             );
                           },
-                          reservedSize: 30, // space to fit text
+                          reservedSize: 30,
                         ),
                       ),
                       rightTitles: AxisTitles(
@@ -203,16 +207,16 @@ class _CustomMonthlyChartState extends State<KWorkingHrsGraph> {
                         sideTitles: SideTitles(showTitles: false),
                       ),
                     ),
-
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+
 
   Widget _buildLegendItem(Color color, String label) {
     return Row(

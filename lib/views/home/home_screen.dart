@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -11,6 +10,7 @@ import '../leaves/leave_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final int initialIndex;
+
   const HomeScreen({Key? key, this.initialIndex = 0}) : super(key: key);
 
   @override
@@ -18,27 +18,33 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late ValueNotifier<bool> isBottomNavVisible;
   int _selectedIndex = 0;
   bool _hasHandledArgs = false;
   bool _isDrawerOpen = false;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   // Create GlobalKeys for each screen's state to access refresh methods
-  final GlobalKey<CheckInCheckOutState> _checkInKey = GlobalKey<CheckInCheckOutState>();
-  final GlobalKey<TimeLogsScreenState> _timeLogKey = GlobalKey<TimeLogsScreenState>();
+  final GlobalKey<CheckInCheckOutState> _checkInKey =
+      GlobalKey<CheckInCheckOutState>();
+  final GlobalKey<TimeLogsScreenState> _timeLogKey =
+      GlobalKey<TimeLogsScreenState>();
   final GlobalKey<LeaveScreenState> _leaveKey = GlobalKey<LeaveScreenState>();
-  final GlobalKey<ProfileScreenState> _profileKey = GlobalKey<ProfileScreenState>();
+  final GlobalKey<ProfileScreenState> _profileKey =
+      GlobalKey<ProfileScreenState>();
 
   late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
+    isBottomNavVisible = ValueNotifier(true); // initially visible
     _pages = [
-      CheckInCheckOut(key: _checkInKey),
-      TimeLogsScreen(key: _timeLogKey),
-      LeaveScreen(key: _leaveKey),
-      ProfileScreen(key: _profileKey),
+      CheckInCheckOut(key: _checkInKey,isBottomNavVisible: isBottomNavVisible),
+      TimeLogsScreen(key: _timeLogKey,isBottomNavVisible: isBottomNavVisible),
+      LeaveScreen(key: _leaveKey,isBottomNavVisible: isBottomNavVisible),
+      ProfileScreen(key: _profileKey,isBottomNavVisible: isBottomNavVisible),
     ];
   }
 
@@ -78,7 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     // Handle route arguments once
@@ -95,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
         index: _selectedIndex,
         children: _pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      /*bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
             icon: _buildNavItem(
@@ -155,12 +160,85 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
+      ),*/
+
+      bottomNavigationBar: ValueListenableBuilder<bool>(
+        valueListenable: isBottomNavVisible,
+        builder: (context, isVisible, _) {
+          return isVisible
+              ? BottomNavigationBar(
+                  items: [
+                    BottomNavigationBarItem(
+                      icon: _buildNavItem(
+                        SvgPicture.asset(
+                          KAssets.homeIcon,
+                          width: 24,
+                          height: 24,
+                          color: _selectedIndex == 0
+                              ? KColors.appPrimary
+                              : KColors.textColor,
+                        ),
+                        "Dashboard",
+                        0,
+                      ),
+                      label: '',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: _buildNavItem(
+                        SvgPicture.asset(
+                          KAssets.timeLoge,
+                          width: 24,
+                          height: 24,
+                          color: _selectedIndex == 1
+                              ? KColors.orangeColor
+                              : KColors.textColor,
+                        ),
+                        "Time Log",
+                        1,
+                      ),
+                      label: '',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: _buildNavItem(
+                        SvgPicture.asset(
+                          KAssets.leaveIcon,
+                          width: 24,
+                          height: 24,
+                          color: _selectedIndex == 2
+                              ? KColors.greenColor
+                              : KColors.textColor,
+                        ),
+                        "Leaves",
+                        2,
+                      ),
+                      label: '',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: _buildNavItem(
+                        SvgPicture.asset(
+                          KAssets.profileIcon,
+                          width: 24,
+                          height: 24,
+                          color: _selectedIndex == 3
+                              ? KColors.appPrimaryYellow
+                              : KColors.textColor,
+                        ),
+                        "Profile",
+                        3,
+                      ),
+                      label: '',
+                    ),
+                  ],
+                  currentIndex: _selectedIndex,
+                  unselectedItemColor: Colors.grey,
+                  onTap: _onItemTapped,
+                  type: BottomNavigationBarType.fixed,
+                  backgroundColor: Colors.white,
+                )
+              : const SizedBox.shrink(); // hidden
+        },
       ),
     );
-
-
-
-
   }
 
   Widget _buildNavItem(Widget icon, String label, int index) {
@@ -188,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon,
                   if (isSelected) ...[
                     const SizedBox(width: 4),
-                     Text(
+                    Text(
                       label,
                       style: TextStyle(
                         color: KColors.appColorWhite,

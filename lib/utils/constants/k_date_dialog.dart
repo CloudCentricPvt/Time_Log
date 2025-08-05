@@ -51,8 +51,8 @@ class KDateDialog {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate ?? now,
-      firstDate: firstDate ?? DateTime(1990), // ✅ Allow past dates from the year 2000 (or any past limit)
-      lastDate: now, // ✅ Restrict to today (no future dates)
+      firstDate: firstDate ?? DateTime(1990), // Allow past dates from the year 1990 (or any past limit)
+      lastDate: now, // Restrict to today (no future dates)
     );
 
     if (pickedDate != null) {

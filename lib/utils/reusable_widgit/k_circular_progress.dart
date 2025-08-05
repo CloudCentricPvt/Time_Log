@@ -28,44 +28,57 @@ class KCircularProgressBar {
             radius: radius,
             lineWidth: lineWidth,
             percent: percent,
-            center: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  value, // Dynamic Value
-                  style: valueStyle ??
-                      TextStyle(
-                        fontSize: valueTextSize ?? 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                if (label != null) // Show label inside the circle if provided
+            center: SizedBox(
+              width: double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min, // 🟢 Prevent extra vertical space
+                crossAxisAlignment: CrossAxisAlignment.center, // 🟢 Center horizontally
+                children: [
                   Text(
-                    label,
-                    style: labelStyle ??
+                    value,
+                    style: valueStyle ??
                         TextStyle(
-                          fontSize: labelTextSize ?? 16,
-                          color: Colors.black54,
+                          fontSize: valueTextSize ?? 22,
+                          fontWeight: FontWeight.bold,
                         ),
+                    textAlign: TextAlign.center,
                   ),
-              ],
+                  if (label != null)
+                    Text(
+                      label,
+                      style: labelStyle ??
+                          TextStyle(
+                            fontSize: labelTextSize ?? 16,
+                            color: Colors.black54,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                ],
+              ),
             ),
+
             progressColor: progressColor ?? Colors.blue,
             backgroundColor: backgroundColor ?? Colors.grey[300]!,
             circularStrokeCap: CircularStrokeCap.round,
           ),
         ),
-        if (bottomLabel != null) // Show label outside the circle if provided
+        // ✅ Add space before bottom label to avoid overlapping
+        if (bottomLabel != null) ...[
+          const SizedBox(height: 8), // ← spacing between circle and bottom label
           Text(
             bottomLabel,
+            textAlign: TextAlign.center,
             style: bottomLabelStyle ??
                 TextStyle(
                   fontSize: bottomLabelTextSize ?? 14,
-                  color: bottomLabelColor ?? Colors.black, // Default black
+                  color: bottomLabelColor ?? Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
           ),
+        ],
       ],
     );
   }
 }
+

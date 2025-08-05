@@ -17,7 +17,8 @@ import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_custom_card.dart';
 
 class TimeLogsScreen extends StatefulWidget {
-  const TimeLogsScreen({super.key});
+  final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
+  const TimeLogsScreen({super.key,this.isBottomNavVisible});
 
   @override
   State<TimeLogsScreen> createState() => TimeLogsScreenState();
@@ -172,7 +173,12 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
         // Show Bell Icon
         showProfileIcon: false, // Hide Profile Icon
       ),
-      drawer: CustomDrawerMenu(context: context),
+      drawer: CustomDrawerMenu(context: context,isBottomNavVisible: widget.isBottomNavVisible,),
+
+      onDrawerChanged: (isOpened) {
+        // 👇 hide when drawer opens, show when closes
+        widget.isBottomNavVisible?.value = !isOpened;
+      },
       body: RefreshIndicator(
         onRefresh: _refreshData,
         child: SingleChildScrollView(
@@ -975,12 +981,18 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
     return connectivityResult != ConnectivityResult.none;
   }
 
-  /// --- show all the filled time history in the list.
+  /// --- show all the filled time log history in the list.
   Widget _filledTimeLogAndShowInList() {
+    final isTablet = MediaQuery.of(context).size.width > 600;
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
+      padding: const EdgeInsets.only(bottom: 0),
       child: isLoading
-          ? Center(child: KLoader())
+          ? SizedBox(
+          height: isTablet
+              ? MediaQuery.of(context).size.height * 0.6  // for tablet
+              : MediaQuery.of(context).size.height * 0.5, // for mobile
+          child: Center(child: KLoader()))
           : timeLogs.isEmpty
               ? SizedBox(
                   height: MediaQuery.of(context).size.height * 0.5,
@@ -1025,7 +1037,9 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                         );
                       },
                       child: SizedBox(
-                        height: 120,
+                        height: MediaQuery.of(context).size.width > 600
+                          ? MediaQuery.of(context).size.height * 0.11 // Tablet height
+                          : null, // Let it wrap content on phones
                         width: 374,
                         child: Card(
                           color: Colors.white,
@@ -1045,16 +1059,18 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                               ),
                             ),
                             padding: EdgeInsets.all(10),
+
+                            ///--- design inside card UI to showing filled time log in a List.
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
                                     Expanded(
-                                      flex: 7,
+                                      flex: 6,
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             project.projectName ?? "No Project",
@@ -1069,18 +1085,18 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                               decoration: BoxDecoration(
                                                 color: statusColor,
                                                 borderRadius:
-                                                    BorderRadius.circular(2),
+                                                BorderRadius.circular(2),
                                               ),
                                               child: Padding(
                                                 padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 10,
-                                                        vertical: 1),
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 1),
                                                 child: Text(
-                                                  project.taskName ?? "No Task",
+                                                  project.taskName ?? "Null",
                                                   maxLines: 1,
                                                   style:
-                                                      KFonts.normalWithWithText,
+                                                  KFonts.normalWithWithText,
                                                 ),
                                               ),
                                             ),
@@ -1089,19 +1105,22 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                       ),
                                     ),
                                     Expanded(
-                                      flex: 3,
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            height: 35,
-                                            width: 1,
-                                            color: Color(0xFFEDEDED),
-                                          ),
-                                          SizedBox(width: 10),
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
+                                        flex: 1,
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              height: 35,
+                                              width: 1,
+                                              color: Color(0xFFEDEDED),
+                                            ),
+                                          ],
+                                        )),
+                                    Expanded(
+                                        flex: 3,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          children: [
                                               Text(
                                                 KDateAndTime().getDay(
                                                     project.formattedDate ??
@@ -1118,22 +1137,21 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                                     project.formattedDate ??
                                                         ""),
                                                 style:
-                                                    KFonts.normalBoldWithGray,
+                                                KFonts.normalBoldWithGray,
                                               ),
                                             ],
-                                          )
-                                        ],
-                                      ),
-                                    )
+
+                                        )),
+
                                   ],
                                 ),
                                 Row(
                                   children: [
                                     Expanded(
-                                      flex: 7,
+                                        flex: 6,
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             project.description ??
@@ -1146,17 +1164,22 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                       ),
                                     ),
                                     Expanded(
-                                      flex: 3,
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            height: 35,
-                                            width: 1,
-                                            color: Color(0xFFEDEDED),
-                                          ),
-                                          SizedBox(width: 20),
-                                          Column(
-                                            children: [
+                                        flex: 1,
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              height: 35,
+                                              width: 1,
+                                              color: Color(0xFFEDEDED),
+                                            ),
+                                          ],
+                                        )
+                                    ),
+                                    Expanded(
+                                        flex: 3,
+                                        child: Column(
+
+                                         children: [
                                               Text(
                                                 project.minutes == 0
                                                     ? "${project.hours}"
@@ -1171,13 +1194,13 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                               Text(
                                                 'Hours',
                                                 style:
-                                                    KFonts.normalBoldWithGray,
+                                                KFonts.normalBoldWithGray,
                                               ),
                                             ],
-                                          )
-                                        ],
-                                      ),
-                                    )
+
+                                        )
+                                    ),
+
                                   ],
                                 ),
                               ],
@@ -1185,6 +1208,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                           ),
                         ),
                       ),
+
                     );
                   },
                 ),
@@ -1294,8 +1318,8 @@ class DetailDialog extends StatelessWidget {
                         ),
                         onTap: () async {
                           Navigator.pop(context); // Close dialog first
-                          // Wait for the next frame to push new screen
-                          await Future.delayed(Duration.zero);
+
+                          await Future.delayed(Duration.zero); // Wait for the next frame to push new screen
 
                           final result = await Navigator.pushNamed(
                             context,

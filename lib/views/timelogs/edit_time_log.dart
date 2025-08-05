@@ -320,8 +320,8 @@ class _EditTimeLogState extends State<EditTimeLog> {
 
   Widget _selectTask() {
     return DropdownSearch<String>(
-      items: assignTask, // List<String>
-      selectedItem: selectedTask,
+      items: assignTask , // List<String>
+      selectedItem: selectedTask ?? "",
       popupProps: PopupProps.menu(
         showSearchBox: true,
         searchFieldProps: TextFieldProps(
@@ -397,11 +397,12 @@ class _EditTimeLogState extends State<EditTimeLog> {
       isRequired: true,
       useMaxLength: true,
       maxLength: 32768,
-      maxLines: 3,
-      /*onChange: (value) {
-        _controller.descriptionController.text = value!;
-        return null;
-      },*/
+      maxLines: 10,
+
+      /* onChange: (value) {
+                              _controller.descriptionController.text = value!;
+                              return null;
+                            },*/
     );
   }
 

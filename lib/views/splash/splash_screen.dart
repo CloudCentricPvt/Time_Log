@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:get_storage/get_storage.dart';
+import 'package:time_log/utils/constants/k_asstes.dart';
+import 'package:time_log/utils/constants/k_colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -35,12 +37,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: KColors.appColorWhite,
       body: Column(
         children: [
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Center(child: Image.asset('assets/images/splash_images.png',height: 950,),
+              child: Center(child: Image.asset(KAssets.appLogo,height: 950,),
               ),
             ),
           ),

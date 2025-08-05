@@ -16,7 +16,8 @@ import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_info_card.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
+  const ProfileScreen({super.key,this.isBottomNavVisible});
 
   @override
   State<ProfileScreen> createState() => ProfileScreenState();
@@ -94,11 +95,13 @@ class ProfileScreenState extends State<ProfileScreen> {
         title: "Profile",
         titleColor: KColors.appBlackColor,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        showBellIcon: true,
-        // Show Bell Icon
+        showBellIcon: true,// Show Bell Icon
         showProfileIcon: false, // Hide Profile Icon
       ),
-      drawer: CustomDrawerMenu(context: context),
+      drawer: CustomDrawerMenu(context: context,isBottomNavVisible: widget.isBottomNavVisible,),
+      onDrawerChanged: (isOpened) {
+        widget.isBottomNavVisible?.value = !isOpened;
+      },
       body: _isLoading
           ? KLoader()
           : RefreshIndicator(

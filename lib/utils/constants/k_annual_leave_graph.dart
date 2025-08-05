@@ -209,110 +209,108 @@ class _CustomMonthlyChartState extends State<KAnnualLeaveGraph> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
+    final chartHeight = MediaQuery.of(context).size.height * 0.25;
+
+    return SizedBox(
+      height: chartHeight,
+      child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: KColors.appColorWhite,
           borderRadius: BorderRadius.circular(4),
         ),
-        child: Padding(
-          padding: const EdgeInsets.only(top: 15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AspectRatio(
-                aspectRatio: 2.9,
-                child: LineChart(
-                  LineChartData(
-                    minX: 0,
-                    maxX: 11,
-                    minY: 0,
-                    maxY: 40,
-                    gridData: FlGridData(show: true),
-                    borderData: FlBorderData(show: false),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: monthlyTakenLeave,
-                        isCurved: false,
-                        color: Colors.blue,
-                        barWidth: 2,
-                        dotData: FlDotData(show: true),
-                      ),
-                      LineChartBarData(
-                        spots: annuallyTakenLeave,
-                        isCurved: false,
-                        color: Colors.yellow[800],
-                        barWidth: 2,
-                        dotData: FlDotData(show: true),
-                      ),
-                      LineChartBarData(
-                        spots: compOffTakenLeave,
-                        isCurved: false,
-                        color: Colors.red,
-                        barWidth: 2,
-                        dotData: FlDotData(show: true),
-                      ),
-                      LineChartBarData(
-                        spots: wfhTakenLeave,
-                        isCurved: false,
-                        color: Colors.green,
-                        barWidth: 2,
-                        dotData: FlDotData(show: true),
-                      ),
-                    ],
-                    titlesData: FlTitlesData(
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          interval: 1,
-                          getTitlesWidget: (value, _) {
-                            int index = value.toInt();
-                            if (index >= 0 &&
-                                index < allMonths.length &&
-                                visibleMonthIndexes.contains(index)) {
-                              return SideTitleWidget(
-                                axisSide: AxisSide.bottom,
-                                child: Text(
-                                  allMonths[index],
-                                  style: TextStyle(fontSize: 10),
-                                ),
-                              );
-                            }
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded( // this ensures the LineChart fills remaining height
+              child: LineChart(
+                LineChartData(
+                  minX: 0,
+                  maxX: 11,
+                  minY: 0,
+                  maxY: 40,
+                  gridData: FlGridData(show: true),
+                  borderData: FlBorderData(show: false),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: monthlyTakenLeave,
+                      isCurved: false,
+                      color: Colors.blue,
+                      barWidth: 2,
+                      dotData: FlDotData(show: true),
+                    ),
+                    LineChartBarData(
+                      spots: annuallyTakenLeave,
+                      isCurved: false,
+                      color: Colors.yellow[800],
+                      barWidth: 2,
+                      dotData: FlDotData(show: true),
+                    ),
+                    LineChartBarData(
+                      spots: compOffTakenLeave,
+                      isCurved: false,
+                      color: Colors.red,
+                      barWidth: 2,
+                      dotData: FlDotData(show: true),
+                    ),
+                    LineChartBarData(
+                      spots: wfhTakenLeave,
+                      isCurved: false,
+                      color: Colors.green,
+                      barWidth: 2,
+                      dotData: FlDotData(show: true),
+                    ),
+                  ],
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 1,
+                        getTitlesWidget: (value, _) {
+                          int index = value.toInt();
+                          if (index >= 0 &&
+                              index < allMonths.length &&
+                              visibleMonthIndexes.contains(index)) {
                             return SideTitleWidget(
                               axisSide: AxisSide.bottom,
-                              child: Text(""),
+                              child: Text(
+                                allMonths[index],
+                                style: const TextStyle(fontSize: 10),
+                              ),
                             );
-                          },
-                        ),
+                          }
+                          return const SideTitleWidget(
+                            axisSide: AxisSide.bottom,
+                            child: Text(""),
+                          );
+                        },
                       ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          interval: 5,
-                          getTitlesWidget: (value, _) {
-                            return Text(
-                              value.toInt().toString(),
-                              style: TextStyle(fontSize: 10),
-                            );
-                          },
-                          reservedSize: 30,
-                        ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 5,
+                        getTitlesWidget: (value, _) {
+                          return Text(
+                            value.toInt().toString(),
+                            style: const TextStyle(fontSize: 10),
+                          );
+                        },
+                        reservedSize: 30,
                       ),
-                      rightTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      topTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
+                    ),
+                    rightTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
                     ),
                   ),
                 ),
               ),
-
-              const SizedBox(height: 12),
-            ],
-          ),
+            ),
+            const SizedBox(height: 12),
+          ],
         ),
       ),
     );
