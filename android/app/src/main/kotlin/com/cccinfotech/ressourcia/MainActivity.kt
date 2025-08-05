@@ -1,4 +1,4 @@
-package com.example.time_log
+package com.cccinfotech.ressourcia
 
 import io.flutter.embedding.android.FlutterActivity
 

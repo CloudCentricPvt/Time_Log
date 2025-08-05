@@ -8,7 +8,8 @@ import 'k_logout_dialog.dart';
 
 class CustomDrawerMenu extends StatefulWidget {
   final BuildContext context;
-  const CustomDrawerMenu({super.key, required this.context});
+  final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
+  const CustomDrawerMenu({super.key, required this.context,this.isBottomNavVisible,});
 
   @override
   State<CustomDrawerMenu> createState() => _CustomDrawerMenuState();

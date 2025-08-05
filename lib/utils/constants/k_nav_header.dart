@@ -15,6 +15,7 @@ class KCustomDrawer {
     List<Widget>? actions, // Additional Actions
     Color backgroundColor = KColors.appPrimary, // Default AppBar Color
     Color titleColor = KColors.appColorWhite, // Default Title Color
+    ValueNotifier<bool>? isBottomNavVisible, // 👈 Add this
   }) {
     return AppBar(
       backgroundColor: backgroundColor,
@@ -36,6 +37,7 @@ class KCustomDrawer {
             ),
           ),
           onPressed: () {
+            isBottomNavVisible?.value = false; // 👈 hide nav bar
             Scaffold.of(context).openDrawer();
           },
         ),
@@ -140,7 +142,14 @@ class KCustomDrawer {
                 ),
               ),
               onTap: () {
-                Navigator.pushNamed(context, '/profile_screen');
+                Future.delayed(const Duration(milliseconds: 10), () {
+                  Navigator.pushNamed(
+                    context,
+                    '/home_screen',
+                    arguments: 3,  // 👉 Pass index 3 here
+                  );
+                });
+                //Navigator.pushNamed(context, '/profile_screen');
               },
             ),
           ),

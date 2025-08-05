@@ -95,6 +95,7 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -437,6 +438,7 @@ class BalanceLeave extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
@@ -447,7 +449,7 @@ class BalanceLeave extends StatelessWidget {
       // Card background set to white
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: SizedBox(
-        height: 75,
+        height: isTablet ? 110.0 : 75.0, // ✅ Correct dynamic sizing,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
