@@ -46,15 +46,17 @@ class CheckInCheckOutController{
       var response = await networkApiServices.postRequest(checkInPayLoad, KApiEndPoints.checkIn,context);
       print("RESPONSE: $response");
       if(response!=null){
-        if(response['code']==200 && response['status']==true){
+        if(response['code']==201 && response['status']==true){
 
           storage.write("${KStorageKey.attendeeId}", response['attendeeId']);
           print('#Attendee_ID:${storage.read(KStorageKey.attendeeId)}');
 
           KShowInfo.showSuccessMessage(context, response['message']?.toString() ?? 'No message');
+          print("#RESPONSE: success 200");
 
         }else{
           KShowInfo.showInfoMessage(context, response['message']?.toString() ?? 'No message');
+          print("#RESPONSE: success ELSE");
           
         }
       }
@@ -95,7 +97,7 @@ class CheckInCheckOutController{
       var response = await networkApiServices.postRequest(checkOutPayLoad, KApiEndPoints.checkOut,context);
       print("RESPONSE: $response");
       if(response!=null){
-        if(response['code']==200 && response['status']==true){
+        if(response['code']==201 && response['status']==true){
 
           KShowInfo.showSuccessMessage(context, response['message']?.toString() ?? 'No message');
 
