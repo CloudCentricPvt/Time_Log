@@ -24,6 +24,7 @@ class KShowInfo {
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
+
       ),
     );
   }
