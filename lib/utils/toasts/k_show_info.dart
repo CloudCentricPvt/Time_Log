@@ -23,7 +23,7 @@ class KShowInfo {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.red,
       ),
     );
   }
