@@ -20,6 +20,7 @@ Future<dynamic> getAllTimeLog(BuildContext context) async {
   final storage = GetStorage();
   var empID = storage.read("EMP_ID");
 
+
   try {
     var response =
     await apiNetwork.getRequest("${KApiEndPoints.allTimeLogs}?employeeId=$empID",context);
