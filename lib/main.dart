@@ -7,6 +7,7 @@ import 'package:time_log/views/all_privacy/leaves_policy_screen.dart';
 import 'package:time_log/views/all_privacy/posh_policy.dart';
 import 'package:time_log/views/all_privacy/privacy_policies_screen.dart';
 import 'package:time_log/views/all_privacy/terms_and_condition_screen.dart';
+import 'package:time_log/views/attendance/attendance_screen.dart';
 import 'package:time_log/views/authentication/change_password.dart';
 import 'package:time_log/views/authentication/login_screen.dart';
 import 'package:time_log/views/leaves/comp_off_history_screen.dart';
@@ -20,6 +21,7 @@ import 'package:time_log/views/leaves/leave_history.dart';
 import 'package:time_log/views/leaves/leave_screen.dart';
 import 'package:time_log/views/leaves/work_from_home_history.dart';
 import 'package:time_log/views/notification/notification_screen.dart';
+import 'package:time_log/views/payroll/payroll_screen.dart';
 import 'package:time_log/views/profile/edit_profile.dart';
 import 'package:time_log/views/profile/profile_screen.dart';
 import 'package:time_log/views/leaves/request_work_from_home.dart';
@@ -62,7 +64,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        appBarTheme: AppBarTheme(
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: Color(0xFF84DBFF),
+            )
+        ),
       ),
+
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(),
@@ -91,7 +99,8 @@ class MyApp extends StatelessWidget {
         '/balance_leave_screen': (context) => const BalanceLeaveScreen(),
         '/notification_screen': (context) => const NotificationScreen(),
         '/upcoming_events_screen': (context) => const UpcomingEvents(),
-
+        '/attendance_screen' :(context) => AttendanceScreen(),
+        '/payroll_screen' :(context) => const PayrollScreen(),
       },
     );
   }

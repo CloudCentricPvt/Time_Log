@@ -6,7 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
+//import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../../controllers/leave_controller.dart';
 import '../../utils/constants/k_asstes.dart';
 import '../../utils/constants/k_colors.dart';
@@ -24,7 +24,7 @@ class RequestWorkFromHome extends StatefulWidget {
 }
 
 class _RequestWorkFromHomeState extends State<RequestWorkFromHome> with SingleTickerProviderStateMixin {
-  stt.SpeechToText _speech = stt.SpeechToText();
+  // stt.SpeechToText _speech = stt.SpeechToText();
 
   //late stt.SpeechToText _speech;
 
@@ -114,7 +114,7 @@ class _RequestWorkFromHomeState extends State<RequestWorkFromHome> with SingleTi
     _animationController.dispose();
     super.dispose();
   }
-
+/*
   void _addVoiceNote() async {
     // Always create a fresh instance to avoid previous bindings
     _speech = stt.SpeechToText();
@@ -167,6 +167,8 @@ class _RequestWorkFromHomeState extends State<RequestWorkFromHome> with SingleTi
     }
   }
 
+
+ */
 
 
   /// --- request permission for mice
@@ -313,24 +315,24 @@ class _RequestWorkFromHomeState extends State<RequestWorkFromHome> with SingleTi
                     },*/
                   ),
                   GestureDetector(
-                    child: Row(
-                      children: [
-                        SvgPicture.asset(KAssets.voiceIcon,),
-                        KSizedBox.w10,
-                        const Text(
-                          'Tap to add description by speaking.',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontFamily: 'Poppins',
-                              fontSize: 14,
-                              color: KColors.appPrimary),
-                        ),
-                      ],
-                    ),
+                      child: Row(
+                        children: [
+                          SvgPicture.asset(KAssets.voiceIcon,),
+                          KSizedBox.w10,
+                          const Text(
+                            'Tap to add description by speaking.',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontFamily: 'Poppins',
+                                fontSize: 14,
+                                color: KColors.appPrimary),
+                          ),
+                        ],
+                      ),
                       onTap: () async {
                         await _requestPermission(); // Ensure mic permission is granted
                         //_speechManager.forceStopListening();
-                        _addVoiceNote();
+                        //    _addVoiceNote();
                       }
                   )
                 ],
@@ -403,7 +405,7 @@ class _RequestWorkFromHomeState extends State<RequestWorkFromHome> with SingleTi
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    _speech.stop();
+                    //    _speech.stop();
                     _animationController.stop();
                     Navigator.of(bottomSheetContext).pop(); // Close the bottom sheet
                   },
@@ -419,7 +421,7 @@ class _RequestWorkFromHomeState extends State<RequestWorkFromHome> with SingleTi
       _bottomSheetContext = null;
     });
   }
-
+/*
   void _stopListeningAndCloseDialog() async {
     if (_speech.isListening) {
       await _speech.stop(); // Stop the speech recognition
@@ -441,5 +443,8 @@ class _RequestWorkFromHomeState extends State<RequestWorkFromHome> with SingleTi
       _bottomSheetContext = null; // Clear the context
     }
   }
+
+
+ */
 
 }

@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:time_log/utils/constants/k_asstes.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
@@ -17,8 +18,9 @@ import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_custom_card.dart';
 
 class TimeLogsScreen extends StatefulWidget {
-  final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
-  const TimeLogsScreen({super.key,this.isBottomNavVisible});
+  final ValueNotifier<bool>? isBottomNavVisible;
+
+  const TimeLogsScreen({super.key, this.isBottomNavVisible});
 
   @override
   State<TimeLogsScreen> createState() => TimeLogsScreenState();
@@ -34,6 +36,10 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
   int rejectedCount = 0;
   dynamic totalWorkingHrs = 0;
   bool isLoading = false;
+  String? selectedQuickFilter;
+  String? selectedStatusFilter;
+  DateTime? selectedFromDate;
+  DateTime? selectedToDate;
 
   String selectedProject = "Select Project";
   String selectedTask = "Select Task";
@@ -42,6 +48,13 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
     "Leave/Holiday (April 2024 - March 2025)",
     "Self Study (April 2024 - March 2025)",
     "UI/UX Designing FY 24-25"
+  ];
+  final List<String> taskItems = [
+    "Select Task",
+    "UI Design",
+    "Backend Development",
+    "API Integration",
+    "Testing",
   ];
 
   /// time log filter chip functions.....
@@ -173,10 +186,12 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
         // Show Bell Icon
         showProfileIcon: false, // Hide Profile Icon
       ),
-      drawer: CustomDrawerMenu(context: context,isBottomNavVisible: widget.isBottomNavVisible,),
+      drawer: CustomDrawerMenu(
+        context: context,
+        isBottomNavVisible: widget.isBottomNavVisible,
+      ),
 
       onDrawerChanged: (isOpened) {
-        // 👇 hide when drawer opens, show when closes
         widget.isBottomNavVisible?.value = !isOpened;
       },
       body: RefreshIndicator(
@@ -184,13 +199,12 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding:
-                const EdgeInsets.only(top: 10, left: 8, right: 8, bottom: 8),
+            const EdgeInsets.only(top: 10, left: 8, right: 8, bottom: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ///Time log cards.....
                 Align(
-                  alignment: Alignment.topCenter, // Align content to the top
+                  alignment: Alignment.topCenter,
                   child: Padding(
                     padding: const EdgeInsets.only(
                         left: 8, right: 8, top: 0, bottom: 8),
@@ -204,15 +218,15 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                               /// alignment of three card of hours and leave and pending leave......
                               Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                MainAxisAlignment.spaceEvenly,
                                 children: [
                                   CustomCard(
                                     textColor: KColors.appColorWhite,
                                     myColor: KColors.appPrimary,
                                     containerTextDigit:
-                                        (totalWorkingHrs is double)
-                                            ? totalWorkingHrs.toInt().toString()
-                                            : totalWorkingHrs.toString(),
+                                    (totalWorkingHrs is double)
+                                        ? totalWorkingHrs.toInt().toString()
+                                        : totalWorkingHrs.toString(),
                                     containerTextOne: "Total working",
                                     containerTextTwo: "hours this month",
                                   ),
@@ -231,7 +245,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                     textColor: KColors.appColorWhite,
                                     myColor: KColors.appPrimaryRed,
                                     containerTextDigit:
-                                        rejectedCount.toString(),
+                                    rejectedCount.toString(),
                                     containerTextOne: "Rejected Time",
                                     containerTextTwo: "Logs",
                                   ),
@@ -272,663 +286,575 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
     );
   }
 
-  /// Time Log filter-options(all,pending,approved......).......
   Widget _listViewFilter() {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        /// --- Time Log Status
-        Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(filters.length, (index) {
-                bool isSelected = selectedIndex == index;
-                return Padding(
-                  padding: const EdgeInsets.only(left: 2, right: 2),
-
-                  /// we are using choice-chip bcz we need to select single option from a set of options.....
-
-                  child: Padding(
-                    padding: const EdgeInsets.all(0.8),
-                    child: ChoiceChip(
-                        checkmarkColor: Colors.white,
-                        showCheckmark: false,
-                        label: Padding(
-                          padding: const EdgeInsets.only(left: 4, right: 4),
-                          child: Text(filters[index]["label"],
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelSmall!
-                                  .copyWith(
-                                    color: isSelected
-                                        ? Colors.white
-                                        : filters[index]["textColor"],
-                                  )),
-                        ),
-                        selected: isSelected,
-                        backgroundColor: Colors.transparent,
-                        selectedColor: filters[index]["color"],
-                        shape: StadiumBorder(
-                          side:
-                              BorderSide(color: filters[index]["borderColor"]),
-                        ),
-                        onSelected: (bool selected) {
-                          setState(() {
-                            selectedIndex = index;
-
-                            if (selectedIndex == 0) {
-                              selectedFilter = "All";
-                            } else if (selectedIndex == 1) {
-                              selectedFilter = "Pending";
-                            } else if (selectedIndex == 2) {
-                              selectedFilter = "Approved";
-                            } else if (selectedIndex == 3) {
-                              selectedFilter = "Rejected";
-                            }
-                            timeLogs =
-                                getFilteredProjects(); // Now filters from original
-                          });
-                        }),
+        ...List.generate(filters.length, (index) {
+          bool isSelected = selectedIndex == index;
+          return Padding(
+            padding: const EdgeInsets.only(left: 1, right: 1),
+            child: Padding(
+              padding: const EdgeInsets.all(0.8),
+              child: ChoiceChip(
+                  checkmarkColor: Colors.white,
+                  showCheckmark: false,
+                  label: Padding(
+                    padding: const EdgeInsets.only(left: 1, right: 1),
+                    child: Text(filters[index]["label"],
+                        style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                          color: isSelected
+                              ? Colors.white
+                              : filters[index]["textColor"],
+                        )),
                   ),
-                );
-              }),
-            ),
-          ),
-        ),
+                  selected: isSelected,
+                  backgroundColor: Colors.transparent,
+                  selectedColor: filters[index]["color"],
+                  shape: StadiumBorder(
+                    side: BorderSide(color: filters[index]["borderColor"]),
+                  ),
+                  onSelected: (bool selected) {
+                    setState(() {
+                      selectedIndex = index;
 
-        /// --- Filter Icon pop-up  UI design......quick filter
-        /*Container(
+                      if (selectedIndex == 0) {
+                        selectedFilter = "All";
+                      } else if (selectedIndex == 1) {
+                        selectedFilter = "Pending";
+                      } else if (selectedIndex == 2) {
+                        selectedFilter = "Approved";
+                      } else if (selectedIndex == 3) {
+                        selectedFilter = "Rejected";
+                      }
+                      timeLogs =
+                          getFilteredProjects(); // Now filters from original
+                    });
+                  }),
+            ),
+          );
+        }),
+        Container(
           margin: EdgeInsets.only(left: 8),
           width: 38,
           height: 38,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6),
             color: Colors.white,
-            //shape: BoxShape.circle,
-            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 3)],
           ),
-
-          /// filter icon......
           child: IconButton(
             icon: const Icon(
               Icons.tune,
               color: Colors.blue,
               size: 20,
             ),
-            onPressed: () {
-              showDialog(
+            onPressed: () async {
+              final _prevQuickFilter = selectedQuickFilter;
+              final _prevStatusFilter = selectedStatusFilter;
+              final _prevFromDate = selectedFromDate;
+              final _prevToDate = selectedToDate;
+              final _prevProject = selectedProject;
+              final _prevTask = selectedTask;
+
+              final result = await showDialog<Map<String, dynamic>>(
                 context: context,
-                builder: (context) {
-                  return Dialog(
-                    // Use Dialog instead of AlertDialog for full control
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          10), // Optional: Rounded corners
-                    ),
-                    insetPadding: EdgeInsets.zero,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      // Add padding for better UI
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'Time Log Filters',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w600),
-                              ),
-                              Spacer(),
-
-                              /// close button design of pop-up screen......
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors
-                                          .white, // Background color to match design
-                                    ),
-                                    child: Padding(
-                                      padding: EdgeInsets.all(12),
-                                      // Adjust padding for better appearance
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          Navigator.pop(
-                                              context); // Close dialog
-                                        },
-                                        child: Text(
-                                          "X", // Close symbol
-                                          style: TextStyle(
-                                            fontSize: 21,
-                                            // Adjust size for visibility
-                                            fontWeight: FontWeight.normal,
-                                            color: Colors.black, // Black color
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          Divider(
-                            color: Color(0x1A5C5C5C),
-                            thickness: 1,
-                          ),
-
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Quick Filters',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-
-                              /// quick filters radio button like(this week,last week and so on)......
-
-                              Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      _roundedRectangularBox(
-                                        text: "This Week",
-                                        textColor: Colors.blue,
-                                        borderColor: Colors.blue,
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      _roundedRectangularBox(
-                                        text: "Last Week",
-                                        textColor: Colors.blue,
-                                        borderColor: Colors.blue,
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      _roundedRectangularBox(
-                                        text: "This Month",
-                                        textColor: Colors.blue,
-                                        borderColor: Colors.blue,
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      _roundedRectangularBox(
-                                        text: "Last Month",
-                                        textColor: Colors.blue,
-                                        borderColor: Colors.blue,
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      _roundedRectangularBox(
-                                        text: "This Year",
-                                        textColor: Colors.blue,
-                                        borderColor: Colors.blue,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-
-                          Divider(
-                            color: Color(0x1A5C5C5C),
-                            thickness: 1,
-                          ),
-
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Status Filters',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Row(
-                                children: [
-                                  _roundedRectangularBox(
-                                    text: "Pending",
-                                    textColor: Colors.orange,
-                                    borderColor: Colors.orange,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  _roundedRectangularBox(
-                                    text: "Approved",
-                                    textColor: Colors.green,
-                                    borderColor: Colors.green,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  _roundedRectangularBox(
-                                    text: "Rejected",
-                                    textColor: Colors.red,
-                                    borderColor: Colors.red,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                            ],
-                          ),
-
-                          /// Date range filters card.......
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Divider(
-                                color: Color(0x1A5C5C5C),
-                                thickness: 1,
-                              ),
-                              Text(
-                                'Date Range Filters',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Wrap(
-                                /// wrap prevents overflow
-                                spacing: 10,
-                                children: [
-                                  SizedBox(
-                                    height: 100,
-                                    width: 500, // Card width
-                                    child: Card(
-                                      color: Color(0xFFd8d8d8),
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            15), // Rounded corners
-                                        // Border color
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  'From Date',
-                                                  style: TextStyle(
-                                                      fontFamily: 'Poppins',
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: Colors.black),
-                                                ),
-                                                Text(
-                                                  'Select From Date',
-                                                  style: TextStyle(
-                                                      color: Colors.blue,
-                                                      fontFamily: 'Poppins',
-                                                      fontWeight:
-                                                          FontWeight.w500),
-                                                ),
-                                              ],
-                                            ),
-                                            Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                DecoratedBox(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    // White background
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8), // Rounded corners
-                                                  ),
-                                                  child: Padding(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 8,
-                                                            horizontal: 16),
-                                                    // Inner spacing
-                                                    child: Text(
-                                                      '00 Day',
-                                                      style: TextStyle(
-                                                        color: Colors.red,
-                                                        fontFamily: 'Poppins',
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  'To Date',
-                                                  style: TextStyle(
-                                                      fontFamily: 'Poppins',
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: Colors.black),
-                                                ),
-                                                Text(
-                                                  'Select To Date',
-                                                  style: TextStyle(
-                                                      color: Colors.blue,
-                                                      fontFamily: 'Poppins',
-                                                      fontWeight:
-                                                          FontWeight.w500),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Divider(
-                                color: Color(0x1A5C5C5C),
-                                thickness: 1,
-                              ),
-                              Text(
-                                'Project Filters',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              _projectSelectCard(),
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Divider(
-                                color: Color(0x1A5C5C5C),
-                                thickness: 1,
-                              ),
-                              Text(
-                                'Task Filters',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              SizedBox(
-                                  width: double.infinity,
-                                  child: _selectTaskCard()),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Divider(
-                                color: Color(0x1A5C5C5C),
-                                thickness: 1,
-                              ),
-                              Row(
-                                children: [
-                                  _roundedRectangularBox(
-                                    text: "Pending",
-                                    textColor: Colors.blue,
-                                    borderColor: Colors.blue,
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child:
-
-                                        /// apply filters button....
-                                  Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          SizedBox(
-                                            width: 140,
-                                            height: 30,
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                */ /* Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          TimelogScreen()),
-                                                );*/ /*
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                backgroundColor:
-                                                    KColors.appPrimary,
-                                              ),
-                                              child: const Text(
-                                                'Apply All Filters',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontFamily: 'Poppins',
-                                                    fontWeight: FontWeight.w400,
-                                                    fontSize: 11),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                builder: (context) => _timeLogFilterPopUp(
+                  context,
+                  selectedQuickFilter,
+                  selectedStatusFilter,
+                  selectedFromDate,
+                  selectedToDate,
+                  selectedProject,
+                  selectedTask,
+                ),
               );
-            },
+
+              if (result != null) {
+                setState(() {
+                  selectedQuickFilter = result['quickFilter'];
+                  selectedStatusFilter = result['statusFilter'];
+                  selectedFromDate = result['fromDate'];
+                  selectedToDate = result['toDate'];
+                  selectedProject = result['project'];
+                  selectedTask = result['task'];
+                  if (selectedStatusFilter != null) {
+                    selectedFilter = selectedStatusFilter!;
+                    if (selectedStatusFilter == "Pending") {
+                      selectedIndex = 1;
+                    } else if (selectedStatusFilter == "Approved") {
+                      selectedIndex = 2;
+                    } else if (selectedStatusFilter == "Rejected") {
+                      selectedIndex = 3;
+                    }
+                  } else {
+                    // No status selected in dialog → keep "All"
+                    selectedFilter = "All";
+                    selectedIndex = 0;
+                  }
+                  timeLogs = getFilteredProjectsDialog();
+                });
+              } else {
+
+                setState(() {
+                  selectedQuickFilter = _prevQuickFilter;
+                  selectedStatusFilter = _prevStatusFilter;
+                  selectedFromDate = _prevFromDate;
+                  selectedToDate = _prevToDate;
+                  selectedProject = _prevProject;
+                  selectedTask = _prevTask;
+                  timeLogs = getFilteredProjectsDialog();
+                });
+              }
+  },
           ),
-        ),*/
+        ),
       ],
     );
   }
 
-  /// code for rounded button of  pop-up screen .....
-  Widget _roundedRectangularBox({
-    required String text,
-    required Color textColor,
-    required Color borderColor,
+
+
+  Widget customSelectableBox({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    Color selectedColor = Colors.blue,
+    Color unselectedColor = Colors.white,
+    Color borderColor = Colors.blue,
   }) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: SizedBox(
-        height: 32, // Adjust height as needed
-        width: 84, // Match parent width
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), // Rounded corners
-            border: Border.all(
-                color: borderColor, width: 1), // Dynamic border color
-          ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Text(
-                text,
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w400,
-                    color: textColor,
-                    fontSize: 11),
-                textAlign: TextAlign.center,
-              ),
-            ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? selectedColor : unselectedColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: borderColor, width: 1),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 13,
+            color: isSelected ? Colors.white : borderColor,
           ),
         ),
       ),
     );
   }
 
-  /// dropdown design of project filters.....
-  Widget _projectSelectCard() {
+  Widget _timeLogFilterPopUp(
+      BuildContext context,
+      String? selectedQuickFilter,
+      String? selectedStatusFilter,
+      DateTime? fromDate,
+      DateTime? toDate,
+      String? selectedProject,
+      String? selectedTask,
+      ) {
+    String? _quick = selectedQuickFilter;
+    String? _status = selectedStatusFilter;
+    DateTime? _from = fromDate;
+    DateTime? _to = toDate;
+    String? _project = selectedProject;
+    String? _task = selectedTask;
+
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          DropdownButtonFormField<String>(
-            value: selectedProject,
-            decoration: InputDecoration(
-              alignLabelWithHint: true,
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              labelStyle: TextStyle(
-                color: Colors.black.withOpacity(0.8),
-              ),
-              //labelText: "Project",
-              label: RichText(
-                text: TextSpan(
-                    text: 'Project',
-                    style: TextStyle(color: Colors.black, fontSize: 15),
-                    children: [
-                      TextSpan(
-                          text: ' *',
-                          style: TextStyle(color: Colors.red, fontSize: 17))
-                    ]),
-              ),
-              hintText: "Select Project",
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Colors.black26),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Colors.black26),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(width: 1, color: Colors.black54),
-              ),
-            ),
-            dropdownColor: Colors.white,
-            icon: const Icon(Icons.keyboard_arrow_down),
-            items: projectItems.map<DropdownMenuItem<String>>((String item) {
-              return DropdownMenuItem<String>(
-                value: item,
-                child: Text(
-                  item,
-                  style: TextStyle(fontWeight: FontWeight.normal),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width * 0.04,
+      ),
+      child: Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: KColors.appColorWhite,
+        insetPadding: EdgeInsets.zero,
+        child: StatefulBuilder(
+          builder: (context, dialogSetState) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.02,
+                  vertical: MediaQuery.of(context).size.height * 0.02,
                 ),
-              );
-            }).toList(),
-            onChanged: (String? newValue) {
-              selectedProject = newValue!;
-            },
-          ),
-        ],
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.height * 0.01,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header
+                      Row(
+                        children: [
+                          const Text(
+                            'Time Log Filters',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const Spacer(),
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context, {
+                              "quickFilter": _quick,
+                              "statusFilter": _status,
+                              "fromDate": _from,
+                              "toDate": _to,
+                              "project": _project,
+                              "task": _task,
+                            }),
+                            child: const CircleAvatar(
+                              backgroundColor: Color(0xFFF6F4FC),
+                              radius: 20,
+                              child: Icon(Icons.close,
+                                  size: 20, color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const Divider(color: Color(0x1A5C5C5C)),
+
+                      // Quick Filters
+                      _filterSection(
+                        title: "Quick Filters",
+                        children: [
+                          "This Week",
+                          "Last Week",
+                          "This Month",
+                          "Last Month",
+                          "This Year"
+                        ].map((label) {
+                          final isSelected = _quick == label;
+                          return customSelectableBox(
+                            label: label,
+                            isSelected: isSelected,
+                            borderColor: Colors.blue,
+                            selectedColor: Colors.blue,
+                            onTap: () => dialogSetState(() => _quick = label),
+                          );
+                        }).toList(),
+                      ),
+
+                      const Divider(color: Color(0x1A5C5C5C)),
+
+                      // Status Filters
+                      _filterSection(
+                        title: "Status Filters",
+                        children: {
+                          "Pending": KColors.orangeColor,
+                          "Approved": KColors.greenColor,
+                          "Rejected": KColors.appPrimaryRed,
+                        }.entries.map((entry) {
+                          final isSelected = _status == entry.key;
+                          return customSelectableBox(
+                            label: entry.key,
+                            isSelected: isSelected,
+                            borderColor: entry.value,
+                            selectedColor: entry.value,
+                            onTap: () =>
+                                dialogSetState(() => _status = entry.key),
+                          );
+                        }).toList(),
+                      ),
+
+                      const Divider(color: Color(0x1A5C5C5C)),
+
+                      // Date Range Filter
+                      _timeLogDateRange(
+                        context,
+                        dialogSetState,
+                        _from,
+                        _to,
+                            (date) => dialogSetState(() => _from = date),
+                            (date) => dialogSetState(() => _to = date),
+                      ),
+
+                      const Divider(color: Color(0x1A5C5C5C)),
+
+                      // Project Filter
+                      _dropdownFilter(
+                        title: "Project",
+                        value: _project,
+                        items: projectItems,
+                        // your project list
+                        onChanged: (value) =>
+                            dialogSetState(() => _project = value),
+                        isRequired: true,
+                      ),
+
+                      const Divider(color: Color(0x1A5C5C5C)),
+
+                      // Task Filter
+                      _dropdownFilter(
+                        title: "Task",
+                        value: _task,
+                        items: taskItems,
+                        // your task list
+                        onChanged: (value) =>
+                            dialogSetState(() => _task = value),
+                        isRequired: false,
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Buttons
+                      Row(
+                        children: [
+                          OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: KColors.appPrimary),
+                              foregroundColor: KColors.appPrimary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 19, vertical: 2),
+                            ),
+                            onPressed: () {
+                              dialogSetState(() {
+                                _quick = null;
+                                _status = null;
+                                _from = null;
+                                _to = null;
+                                _project = null;
+                                _task = null;
+                              });
+                            },
+                            child: const Text("Clear Filter"),
+                          ),
+                          const Spacer(),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            onPressed: () => Navigator.pop(context, {
+                              "quickFilter": _quick,
+                              "statusFilter": _status,
+                              "fromDate": _from,
+                              "toDate": _to,
+                              "project": _project,
+                              "task": _task,
+                            }),
+                            child: const Text("Apply All Filters",
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 
-  /// dropdown design of Task filters.....
-  Widget _selectTaskCard() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          DropdownButtonFormField<String>(
-            value: selectedProject,
-            decoration: InputDecoration(
-              alignLabelWithHint: true,
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              labelStyle: TextStyle(
-                color: Colors.black.withOpacity(0.8),
-              ),
-              //labelText: "Project",
-              label: RichText(
-                text: TextSpan(
-                    text: 'Project',
-                    style: TextStyle(color: Colors.black, fontSize: 15),
-                    children: [
-                      TextSpan(
-                          text: ' *',
-                          style: TextStyle(color: Colors.red, fontSize: 17))
-                    ]),
-              ),
-              hintText: "Select Project",
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Colors.black26),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Colors.black26),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(width: 1, color: Colors.black54),
-              ),
-            ),
-            dropdownColor: Colors.white,
-            icon: const Icon(Icons.keyboard_arrow_down),
-            items: projectItems.map<DropdownMenuItem<String>>((String item) {
-              return DropdownMenuItem<String>(
-                value: item,
-                child: Text(
-                  item,
-                  style: TextStyle(fontWeight: FontWeight.normal),
-                ),
-              );
-            }).toList(),
-            onChanged: (String? newValue) {
-              selectedProject = newValue!;
-            },
-          ),
-        ],
-      ),
+  Widget _filterSection(
+      {required String title, required List<Widget> children}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title,
+            style: const TextStyle(
+                fontFamily: 'Poppins', fontWeight: FontWeight.w500)),
+        const SizedBox(height: 8),
+        Wrap(spacing: 8, runSpacing: 8, children: children),
+      ],
     );
   }
 
-  /// build a row for details
+
+  Widget _timeLogDateRange(
+      BuildContext context,
+      void Function(void Function()) dialogSetState,
+      DateTime? from,
+      DateTime? to,
+      Function(DateTime picked) onFromPicked,
+      Function(DateTime picked) onToPicked,
+      ) {
+    int dayDiff = (from != null && to != null)
+        ? to.difference(from).inDays.abs() + 1
+        : 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Date Range Filter",
+          style: TextStyle(
+            fontFamily: "Poppins",
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color:Color(0xFFF6F4FC),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text("From Date",
+                        style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                    const SizedBox(height: 4),
+                    GestureDetector(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: from ?? DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime.now(),
+                        );
+                        if (picked != null) {
+                          dialogSetState(() => onFromPicked(picked));
+                        }
+                      },
+                      child: Text(
+                        from != null
+                            ? DateFormat("dd MMM, yyyy").format(from)
+                            : "Select From Date",
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              /// Day Counter
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: KColors.appColorWhite,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  "${dayDiff.toString().padLeft(2, "0")} Day",
+                  style: const TextStyle(
+                      color: Colors.red, fontWeight: FontWeight.w600),
+                ),
+              ),
+
+              /// To Date
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text("To Date",
+                        style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                    const SizedBox(height: 4),
+                    GestureDetector(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: to ?? DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          dialogSetState(() => onToPicked(picked));
+                        }
+                      },
+                      child: Text(
+                        to != null
+                            ? DateFormat("dd MMM, yyyy").format(to)
+                            : "Select To Date",
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _dropdownFilter({
+    required String title,
+    required String? value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+    bool isRequired = false,
+    String? hintText,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        DropdownButtonFormField<String>(
+          value: value,
+          decoration: InputDecoration(
+            alignLabelWithHint: true,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            labelStyle: TextStyle(
+              color: Colors.black.withOpacity(0.8),
+            ),
+            label: RichText(
+              text: TextSpan(
+                text: title,
+                style: const TextStyle(color: Colors.black, fontSize: 15),
+                children: isRequired
+                    ? const [
+                  TextSpan(
+                    text: ' *',
+                    style: TextStyle(color: Colors.red, fontSize: 17),
+                  )
+                ]
+                    : [],
+              ),
+            ),
+            hintText: hintText ?? "Select $title",
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Colors.black26),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Colors.black26),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(width: 1, color: Colors.black54),
+            ),
+          ),
+          dropdownColor: Colors.white,
+          icon: const Icon(Icons.keyboard_arrow_down),
+          items: items.map<DropdownMenuItem<String>>((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(
+                item,
+                style: const TextStyle(fontWeight: FontWeight.normal),
+              ),
+            );
+          }).toList(),
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+
   Widget buildDetailRow(String title, String? value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
@@ -948,7 +874,6 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
     );
   }
 
-  /// --- Call for show total hrs and pending Rejected data show in card.
   Future<void> fetchLogs() async {
     setState(() {
       isLoading = true;
@@ -981,242 +906,341 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
     return connectivityResult != ConnectivityResult.none;
   }
 
-  /// --- show all the filled time log history in the list.
   Widget _filledTimeLogAndShowInList() {
     final isTablet = MediaQuery.of(context).size.width > 600;
-
+    final filteredProjects = getFilteredProjectsDialog();
     return Padding(
       padding: const EdgeInsets.only(bottom: 0),
       child: isLoading
           ? SizedBox(
           height: isTablet
-              ? MediaQuery.of(context).size.height * 0.6  // for tablet
+              ? MediaQuery.of(context).size.height * 0.6 // for tablet
               : MediaQuery.of(context).size.height * 0.5, // for mobile
           child: Center(child: KLoader()))
-          : timeLogs.isEmpty
-              ? SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  child: Center(child: Text("No Data Found!")),
-                )
-              : ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.zero,
-                  itemCount: getFilteredProjects().length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final filteredProjects = getFilteredProjects();
-                    final project = filteredProjects[index];
+          : filteredProjects.isEmpty
+          ? SizedBox(
+        height: MediaQuery.of(context).size.height * 0.5,
+        child: Center(child: Text("No Data Found!")),
+      )
+          : ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        itemCount: filteredProjects.length,
+        itemBuilder: (BuildContext context, int index) {
+          final project = filteredProjects[index];
 
-                    Color statusColor = project.status == "Pending"
-                        ? KColors.orangeColor
-                        : project.status == "Approved"
-                            ? KColors.greenColor
-                            : KColors.appPrimaryRed;
+          Color statusColor = project.status == "Pending"
+              ? KColors.orangeColor
+              : project.status == "Approved"
+              ? KColors.greenColor
+              : KColors.appPrimaryRed;
 
-                    ///--- show time log UI
-                    return GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => DetailDialog(
-                            onUpdate: fetchLogs,
-                            timeLogId: project.timelogId,
-                            projectId: project.projectId,
-                            project: project.projectName,
-                            task: project.taskName,
-                            date: KDateAndTime()
-                                .getDay(project.formattedDate ?? ""),
-                            des: project.description,
-                            remarks: project.remarks,
-                            monthYear: KDateAndTime()
-                                .getMonthYear(project.formattedDate ?? ""),
-                            hrs: project.hours.toString(),
-                            min: project.minutes.toString(),
-                            status: project.status ?? "",
-                          ),
-                        );
-                      },
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.width > 600
-                          ? MediaQuery.of(context).size.height * 0.11 // Tablet height
-                          : null, // Let it wrap content on phones
-                        width: 374,
-                        child: Card(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 0,
-                          shadowColor: KColors.cardShadowColor,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border(
-                                left: BorderSide(
-                                  color: statusColor,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            padding: EdgeInsets.all(10),
 
-                            ///--- design inside card UI to showing filled time log in a List.
+          return GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => DetailDialog(
+                  onUpdate: fetchLogs,
+                  timeLogId: project.timelogId,
+                  projectId: project.projectId,
+                  project: project.projectName,
+                  task: project.taskName,
+                  date: KDateAndTime()
+                      .getDay(project.formattedDate ?? ""),
+                  des: project.description,
+                  remarks: project.remarks,
+                  monthYear: KDateAndTime()
+                      .getMonthYear(project.formattedDate ?? ""),
+                  hrs: project.hours.toString(),
+                  min: project.minutes.toString(),
+                  status: project.status ?? "",
+                ),
+              );
+            },
+            child: SizedBox(
+              height: MediaQuery.of(context).size.width > 600
+                  ? MediaQuery.of(context).size.height *
+                  0.11 // Tablet height
+                  : null, // Let it wrap content on phones
+              width: 374,
+              child: Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 0,
+                shadowColor: KColors.cardShadowColor,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border(
+                      left: BorderSide(
+                        color: statusColor,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  padding: EdgeInsets.all(10),
+
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 6,
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 6,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            project.projectName ?? "No Project",
-                                            maxLines: 1,
-                                            style: KFonts.normalBold,
-                                          ),
-                                          SizedBox(height: 5),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 10),
-                                            child: DecoratedBox(
-                                              decoration: BoxDecoration(
-                                                color: statusColor,
-                                                borderRadius:
-                                                BorderRadius.circular(2),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 1),
-                                                child: Text(
-                                                  project.taskName ?? "Null",
-                                                  maxLines: 1,
-                                                  style:
-                                                  KFonts.normalWithWithText,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Expanded(
-                                        flex: 1,
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              height: 35,
-                                              width: 1,
-                                              color: Color(0xFFEDEDED),
-                                            ),
-                                          ],
-                                        )),
-                                    Expanded(
-                                        flex: 3,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                          children: [
-                                              Text(
-                                                KDateAndTime().getDay(
-                                                    project.formattedDate ??
-                                                        ""),
-                                                style: TextStyle(
-                                                  color: statusColor,
-                                                  fontFamily: 'Poppins',
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                              Text(
-                                                KDateAndTime().getMonthYear(
-                                                    project.formattedDate ??
-                                                        ""),
-                                                style:
-                                                KFonts.normalBoldWithGray,
-                                              ),
-                                            ],
-
-                                        )),
-
-                                  ],
+                                Text(
+                                  project.projectName ?? "No Project",
+                                  maxLines: 1,
+                                  style: KFonts.normalBold,
                                 ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                        flex: 6,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            project.description ??
-                                                "No Description",
-                                            style: KFonts.thin,
-                                            maxLines: 2,
-                                          ),
-                                          SizedBox(height: 5),
-                                        ],
+                                SizedBox(height: 5),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      right: 10),
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      color: statusColor,
+                                      borderRadius:
+                                      BorderRadius.circular(2),
+                                    ),
+                                    child: Padding(
+                                      padding:
+                                      const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 1),
+                                      child: Text(
+                                        project.taskName ?? "Null",
+                                        maxLines: 1,
+                                        style:
+                                        KFonts.normalWithWithText,
                                       ),
                                     ),
-                                    Expanded(
-                                        flex: 1,
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              height: 35,
-                                              width: 1,
-                                              color: Color(0xFFEDEDED),
-                                            ),
-                                          ],
-                                        )
-                                    ),
-                                    Expanded(
-                                        flex: 3,
-                                        child: Column(
-
-                                         children: [
-                                              Text(
-                                                project.minutes == 0
-                                                    ? "${project.hours}"
-                                                    : "${project.hours}:${project.minutes}",
-                                                style: TextStyle(
-                                                  color: statusColor,
-                                                  fontFamily: 'Poppins',
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                              Text(
-                                                'Hours',
-                                                style:
-                                                KFonts.normalBoldWithGray,
-                                              ),
-                                            ],
-
-                                        )
-                                    ),
-
-                                  ],
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                        ),
+                          Expanded(
+                              flex: 1,
+                              child: Column(
+                                children: [
+                                  Container(
+                                    height: 35,
+                                    width: 1,
+                                    color: Color(0xFFEDEDED),
+                                  ),
+                                ],
+                              )),
+                          Expanded(
+                              flex: 3,
+                              child: Column(
+                                mainAxisAlignment:
+                                MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    KDateAndTime().getDay(
+                                        project.formattedDate ?? ""),
+                                    style: TextStyle(
+                                      color: statusColor,
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    KDateAndTime().getMonthYear(
+                                        project.formattedDate ?? ""),
+                                    style: KFonts.normalBoldWithGray,
+                                  ),
+                  ],
+                              )),
+                        ],
                       ),
-
-                    );
-                  },
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 6,
+                            child:Column(
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  project.description ??
+                                      "No Description",
+                                  style: KFonts.thin,
+                                  maxLines: 2,
+                                ),
+                                SizedBox(height: 5),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                              flex: 1,
+                              child: Column(
+                                children: [
+                                  Container(
+                                    height: 35,
+                                    width: 1,
+                                    color: Color(0xFFEDEDED),
+                                  ),
+                                ],
+                              )),
+                          Expanded(
+                              flex: 3,
+                              child:Column(
+                                children: [
+                                  Text(
+                                    project.minutes == 0
+                                        ? "${project.hours}"
+                                        : "${project.hours}:${project.minutes}",
+                                    style: TextStyle(
+                                      color: statusColor,
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Hours',
+                                    style: KFonts.normalBoldWithGray,
+                                  ),
+                                ],
+                              )),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
+
+  List<LstTimeLog> getFilteredProjectsDialog() {
+    print("Applying filters");
+    print("selectedFilter: $selectedFilter");
+    print("selectedStatusFilter: $selectedStatusFilter");
+    print("selectedQuickFilter: $selectedQuickFilter");
+    print("selectedFromDate: $selectedFromDate");
+    print("selectedToDate: $selectedToDate");
+    print("selectedProject: $selectedProject");
+    print("selectedTask: $selectedTask");
+
+    final projectFilter = (selectedProject == null || selectedProject == "Select Project")
+        ? null
+        : selectedProject;
+    final taskFilter = (selectedTask == null || selectedTask == "Select Task")
+        ? null
+        : selectedTask;
+
+    // If no filters are selected, return everything
+    if ((selectedFilter == null || selectedFilter == "All") &&
+        selectedStatusFilter == null &&
+        selectedQuickFilter == null &&
+        selectedFromDate == null &&
+        selectedToDate == null &&
+        projectFilter == null &&
+        taskFilter == null) {
+      print(" No filters applied, returning all ${timeLogs.length} logs");
+      return timeLogs;
+    }
+
+    // Start with all logs
+    List<LstTimeLog> filtered = List.from(timeLogs);
+
+    // Apply Status Filter (selectedFilter takes priority)
+    if (selectedFilter != null && selectedFilter != "All") {
+      filtered = filtered.where((log) => log.status == selectedFilter).toList();
+    } else if (selectedStatusFilter != null) {
+      filtered = filtered.where((log) => log.status == selectedStatusFilter).toList();
+    }
+
+
+    // Apply Status Filter
+    if (selectedFilter != null && selectedFilter != "All") {
+      filtered = filtered.where((log) => log.status == selectedFilter).toList();
+    } else if (selectedStatusFilter != null) {
+      filtered = filtered.where((log) => log.status == selectedStatusFilter).toList();
+    }
+
+    // Quick Filter
+    if (selectedQuickFilter != null) {
+      DateTime now = DateTime.now();
+      DateTime start;
+      DateTime end;
+
+      switch (selectedQuickFilter) {
+        case "This Week":
+          start = now.subtract(Duration(days: now.weekday - 1));
+          end = start.add(const Duration(days: 6));
+          break;
+        case "Last Week":
+          end = now.subtract(Duration(days: now.weekday));
+          start = end.subtract(const Duration(days: 6));
+          break;
+        case "This Month":
+          start = DateTime(now.year, now.month, 1);
+          end = DateTime(now.year, now.month + 1, 0);
+          break;
+        case "Last Month":
+          start = DateTime(now.year, now.month - 1, 1);
+          end = DateTime(now.year, now.month, 0);
+          break;
+        case "This Year":
+          start = DateTime(now.year, 1, 1);
+          end = DateTime(now.year, 12, 31);
+          break;
+        default:
+          start = now;
+          end = now;
+      }
+
+      filtered = filtered.where((log) {
+        final logDate = DateTime.tryParse(log.formattedDate ?? "");
+        return logDate != null &&
+            logDate.isAfter(start.subtract(const Duration(days: 1))) &&
+            logDate.isBefore(end.add(const Duration(days: 1)));
+      }).toList();
+    }
+
+    // Date Range Filter
+    if (selectedFromDate != null && selectedToDate != null) {
+      filtered = filtered.where((log) {
+        final logDate = DateTime.tryParse(log.formattedDate ?? "");
+        return logDate != null &&
+            logDate.isAfter(selectedFromDate!.subtract(const Duration(days: 1))) &&
+            logDate.isBefore(selectedToDate!.add(const Duration(days: 1)));
+      }).toList();
+    }
+
+    // Project Filter
+    if (projectFilter  != null) {
+      filtered = filtered.where((log) => log.projectName == selectedProject).toList();
+    }
+
+    // Task Filter
+    if (taskFilter != null) {
+      filtered = filtered.where((log) => log.taskName == selectedTask).toList();
+    }
+
+    print("Returning ${filtered.length} filtered logs");
+    return filtered;
+  }
+
+
+
 }
 
-/// ---- Open dialog for show details
 class DetailDialog extends StatelessWidget {
   final VoidCallback onUpdate;
   final String? timeLogId;
@@ -1233,18 +1257,18 @@ class DetailDialog extends StatelessWidget {
 
   const DetailDialog(
       {super.key,
-      required this.onUpdate, // <- ADD THIS
-      this.timeLogId,
-      this.project,
-      this.projectId,
-      this.task,
-      this.remarks,
-      this.date,
-      this.des,
-      this.monthYear,
-      this.hrs,
-      this.min,
-      this.status});
+        required this.onUpdate, // <- ADD THIS
+        this.timeLogId,
+        this.project,
+        this.projectId,
+        this.task,
+        this.remarks,
+        this.date,
+        this.des,
+        this.monthYear,
+        this.hrs,
+        this.min,
+        this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -1319,7 +1343,8 @@ class DetailDialog extends StatelessWidget {
                         onTap: () async {
                           Navigator.pop(context); // Close dialog first
 
-                          await Future.delayed(Duration.zero); // Wait for the next frame to push new screen
+                          await Future.delayed(Duration
+                              .zero); // Wait for the next frame to push new screen
 
                           final result = await Navigator.pushNamed(
                             context,
@@ -1397,37 +1422,32 @@ class DetailDialog extends StatelessWidget {
               children: [
                 Expanded(
                   child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.75,
-                    child:Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-
-                        Text(
-                          "Description: ",
-                          style: KFonts.normalBold,
-                        ),
-                        Text(
-                          des ?? "",
-                          style: KFonts.thin,
-                        ),
-
-                        SizedBox(height: 5,),
-
-                        Text(
-                          "Remarks: ",
-                          style: KFonts.normalBold,
-                        ),
-                        Text(
-                          remarks ?? "",
-                          style: KFonts.thin,
-                        )
-
-                      ],
-                    )
-
-                  ),
+                      width: MediaQuery.of(context).size.width * 0.75,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Description: ",
+                            style: KFonts.normalBold,
+                          ),
+                          Text(
+                            des ?? "",
+                            style: KFonts.thin,
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            "Remarks: ",
+                            style: KFonts.normalBold,
+                          ),
+                          Text(
+                            remarks ?? "",
+                            style: KFonts.thin,
+                          )
+                        ],
+                      )),
                 ),
-
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.25,
                   child: Column(
@@ -1500,7 +1520,7 @@ class DetailDialog extends StatelessWidget {
     return status == "Pending"
         ? KColors.orangeColor
         : status == "Approved"
-            ? KColors.greenColor
-            : KColors.appPrimaryRed;
+        ? KColors.greenColor
+        : KColors.appPrimaryRed;
   }
 }

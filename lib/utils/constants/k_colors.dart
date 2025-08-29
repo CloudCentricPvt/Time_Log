@@ -27,7 +27,8 @@ class KColors {
   static const orangeColor = Color(0xFFFF9538);
   static const pinkColor = Color(0xFFFF38BD);
   static const grayLight = Color(0xFFCBC8CA);
-
-
+  static const cardLightGrey = Color(0XFFEEEEEE);
+  static const lightGreyBGScreen = Color(0xFFF6F4FC);
+  static const dayWiseCardBGColor = Color(0xFFF6F4FC);
 
 }

@@ -143,7 +143,28 @@ class WFHRequest {
     "approvedBy": approvedBy,
     "approvalTimestamp": approvalTimestamp,
   };
+
+
 }
+
+class WfhFilters {
+  String? quickFilter;
+  String? statusFilter;
+  DateTime? fromDate;
+  DateTime? toDate;
+  String? project;
+  String? task;
+
+  WfhFilters({
+    this.quickFilter,
+    this.statusFilter,
+    this.fromDate,
+    this.toDate,
+    this.project,
+    this.task,
+  });
+}
+
 
 
 

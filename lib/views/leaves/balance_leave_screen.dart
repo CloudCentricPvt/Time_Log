@@ -103,7 +103,7 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Color(0xFF84DBFF), // Same as app bar
           statusBarIconBrightness:
-              Brightness.dark, // or .light depending on contrast
+          Brightness.dark, // or .light depending on contrast
         ),
         title: const KCustomAppBar(
           screenTitle: 'Balance Leave',
@@ -112,53 +112,53 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
       body: _isLoading
           ? KLoader()
           : RefreshIndicator(
-              onRefresh: _refreshData,
-              child: SingleChildScrollView(
-                physics: AlwaysScrollableScrollPhysics(), // <- Required!
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      data?.totalCasualLeave != null &&
-                              data!.totalCasualLeave != 0
-                          ? _showCasualLeave()
-                          : SizedBox(),
+        onRefresh: _refreshData,
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(), // <- Required!
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                data?.totalCasualLeave != null &&
+                    data!.totalCasualLeave != 0
+                    ? _showCasualLeave()
+                    : SizedBox(),
 
-                      data?.totalSickLeave != null && data!.totalSickLeave != 0
-                          ? _showSickLeave()
-                          : SizedBox(),
-                      // or SizedBox.shrink() if you want it to take no space
+                data?.totalSickLeave != null && data!.totalSickLeave != 0
+                    ? _showSickLeave()
+                    : SizedBox(),
+                // or SizedBox.shrink() if you want it to take no space
 
-                      data?.totalElLeave != null && data!.totalElLeave != 0
-                          ? _showEarnLeave()
-                          : SizedBox(),
+                data?.totalElLeave != null && data!.totalElLeave != 0
+                    ? _showEarnLeave()
+                    : SizedBox(),
 
-                      data?.totalCompOffLeave != null &&
-                              data!.totalCompOffLeave != 0
-                          ? _showCompOffLeave()
-                          : SizedBox(),
+                data?.totalCompOffLeave != null &&
+                    data!.totalCompOffLeave != 0
+                    ? _showCompOffLeave()
+                    : SizedBox(),
 
-                      data?.totalCompOffLeave != null &&
-                              data!.totalCompOffLeave != 0
-                          ? _showLWPLeave()
-                          : SizedBox(),
-                      //_showMaternityLeave(),
-                      //_showPaternityLeave(),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      CustomElevatedButton(
-                        text: 'Apply Leave',
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/apply_leave_screen');
-                        },
-                      ),
-                      KSizedBox.h14,
-                    ],
-                  ),
+                data?.totalCompOffLeave != null &&
+                    data!.totalCompOffLeave != 0
+                    ? _showLWPLeave()
+                    : SizedBox(),
+                //_showMaternityLeave(),
+                //_showPaternityLeave(),
+                SizedBox(
+                  height: 10,
                 ),
-              ),
+                CustomElevatedButton(
+                  text: 'Apply Leave',
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/apply_leave_screen');
+                  },
+                ),
+                KSizedBox.h14,
+              ],
             ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -429,12 +429,12 @@ class BalanceLeave extends StatelessWidget {
 
   const BalanceLeave(
       {super.key,
-      required this.type,
-      required this.consumed,
-      required this.left,
-      required this.total,
-      required this.color,
-      required this.iconAsset});
+        required this.type,
+        required this.consumed,
+        required this.left,
+        required this.total,
+        required this.color,
+        required this.iconAsset});
 
   @override
   Widget build(BuildContext context) {
@@ -449,7 +449,7 @@ class BalanceLeave extends StatelessWidget {
       // Card background set to white
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: SizedBox(
-        height: isTablet ? 110.0 : 75.0, // ✅ Correct dynamic sizing,
+        height: isTablet ? 110.0 : 75.0,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

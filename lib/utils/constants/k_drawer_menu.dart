@@ -209,7 +209,9 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                           _buildMenuItem(context,'assets/icons/time_log_icon1.svg', 'Time Logs', '/dashboard_screen',1),
                           _buildMenuItem(context,'assets/icons/leaves_etails_apply.svg', 'Leaves Details & Apply', '/dashboard_screen',2),
                           _buildAnotherMenu('assets/icons/upcoming_events.svg', 'Upcoming Events', '/upcoming_events_screen'),
-                          _buildAnotherMenu('assets/icons/help_support.svg', 'Help & Support', '/help_and_support_screen')
+                          _buildAnotherMenu('assets/icons/help_support.svg', 'Help & Support', '/help_and_support_screen'),
+                          _buildAnotherMenu('assets/icons/attendance_icon.svg', 'Attendance', '/attendance_screen'),
+                          _buildAnotherMenu('assets/icons/attendance_icon.svg', 'Payroll', '/payroll_screen'),
                         ],
                       ),
                     ),

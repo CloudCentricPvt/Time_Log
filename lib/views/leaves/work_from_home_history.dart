@@ -25,12 +25,14 @@ class WorkFromHomeHistory extends StatefulWidget {
 
 class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
   final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
-
+  WfhFilters _filters = WfhFilters();
   String selectedStatus = 'All';
   bool _isLoading = true;
   List<WFHRequest> wfhList = [];
   String selectedProject = "Select Project";
   String selectedTask = "Select Task";
+  List<String> projectItems = [];
+  List<String> taskItems = [];
 
   @override
   void initState() {
@@ -54,7 +56,6 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
         IconsButton(
           onPressed: () {
             Navigator.pop(context);
-            // Maybe retry or do something else
           },
           text: 'Okay',
           color: Colors.red,
@@ -160,10 +161,11 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
                         }),
 
                     /// ---- filter with multiple option
-                    /*GestureDetector(
+                    GestureDetector(
                       child: SvgPicture.asset(KAssets.filterIcon),
-                      onTap: () {
-                        FilterDialog.showTimeLogFilterDialog(
+
+                      onTap: () async {
+                        final result = await FilterDialog.showTimeLogFilterDialog(
                           context,
                           projectItems,
                           selectedProject,
@@ -180,8 +182,19 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
                             });
                           },
                         );
+                        if (result != null) {
+                          setState(() {
+                            _filters = result;
+
+                            // auto-select chip if dialog status chosen
+                            if (_filters.statusFilter != null) {
+                              selectedStatus = _filters.statusFilter!;
+                            }
+                          });
+                        }
                       },
-                    ),*/
+
+                    ),
                   ],
                 ),
               ),
@@ -190,19 +203,19 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
                 child: _isLoading
                     ? KLoader()
                     : Builder(
-                        builder: (context) {
-                          final filteredList = _getFilteredList(); // filter once
-                          return filteredList.isEmpty
-                              ? const Center(child: Text("No data found!"))
-                              : ListView.builder(
-                                  itemCount: filteredList.length,
-                                  itemBuilder: (context, index) {
-                                    final leave = filteredList[index];
-                                    return _showWFHHistoryDataInList(leave);
-                                  },
-                                );
-                        },
-                      ),
+                  builder: (context) {
+                    final filteredList = _getFilteredList(); // filter once
+                    return filteredList.isEmpty
+                        ? const Center(child: Text("No data found!"))
+                        : ListView.builder(
+                      itemCount: filteredList.length,
+                      itemBuilder: (context, index) {
+                        final leave = filteredList[index];
+                        return _showWFHHistoryDataInList(leave);
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -241,15 +254,15 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
           showDialog(
               context: context,
               builder: (context) => ShowLeaveHistoryDetailsDialog(
-                    leaveType: leave.requestType,
-                    des: leave.description,
-                    status: leave.status,
-                    startDate: leave.startDate,
-                    endDate: leave.endDate,
-                    dayCount: leave.numberOfDays == null
-                        ? "0.0"
-                        : leave.numberOfDays.toString(),
-                  ));
+                leaveType: leave.requestType,
+                des: leave.description,
+                status: leave.status,
+                startDate: leave.startDate,
+                endDate: leave.endDate,
+                dayCount: leave.numberOfDays == null
+                    ? "0.0"
+                    : leave.numberOfDays.toString(),
+              ));
         },
       ),
     );
@@ -274,7 +287,7 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
     } else {
       return wfhList
           .where((item) =>
-              item.status?.trim().toLowerCase() == selectedStatus.toLowerCase())
+      item.status?.trim().toLowerCase() == selectedStatus.toLowerCase())
           .toList();
     }
   }

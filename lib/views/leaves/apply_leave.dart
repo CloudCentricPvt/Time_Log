@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
+//import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:time_log/utils/constants/k_date_dialog.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
 import 'package:time_log/utils/reusable_widgit/k_drop_down_for_static.dart';
@@ -28,7 +28,7 @@ class ApplyLeave extends StatefulWidget {
 class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateMixin  {
   bool _isLoading = false;
 
-  stt.SpeechToText _speech = stt.SpeechToText();
+  //stt.SpeechToText _speech = stt.SpeechToText();
 
 
   //late stt.SpeechToText _speech;
@@ -60,7 +60,7 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
 
   Future<void> _selectEndDate() async {
     String? selectedEndDate =
-        await KDateDialog.pastOneMonthDate(context: context);
+    await KDateDialog.pastOneMonthDate(context: context);
     if (selectedEndDate != null) {
       setState(() {
         _endDate = selectedEndDate;
@@ -103,10 +103,11 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
 
 
   @override
+  /*
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
-    
+
     leaveLabels = leaveTypes.map((e) => e['label']!).toList(); // Initialize leaveLabels here
 
 
@@ -120,7 +121,7 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
       curve: Curves.easeInOut,
     ));
   }
-
+  */
   @override
   void dispose() {
     _animationController.dispose();
@@ -181,6 +182,7 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
     }
   }*/
 
+  /*
   void _addVoiceNote() async {
     if (_speech.isListening) {
       await _speech.stop();
@@ -230,7 +232,7 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
     }
   }
 
-
+*/
   /// --- request permission for mice
   Future<void> _requestPermission() async {
     var status = await Permission.microphone.request();
@@ -489,25 +491,25 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
   /// --- Speak to something and set in the text field.
   Widget _performSpeakAndSetTextInTextField() {
     return GestureDetector(
-      child: Row(
-        children: [
-          SvgPicture.asset(
-            KAssets.voiceIcon,
-          ),
-          KSizedBox.w10,
-          const Text(
-            'Tap to add description by speaking.',
-            style: TextStyle(
-                fontWeight: FontWeight.w400,
-                fontFamily: 'Poppins',
-                fontSize: 14,
-                color: KColors.appPrimary),
-          ),
-        ],
-      ),
+        child: Row(
+          children: [
+            SvgPicture.asset(
+              KAssets.voiceIcon,
+            ),
+            KSizedBox.w10,
+            const Text(
+              'Tap to add description by speaking.',
+              style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontFamily: 'Poppins',
+                  fontSize: 14,
+                  color: KColors.appPrimary),
+            ),
+          ],
+        ),
         onTap: () async {
           await _requestPermission(); // Ensure mic permission is granted
-          _addVoiceNote();
+          //   _addVoiceNote();
         }
 
     );
@@ -544,7 +546,7 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    _speech.stop();
+                    //    _speech.stop();
                     _animationController.stop();
                     Navigator.of(bottomSheetContext).pop(); // Close the bottom sheet
                   },
@@ -560,7 +562,7 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
       _bottomSheetContext = null;
     });
   }
-
+/*
   void _stopListeningAndCloseDialog() async {
     if (_speech.isListening) {
       await _speech.stop(); // Stop the speech recognition
@@ -583,5 +585,5 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
     }
   }
 
-
+*/
 }

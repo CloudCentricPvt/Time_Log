@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
+//import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:time_log/models/assign_task_res.dart';
 import 'package:time_log/utils/constants/k_asstes.dart';
 import 'package:time_log/utils/constants/k_date_dialog.dart';
@@ -28,7 +28,7 @@ class CreateTimeLog extends StatefulWidget {
 }
 
 class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProviderStateMixin{
-  stt.SpeechToText _speech = stt.SpeechToText();
+//  stt.SpeechToText _speech = stt.SpeechToText();
 
   bool _isListening = false;
   String _previousText = '';
@@ -57,7 +57,7 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
         DateFormat("dd, MMMM yyyy").format(DateTime.now());
     fetchAssignProject();
     fetchAssignTask();
-    _speech = stt.SpeechToText();
+    //  _speech = stt.SpeechToText();
 
     _animationController = AnimationController(
       vsync: this, // Now this will work
@@ -76,7 +76,7 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
     _animationController.dispose();
     super.dispose();
   }
-
+/*
   void _addVoiceNote() async {
     bool available = await _speech.initialize(
       onStatus: (status) {
@@ -130,6 +130,8 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
     }
   }
 
+
+ */
   /// --- request permission for mice
   Future<void> _requestPermission() async {
     var status = await Permission.microphone.request();
@@ -150,7 +152,7 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Color(0xFF84DBFF), // Same as app bar
           statusBarIconBrightness:
-              Brightness.dark, // or .light depending on contrast
+          Brightness.dark, // or .light depending on contrast
         ),
         title: KCustomAppBar(
           screenTitle: 'Create Time Log',
@@ -234,8 +236,8 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
                             suffixIcon: IconButton(
                               onPressed: () async {
                                 String? selectedDateStr =
-                                    await KDateDialog.selectDate(
-                                        context: context);
+                                await KDateDialog.selectDate(
+                                    context: context);
 
                                 if (selectedDateStr != null) {
                                   setState(() {
@@ -282,24 +284,24 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
                   child: _isLoading
                       ? const KLoader()
                       : CustomElevatedButton(
-                          text: 'SUBMIT',
-                          onPressed: () async {
-                            setState(() {
-                              _isLoading = true;
-                            });
-                            await _controller.applyTimeLog(
-                                context,
-                                selectedProjectId,
-                                selectedTask,
-                                _controller.dateController.text,
-                                _controller.hrsController.text,
-                                _controller.minController.text,
-                                _controller.descriptionController.text);
-                            setState(() {
-                              _isLoading = false;
-                            });
-                          },
-                        ),
+                    text: 'SUBMIT',
+                    onPressed: () async {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      await _controller.applyTimeLog(
+                          context,
+                          selectedProjectId,
+                          selectedTask,
+                          _controller.dateController.text,
+                          _controller.hrsController.text,
+                          _controller.minController.text,
+                          _controller.descriptionController.text);
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    },
+                  ),
                 ),
                 const SizedBox(
                   height: 40,
@@ -402,7 +404,7 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
       ),
       onTap: () async {
         await _requestPermission(); // Ensure mic permission is granted
-        _addVoiceNote();
+        //   _addVoiceNote();
       },
     );
   }
@@ -438,7 +440,7 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    _speech.stop();
+                    //    _speech.stop();
                     _animationController.stop();
                     Navigator.of(bottomSheetContext).pop(); // Close the bottom sheet
                   },
@@ -460,9 +462,9 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
 class MinuteRangeFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
     if (newValue.text.isEmpty) return newValue;
 
     final int? value = int.tryParse(newValue.text);

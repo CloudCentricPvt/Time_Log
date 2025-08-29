@@ -18,7 +18,7 @@ import '../../utils/reusable_widgit/k_elevated_button.dart';
 import '../../utils/reusable_widgit/k_info_card.dart';
 import '../../utils/reusable_widgit/k_size_box.dart';
 import '../../utils/reusable_widgit/k_textinputform_field.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
+//import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:dropdown_search/dropdown_search.dart';
 
 
@@ -32,7 +32,7 @@ class EditTimeLog extends StatefulWidget {
 class _EditTimeLogState extends State<EditTimeLog> {
   final TimeLogController _controller = TimeLogController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>(); // Form key for validation
-  stt.SpeechToText _speech = stt.SpeechToText();
+  // stt.SpeechToText _speech = stt.SpeechToText();
   String _text = "";
   bool _isListening = false;
   String selectedDescription= '';
@@ -99,10 +99,14 @@ class _EditTimeLogState extends State<EditTimeLog> {
   bool _isLoading = false;
 
   @override
+  /*
   void initState() {
     _speech = stt.SpeechToText();
     super.initState();
   }
+
+   */
+  /*
   void _startListening() async {
     bool available = await _speech.initialize(
       onStatus: (status) {
@@ -136,6 +140,9 @@ class _EditTimeLogState extends State<EditTimeLog> {
     }
   }
 
+
+   */
+  /*
   ///--- open dialog until the voice recording
   Future<void> _showSpeakUpDialog() async {
     return showDialog<void>(
@@ -177,6 +184,8 @@ class _EditTimeLogState extends State<EditTimeLog> {
     });
   }
 
+
+   */
   /// --- request permission for mice
   Future<void> _requestPermission() async {
     var status = await Permission.microphone.request();
@@ -233,15 +242,15 @@ class _EditTimeLogState extends State<EditTimeLog> {
 
                           /// --- Design for select date
                           KSizedBox.h20,
-                           _selectDate(),
+                          _selectDate(),
 
                           /// --- Design for Time Log description
                           KSizedBox.h20,
 
                           _description(),
-                        KSizedBox.h10,
-                        /// --- text voice reorganisation
-                        _performSpeakAndSetTextInTextField(),
+                          KSizedBox.h10,
+                          /// --- text voice reorganisation
+                          _performSpeakAndSetTextInTextField(),
                         ],
                       )
                     ],
@@ -252,19 +261,19 @@ class _EditTimeLogState extends State<EditTimeLog> {
                   child: _isLoading
                       ? const KLoader()
                       : CustomElevatedButton(
-                          text: 'SUBMIT',
-                          onPressed: () async {
-                            setState(() {
-                              _isLoading = true;
-                            });
+                    text: 'SUBMIT',
+                    onPressed: () async {
+                      setState(() {
+                        _isLoading = true;
+                      });
 
-                            await _controller.updateTimeLog(context,timeLogId,projectId,selectedTask,_controller.dateController.text,_controller.hrsController.text,_controller.minController.text,_controller.descriptionController.text);
-                            // If not successful, stop loader
-                            setState(() {
-                              _isLoading = false;
-                            });
-                          },
-                        ),
+                      await _controller.updateTimeLog(context,timeLogId,projectId,selectedTask,_controller.dateController.text,_controller.hrsController.text,_controller.minController.text,_controller.descriptionController.text);
+                      // If not successful, stop loader
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    },
+                  ),
                 ),
                 const SizedBox(
                   height: 40,
@@ -338,14 +347,14 @@ class _EditTimeLogState extends State<EditTimeLog> {
         dropdownSearchDecoration: InputDecoration(
           label: RichText(
               text: TextSpan(
-                text: 'Select Task',
+                  text: 'Select Task',
                   style: KFonts.normal,
-                children: [
-                  TextSpan(
-                    text: ' *',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ]
+                  children: [
+                    TextSpan(
+                      text: ' *',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ]
               )
           ),
 
@@ -467,10 +476,10 @@ class _EditTimeLogState extends State<EditTimeLog> {
       ),
       onTap: () async {
         await _requestPermission(); // Ensure mic permission is granted
-        _showSpeakUpDialog(); // Show dialog
+        //  _showSpeakUpDialog(); // Show dialog
         Future.delayed(Duration(milliseconds: 500), () {
           // Delay to allow UI update
-          _startListening(); // Start speech recognition after dialog is shown
+          //     _startListening(); // Start speech recognition after dialog is shown
         });
       },
     );

@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
+//import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:time_log/controllers/leave_controller.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
 import 'package:time_log/utils/reusable_widgit/k_elevated_button.dart';
@@ -29,7 +29,7 @@ class _CompOffScreenState extends State<RequestCompOFF> with SingleTickerProvide
   final ApplyLeaveController _controller = ApplyLeaveController();
   bool _isLoading = false;
 
-  stt.SpeechToText _speech = stt.SpeechToText();
+  // stt.SpeechToText _speech = stt.SpeechToText();
   bool _isListening = false;
   String _previousText = '';
   BuildContext? _bottomSheetContext;
@@ -94,6 +94,7 @@ class _CompOffScreenState extends State<RequestCompOFF> with SingleTickerProvide
   }
 
   @override
+  /*
   void initState() {
 
     _speech = stt.SpeechToText();
@@ -109,12 +110,14 @@ class _CompOffScreenState extends State<RequestCompOFF> with SingleTickerProvide
     super.initState();
 
   }
+
+   */
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-
+/*
   void _addVoiceNote() async {
     bool available = await _speech.initialize(
       onStatus: (status) {
@@ -169,6 +172,8 @@ class _CompOffScreenState extends State<RequestCompOFF> with SingleTickerProvide
     }
   }
 
+
+ */
 
   /// --- request permission for mice
   Future<void> _requestPermission() async {
@@ -314,23 +319,23 @@ class _CompOffScreenState extends State<RequestCompOFF> with SingleTickerProvide
                     },*/
                   ),
                   GestureDetector(
-                    child: Row(
-                      children: [
-                        SvgPicture.asset(KAssets.voiceIcon,),
-                        KSizedBox.w10,
-                        const Text(
-                          'Tap to add description by speaking.',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontFamily: 'Poppins',
-                              fontSize: 14,
-                              color: KColors.appPrimary),
-                        ),
-                      ],
-                    ),
+                      child: Row(
+                        children: [
+                          SvgPicture.asset(KAssets.voiceIcon,),
+                          KSizedBox.w10,
+                          const Text(
+                            'Tap to add description by speaking.',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontFamily: 'Poppins',
+                                fontSize: 14,
+                                color: KColors.appPrimary),
+                          ),
+                        ],
+                      ),
                       onTap: () async {
                         await _requestPermission(); // Ensure mic permission is granted
-                        _addVoiceNote();
+                        //  _addVoiceNote();
                       }
                   )
                 ],
@@ -402,7 +407,7 @@ class _CompOffScreenState extends State<RequestCompOFF> with SingleTickerProvide
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    _speech.stop();
+                    //   _speech.stop();
                     _animationController.stop();
                     Navigator.of(bottomSheetContext).pop(); // Close the bottom sheet
                   },

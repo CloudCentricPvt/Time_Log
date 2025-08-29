@@ -1,9 +1,11 @@
-import 'package:speech_to_text/speech_to_text.dart' as stt;
+
+//import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 typedef StatusCallback = void Function(String status);
 typedef ErrorCallback = void Function(String error);
 typedef ResultCallback = void Function(String text);
 
+/*
 class SpeechManager {
   // Singleton Instance
   static final SpeechManager _instance = SpeechManager._internal();
@@ -56,4 +58,10 @@ class SpeechManager {
 
 
   bool get isListening => _speech.isListening;
+
+
 }
+
+
+*/
+

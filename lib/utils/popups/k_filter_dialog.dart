@@ -1,90 +1,227 @@
 import 'package:flutter/material.dart';
 
+import '../../models/wfh_history_res.dart';
 import '../constants/k_colors.dart';
 import '../constants/k_date_dialog.dart';
 
 class FilterDialog {
-  static void showTimeLogFilterDialog(
-      BuildContext context,
+  static Future<WfhFilters?> showTimeLogFilterDialog(BuildContext context,
       List<String> projectItems,
       String? selectedProject,
-
       String? selectedTask,
       List<String> taskItems,
       Function(String?) onProjectChanged,
-      Function(String?) onTaskChanged,
-      ) {
-    showDialog(
+      Function(String?) onTaskChanged,) {
+    WfhFilters filters = WfhFilters();
+    return showDialog<WfhFilters>(
       context: context,
       builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          insetPadding: EdgeInsets.zero,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      'Time Log Filters',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: const EdgeInsets.all(21.0),
+              child: Dialog(
+                backgroundColor: KColors.appColorWhite,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                insetPadding: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Time Log Filters',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Spacer(),
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              padding: EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                              ),
+                              child: Text(
+                                'X',
+                                style: TextStyle(
+                                    fontSize: 21, color: Colors.black),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    Spacer(),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                        ),
-                        child: Text(
-                          'X',
-                          style: TextStyle(fontSize: 21, color: Colors.black),
-                        ),
+                      _divider(),
+                      SizedBox(height: 10,),
+                      _sectionTitle('Quick Filters'),
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          for (var q in [
+                            'This Week',
+                            'Last Week',
+                            'This Month',
+                            'Last Month',
+                            'This Year'
+                          ])
+                              customDialogFilterChip(
+                                label: q,
+                                selected: filters.quickFilter == q,
+                                onSelected: (_) {
+                                  setState(() {
+                                    filters.quickFilter = q;
+                                  });
+                                },
+                                color: KColors.appPrimary,
+                              )
+
+                        ],
                       ),
-                    ),
-                  ],
+                      _divider(),
+                      _sectionTitle('Status Filters'),
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          for (var s in ['Pending', 'Approved', 'Rejected'])
+                            customDialogFilterChip(
+                              label: s,
+                              selected: filters.statusFilter == s,
+                              onSelected: (_) {
+                                setState(() {
+                                  filters.statusFilter = s;
+                                });
+                              },
+                              color: KColors.appPrimary,
+                            ),
+                        ],
+                      ),
+                      _divider(),
+                      _sectionTitle('Date Range Filters'),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(2020),
+                                  lastDate: DateTime(2100),
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    filters.fromDate = picked;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  filters.fromDate == null
+                                      ? "Select From Date"
+                                      : "${filters.fromDate!.day} ${_monthName(
+                                      filters.fromDate!.month)} ${filters
+                                      .fromDate!.year}",
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(2020),
+                                  lastDate: DateTime(2100),
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    filters.toDate = picked;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  filters.toDate == null
+                                      ? "Select To Date"
+                                      : "${filters.toDate!.day} ${_monthName(
+                                      filters.toDate!.month)} ${filters.toDate!
+                                      .year}",
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      _divider(),
+                      _applyFiltersButton(context, filters),
+                    ],
+                  ),
                 ),
-                _divider(),
-                _sectionTitle('Quick Filters'),
-                _quickFilters(),
-                _divider(),
-                _sectionTitle('Status Filters'),
-                _statusFilters(),
-                _divider(),
-                _sectionTitle('Date Range Filters'),
-                _dateRangeFilterCard(),
-                _divider(),
-                _sectionTitle('Project Filters'),
-                _projectSelectCard(
-                  selectedProject: selectedProject,
-                  projectItems: projectItems,
-                  onChanged: onProjectChanged,
-                ),
-                _divider(),
-                _sectionTitle('Task Filters'),
-                _selectTaskCard(
-                  selectedTask: selectedTask,
-                  taskItems: taskItems,
-                  onChanged: onProjectChanged,
-                ), // you can customize it similarly if needed
-                _divider(),
-                _applyFiltersButton(context),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
   }
+
+  static String _monthName(int month) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return months[month - 1];
+  }
+
+
+  static Widget customDialogFilterChip({
+    required String label,
+    required bool selected,
+    required ValueChanged<bool> onSelected,
+    required Color color,
+  }) {
+    return ChoiceChip(
+      label: Text(
+        label,
+        style: TextStyle(
+          color: selected ? Colors.white : color,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      selected: selected,
+      onSelected: onSelected,
+      selectedColor: color,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: color, width: 1.5),
+      ),
+    );
+  }
+
+
+
+
 
   static Widget _divider() => Divider(color: Color(0x1A5C5C5C), thickness: 1);
 
@@ -97,62 +234,6 @@ class FilterDialog {
     ),
   );
 
-  static Widget _quickFilters() => Column(
-    children: [
-      Row(
-        children: [
-          _roundedRectangularBox(text: "This Week", textColor: Colors.blue, borderColor: Colors.blue),
-          SizedBox(width: 10),
-          _roundedRectangularBox(text: "Last Week", textColor: Colors.blue, borderColor: Colors.blue),
-          SizedBox(width: 10),
-          _roundedRectangularBox(text: "This Month", textColor: Colors.blue, borderColor: Colors.blue),
-        ],
-      ),
-      Row(
-        children: [
-          _roundedRectangularBox(text: "Last Month", textColor: Colors.blue, borderColor: Colors.blue),
-          SizedBox(width: 10),
-          _roundedRectangularBox(text: "This Year", textColor: Colors.blue, borderColor: Colors.blue),
-        ],
-      ),
-    ],
-  );
-
-  static Widget _statusFilters() => Row(
-    children: [
-      _roundedRectangularBox(text: "Pending", textColor: Colors.orange, borderColor: Colors.orange),
-      SizedBox(width: 10),
-      _roundedRectangularBox(text: "Approved", textColor: Colors.green, borderColor: Colors.green),
-      SizedBox(width: 10),
-      _roundedRectangularBox(text: "Rejected", textColor: Colors.red, borderColor: Colors.red),
-    ],
-  );
-
-  static Widget _dateRangeFilterCard() => Wrap(
-    spacing: 10,
-    children: [
-      SizedBox(
-        height: 100,
-        width: 500,
-        child: Card(
-          color: Color(0xFFd8d8d8),
-          elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _dateColumn('From Date', 'Select From Date'),
-                _dayCountCard('00 Day'),
-                _dateColumn('To Date', 'Select To Date'),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ],
-  );
 
   static Widget _dateColumn(String title, String subtitle) => GestureDetector(
     child: Column(
@@ -178,7 +259,8 @@ class FilterDialog {
     ),
   );
 
-  static Widget _applyFiltersButton(BuildContext context) => Row(
+
+  static Widget _applyFiltersButton(BuildContext context, WfhFilters filters) => Row(
     children: [
       _roundedRectangularBox(text: "Pending", textColor: Colors.blue, borderColor: Colors.blue),
       Spacer(),
@@ -187,7 +269,7 @@ class FilterDialog {
         height: 30,
         child: ElevatedButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context,filters);
           },
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -207,96 +289,6 @@ class FilterDialog {
     ],
   );
 
-  static Widget _projectSelectCard({required String? selectedProject, required List<String> projectItems, required Function(String?) onChanged,}) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: DropdownButtonFormField<String>(
-        value: selectedProject,
-        decoration: InputDecoration(
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          label: RichText(
-            text: TextSpan(
-              text: 'Project',
-              style: TextStyle(color: Colors.black, fontSize: 15),
-              children: [
-                TextSpan(
-                  text: ' *',
-                  style: TextStyle(color: Colors.red, fontSize: 17),
-                ),
-              ],
-            ),
-          ),
-          hintText: "Select Project",
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.black26),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.black26),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(width: 1, color: Colors.black54),
-          ),
-        ),
-        dropdownColor: Colors.white,
-        icon: const Icon(Icons.keyboard_arrow_down),
-        items: projectItems.map<DropdownMenuItem<String>>((String item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item),
-          );
-        }).toList(),
-        onChanged: onChanged,
-      ),
-    );
-  }
-  static Widget _selectTaskCard({required String? selectedTask, required List<String> taskItems, required Function(String?) onChanged,}) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: DropdownButtonFormField<String>(
-        value: selectedTask,
-        decoration: InputDecoration(
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          label: RichText(
-            text: TextSpan(
-              text: 'Task',
-              style: TextStyle(color: Colors.black, fontSize: 15),
-              children: [
-                TextSpan(
-                  text: ' *',
-                  style: TextStyle(color: Colors.red, fontSize: 17),
-                ),
-              ],
-            ),
-          ),
-          hintText: "Select Task",
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.black26),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.black26),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(width: 1, color: Colors.black54),
-          ),
-        ),
-        dropdownColor: Colors.white,
-        icon: const Icon(Icons.keyboard_arrow_down),
-        items: taskItems.map<DropdownMenuItem<String>>((String item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item),
-          );
-        }).toList(),
-        onChanged: onChanged,
-      ),
-    );
-  }
 
 
 
@@ -308,7 +300,8 @@ class FilterDialog {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: SizedBox(
-        width: 84,
+        width: 79,
+        height: 30,
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
