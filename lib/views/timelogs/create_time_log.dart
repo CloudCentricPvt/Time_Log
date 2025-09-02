@@ -37,7 +37,7 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
   late Animation<double> _animation;
 
   final TimeLogController _controller = TimeLogController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>(); // Form key for validation
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<Lstproject> assignProject = [];
   List<String> assignTask = [];
   String? selectedProjectId;
@@ -333,7 +333,7 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
     }
   }
 
-  /// --- Select Assign Project
+  // --- Select Assign Project
   Widget _selectProject() {
     return Column(
       children: [
@@ -383,7 +383,7 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
     );
   }
 
-  /// --- Speak to something and set in the text field.
+  // --- Speak to something and set in the text field.
   Widget _performSpeakAndSetTextInTextField() {
     return GestureDetector(
       child: Row(
@@ -458,7 +458,7 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
   }
 }
 
-/// Restricts input to a valid minute value (1–59).
+// Restricts input to a valid minute value (1–59).
 class MinuteRangeFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(

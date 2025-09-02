@@ -39,6 +39,7 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
     _checkInternetConnection();
     super.initState();
   }
+
   Future<void> _refreshData() async {
     // Your logic to refresh data
     //await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
@@ -47,6 +48,7 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
       fetchWfhData();
     });
   }
+
   void _checkInternetConnection() async {
     bool connected = await _checkInternet.isConnected();
     if (!connected) {
@@ -70,7 +72,6 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
     fetchWfhData();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,7 +80,8 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
         backgroundColor: KColors.appPrimary,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Color(0xFF84DBFF), // Same as app bar
-          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+          statusBarIconBrightness:
+              Brightness.dark, // or .light depending on contrast
         ),
         title: KCustomAppBar(
           screenTitle: 'WFH History',
@@ -129,6 +131,7 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
                         onHistoryTap: () {
                           setState(() {
                             selectedStatus = 'Pending';
+                            _filters.statusFilter = 'Pending';
                           });
                         }),
                     KFilterHeader(
@@ -143,6 +146,7 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
                         onHistoryTap: () {
                           setState(() {
                             selectedStatus = 'Approved';
+                            _filters.statusFilter = 'Approved';
                           });
                         }),
                     KFilterHeader(
@@ -157,44 +161,31 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
                         onHistoryTap: () {
                           setState(() {
                             selectedStatus = 'Rejected';
+                            _filters.statusFilter = 'Rejected';
                           });
                         }),
-
-                    /// ---- filter with multiple option
                     GestureDetector(
-                      child: SvgPicture.asset(KAssets.filterIcon),
-
-                      onTap: () async {
-                        final result = await FilterDialog.showTimeLogFilterDialog(
-                          context,
-                          projectItems,
-                          selectedProject,
-                          selectedTask,
-                          taskItems,
-                          (String? newProject) {
+                        child: SvgPicture.asset(KAssets.filterIcon),
+                        onTap: () async {
+                          final result =
+                              await FilterDialog.showTimeLogFilterDialog(
+                            context,
+                            _filters.quickFilter,
+                            _filters.statusFilter,
+                            _filters.fromDate,
+                            _filters.toDate,
+                            selectedProject,
+                            selectedTask,
+                          );
+                          if (result != null) {
                             setState(() {
-                              selectedProject = newProject!;
+                              _filters = result;
+                              if (_filters.statusFilter != null) {
+                                selectedStatus = _filters.statusFilter!;
+                              }
                             });
-                          },
-                          (String? newTask) {
-                            setState(() {
-                              selectedTask = newTask!; // Update the selected task
-                            });
-                          },
-                        );
-                        if (result != null) {
-                          setState(() {
-                            _filters = result;
-
-                            // auto-select chip if dialog status chosen
-                            if (_filters.statusFilter != null) {
-                              selectedStatus = _filters.statusFilter!;
-                            }
-                          });
-                        }
-                      },
-
-                    ),
+                          }
+                        }),
                   ],
                 ),
               ),
@@ -203,19 +194,27 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
                 child: _isLoading
                     ? KLoader()
                     : Builder(
-                  builder: (context) {
-                    final filteredList = _getFilteredList(); // filter once
-                    return filteredList.isEmpty
-                        ? const Center(child: Text("No data found!"))
-                        : ListView.builder(
-                      itemCount: filteredList.length,
-                      itemBuilder: (context, index) {
-                        final leave = filteredList[index];
-                        return _showWFHHistoryDataInList(leave);
-                      },
-                    );
-                  },
-                ),
+                        builder: (context) {
+                          final filteredList = _getFilteredList(_filters);
+                          if (filteredList.isEmpty) {
+                            return const Center(
+                              child: Text(
+                                "Data not found",
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w500),
+                              ),
+                            );
+                          }
+
+                          return ListView.builder(
+                            itemCount: filteredList.length,
+                            itemBuilder: (context, index) {
+                              return _showWFHHistoryDataInList(
+                                  filteredList[index]);
+                            },
+                          );
+                        },
+                      ),
               ),
             ],
           ),
@@ -254,15 +253,15 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
           showDialog(
               context: context,
               builder: (context) => ShowLeaveHistoryDetailsDialog(
-                leaveType: leave.requestType,
-                des: leave.description,
-                status: leave.status,
-                startDate: leave.startDate,
-                endDate: leave.endDate,
-                dayCount: leave.numberOfDays == null
-                    ? "0.0"
-                    : leave.numberOfDays.toString(),
-              ));
+                    leaveType: leave.requestType,
+                    des: leave.description,
+                    status: leave.status,
+                    startDate: leave.startDate,
+                    endDate: leave.endDate,
+                    dayCount: leave.numberOfDays == null
+                        ? "0.0"
+                        : leave.numberOfDays.toString(),
+                  ));
         },
       ),
     );
@@ -277,19 +276,104 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
       case 'Rejected':
         return KAssets.wfhRejectedIcon;
       default:
-        return KAssets.wfhPendingIcon; // fallback icon
+        return KAssets.wfhPendingIcon;
     }
   }
 
-  List<WFHRequest> _getFilteredList() {
-    if (selectedStatus == 'All') {
-      return List.from(wfhList);
-    } else {
-      return wfhList
+  List<WFHRequest> _getFilteredList(WfhFilters filters) {
+    List<WFHRequest> filtered = List.from(wfhList);
+
+    // Status filter
+    if (filters.statusFilter != null && filters.statusFilter != "All") {
+      filtered = filtered
           .where((item) =>
-      item.status?.trim().toLowerCase() == selectedStatus.toLowerCase())
+              item.status?.trim().toLowerCase() ==
+              filters.statusFilter!.toLowerCase())
           .toList();
     }
+
+    // Date range filter
+    if (filters.fromDate != null && filters.toDate != null) {
+      filtered = filtered.where((item) {
+        try {
+          final start = DateTime.parse(item.startDate ?? "");
+          return start.isAfter(
+                  filters.fromDate!.subtract(const Duration(days: 1))) &&
+              start.isBefore(filters.toDate!.add(const Duration(days: 1)));
+        } catch (_) {
+          return false;
+        }
+      }).toList();
+    }
+
+    if (filters.quickFilter != null) {
+      final now = DateTime.now();
+      if (filters.quickFilter == "This Week") {
+        final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+        final endOfWeek = startOfWeek.add(const Duration(days: 6));
+        filtered = filtered.where((item) {
+          final date = DateTime.tryParse(item.startDate ?? "");
+          return date != null &&
+              date.isAfter(startOfWeek.subtract(const Duration(days: 1))) &&
+              date.isBefore(endOfWeek.add(const Duration(days: 1)));
+        }).toList();
+      }
+      else if (filters.quickFilter == "Last Week") {
+        final endOfLastWeek = now.subtract(Duration(days: now.weekday));
+        final startOfLastWeek = endOfLastWeek.subtract(const Duration(days: 6));
+
+        DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+        filtered = filtered.where((item) {
+          final parsed = DateTime.tryParse(item.startDate ?? "");
+          if (parsed == null) return false;
+
+          final day = _dateOnly(parsed);
+          final startDay = _dateOnly(startOfLastWeek);
+          final endDay = _dateOnly(endOfLastWeek);
+
+          // inclusive: startDay <= day <= endDay
+          return !day.isBefore(startDay) && !day.isAfter(endDay);
+        }).toList();
+      }
+      else if (filters.quickFilter == "This Month") {
+        final startOfMonth = DateTime(now.year, now.month, 1);
+        final startOfNextMonth = DateTime(now.year, now.month + 1, 1);
+
+        filtered = filtered.where((item) {
+          final date = DateTime.tryParse(item.startDate ?? "");
+          return date != null &&
+              date.isAfter(startOfMonth.subtract(const Duration(days: 1))) &&
+              date.isBefore(startOfNextMonth);
+        }).toList();
+      }
+      else if (filters.quickFilter == "Last Month") {
+        final startOfThisMonth = DateTime(now.year, now.month, 1);
+        final startOfLastMonth = DateTime(now.year, now.month - 1, 1);
+        final endOfLastMonth =
+            startOfThisMonth.subtract(const Duration(days: 1));
+
+        filtered = filtered.where((item) {
+          final date = DateTime.tryParse(item.startDate ?? "");
+          return date != null &&
+              date.isAfter(
+                  startOfLastMonth.subtract(const Duration(days: 1))) &&
+              date.isBefore(endOfLastMonth.add(const Duration(days: 1)));
+        }).toList();
+      }
+      else if (filters.quickFilter == "This Year") {
+        final startOfYear = DateTime(now.year, 1, 1);
+        final startOfNextYear = DateTime(now.year + 1, 1, 1);
+
+        filtered = filtered.where((item) {
+          final date = DateTime.tryParse(item.startDate ?? "");
+          return date != null &&
+              date.isAfter(startOfYear.subtract(const Duration(days: 1))) &&
+              date.isBefore(startOfNextYear);
+        }).toList();
+      }
+    }
+    return filtered;
   }
 }
 

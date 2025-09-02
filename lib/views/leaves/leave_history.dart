@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:time_log/utils/constants/k_fonts.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
 import 'package:time_log/utils/reusable_widgit/k_filter_header.dart';
 
 import '../../models/applied_leave_history_res.dart';
+import '../../models/comp_off_history_res.dart';
 import '../../utils/constants/check_internet.dart';
 import '../../utils/constants/k_asstes.dart';
 import '../../utils/constants/k_colors.dart';
@@ -15,6 +17,7 @@ import '../../utils/constants/show_leave_history_details_dialog.dart';
 import '../../utils/popups/k_filter_dialog.dart';
 import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_custom_app_bar.dart';
+import 'common_dialog_filter_screen.dart';
 
 class LeaveHistory extends StatefulWidget {
   const LeaveHistory({super.key});
@@ -25,6 +28,7 @@ class LeaveHistory extends StatefulWidget {
 
 class _LeaveHistoryState extends State<LeaveHistory> {
   final CheckInternetAvailable _checkInternet = CheckInternetAvailable();
+
   /// --- variables for Pagination
   int _page = 1;
   final int _pageSize = 10;
@@ -38,6 +42,15 @@ class _LeaveHistoryState extends State<LeaveHistory> {
   List<AppliedLeaveHistory> appliedLeaveList = [];
   String selectedProject = "Select Project";
   String selectedTask = "Select Task";
+
+  CommonDialogFilter _filters = CommonDialogFilter(
+    quickFilter: null,
+    statusFilter: null,
+    fromDate: null,
+    toDate: null,
+    project: "Select Project",
+    task: "Select Task",
+  );
 
   @override
   void initState() {
@@ -81,8 +94,14 @@ class _LeaveHistoryState extends State<LeaveHistory> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
+    double screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
 
     return Scaffold(
       appBar: AppBar(
@@ -90,7 +109,8 @@ class _LeaveHistoryState extends State<LeaveHistory> {
         backgroundColor: KColors.appPrimary,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Color(0xFF84DBFF), // Same as app bar
-          statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
+          statusBarIconBrightness: Brightness
+              .dark, // or .light depending on contrast
         ),
         title: KCustomAppBar(
           screenTitle: 'Leave History',
@@ -126,6 +146,15 @@ class _LeaveHistoryState extends State<LeaveHistory> {
                         onHistoryTap: () {
                           setState(() {
                             selectedStatus = 'All';
+                            _filters = CommonDialogFilter(
+                              quickFilter: _filters.quickFilter,
+                              statusFilter: null,
+                              // reset to show all
+                              fromDate: _filters.fromDate,
+                              toDate: _filters.toDate,
+                              project: _filters.project,
+                              task: _filters.task,
+                            );
                           });
                         }),
                     KFilterHeader(
@@ -140,6 +169,15 @@ class _LeaveHistoryState extends State<LeaveHistory> {
                         onHistoryTap: () {
                           setState(() {
                             selectedStatus = 'Pending';
+                            _filters = CommonDialogFilter(
+                              quickFilter: _filters.quickFilter,
+                              statusFilter: 'Pending',
+                              fromDate: _filters.fromDate,
+                              toDate: _filters.toDate,
+                              project: _filters.project,
+                              task: _filters.task,
+                            );
+
                           });
                         }),
                     KFilterHeader(
@@ -154,6 +192,14 @@ class _LeaveHistoryState extends State<LeaveHistory> {
                         onHistoryTap: () {
                           setState(() {
                             selectedStatus = 'Approved';
+                            _filters = CommonDialogFilter(
+                              quickFilter: _filters.quickFilter,
+                              statusFilter: 'Approved',
+                              fromDate: _filters.fromDate,
+                              toDate: _filters.toDate,
+                              project: _filters.project,
+                              task: _filters.task,
+                            );
                           });
                         }),
                     KFilterHeader(
@@ -168,30 +214,56 @@ class _LeaveHistoryState extends State<LeaveHistory> {
                         onHistoryTap: () {
                           setState(() {
                             selectedStatus = 'Rejected';
+                            _filters = CommonDialogFilter(
+                              quickFilter: _filters.quickFilter,
+                              statusFilter: 'Rejected',
+                              fromDate: _filters.fromDate,
+                              toDate: _filters.toDate,
+                              project: _filters.project,
+                              task: _filters.task,
+                            );
                           });
                         }),
-                    /*GestureDetector(
+                    GestureDetector(
                       child: SvgPicture.asset(KAssets.filterIcon),
-                      onTap: () {
-                        FilterDialog.showTimeLogFilterDialog(
-                          context,
-                          projectItems,
-                          selectedProject,
-                          selectedTask,
-                          taskItems,
-                          (String? newProject) {
-                            setState(() {
-                              selectedProject = newProject!;
-                            });
+                      onTap: () async {
+                        final result = await ReusableFilterDialog
+                            .showFilterDialog(
+                          context: context,
+                          title: "Leaves  filters",
+                          quickFilters: [
+                            "This Week",
+                            "Last Week",
+                            "This Month",
+                            "Last Month",
+                            "This Year",
+                          ],
+                          statusFilters: {
+                            "Pending": KColors.orangeColor,
+                            "Approved": KColors.greenColor,
+                            "Rejected": KColors.appPrimaryRed,
                           },
-                          (String? newTask) {
-                            setState(() {
-                              selectedTask = newTask!; // Update the selected task
-                            });
-                          },
+                          selectedQuickFilter: _filters.quickFilter,
+                          selectedStatusFilter: _filters.statusFilter,
+                          fromDate: _filters.fromDate,
+                          toDate: _filters.toDate,
+                          selectedProject: selectedProject,
+                          selectedTask: selectedTask,
+                          showProject: false,
+                          showTask: false,
                         );
+                        if (result != null) {
+                          setState(() {
+                            _filters = result;
+                            if (_filters.statusFilter != null) {
+                              selectedStatus = _filters.statusFilter!;
+                            } else {
+                              selectedStatus = 'All';
+                            }
+                          });
+                        }
                       },
-                    ),*/
+                    ),
                   ],
                 ),
               ),
@@ -200,18 +272,18 @@ class _LeaveHistoryState extends State<LeaveHistory> {
                 child: _isLoading
                     ? KLoader()
                     : Builder(
-                        builder: (context) {
-                          final filteredList = _getFilteredList(); // filter once
-                          return filteredList.isEmpty
-                              ? const Center(child: Text("No data found!"))
-                              : ListView.builder(
-                                  itemCount: filteredList.length,
-                                  itemBuilder: (context, index) {
-                                    final leave = filteredList[index];
-                                    return _showLeaveHistoryDataInList(leave);
-                                  },
-                                );
-                          /*ListView.builder(
+                  builder: (context) {
+                    final filteredList = _getFilteredListDialog(_filters); // filter once
+                    return filteredList.isEmpty
+                        ? const Center(child: Text("No data found!"))
+                        : ListView.builder(
+                      itemCount: filteredList.length,
+                      itemBuilder: (context, index) {
+                        final leave = filteredList[index];
+                        return _showLeaveHistoryDataInList(leave,context);
+                      },
+                    );
+                    /*ListView.builder(
                             controller: _scrollController,
                             itemCount: filteredList.length + (_isFetchingMore ? 1 : 0),
                             itemBuilder: (context, index) {
@@ -226,8 +298,8 @@ class _LeaveHistoryState extends State<LeaveHistory> {
                             },
                           );*/
 
-                        },
-                      ),
+                  },
+                ),
               ),
             ],
           ),
@@ -246,6 +318,151 @@ class _LeaveHistoryState extends State<LeaveHistory> {
       });
     }
   }
+
+  List<AppliedLeaveHistory> _getFilteredListDialog(CommonDialogFilter filters) {
+    List<AppliedLeaveHistory> filtered = List.from(appliedLeaveList);
+
+    // 🔹 Status filter
+    if (filters.statusFilter != null && filters.statusFilter != "All") {
+      filtered = filtered
+          .where((item) =>
+      (item.status ?? "").trim().toLowerCase() ==
+          filters.statusFilter!.toLowerCase())
+          .toList();
+    }
+
+    // 🔹 Date range filter
+    if (filters.fromDate != null && filters.toDate != null) {
+      filtered = filtered.where((item) {
+        try {
+          final date = _parseAppliedLeaveDate(item.startDate) ??
+              _parseAppliedLeaveDate(item.endDate);
+          if (date == null) return false;
+
+          return date.isAfter(filters.fromDate!.subtract(const Duration(days: 1))) &&
+              date.isBefore(filters.toDate!.add(const Duration(days: 1)));
+        } catch (_) {
+          return false;
+        }
+      }).toList();
+    }
+
+    // 🔹 Quick filters
+    if (filters.quickFilter != null && filters.quickFilter!.isNotEmpty) {
+      final now = DateTime.now();
+
+      DateTime? _getItemDate(AppliedLeaveHistory item) =>
+          _parseAppliedLeaveDate(item.startDate) ??
+              _parseAppliedLeaveDate(item.endDate);
+
+      DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+      if (filters.quickFilter == "This Week") {
+        final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+        final endOfWeek = startOfWeek.add(const Duration(days: 6));
+
+        filtered = filtered.where((item) {
+          final date = _getItemDate(item);
+          return date != null &&
+              date.isAfter(startOfWeek.subtract(const Duration(days: 1))) &&
+              date.isBefore(endOfWeek.add(const Duration(days: 1)));
+        }).toList();
+      }
+
+      else if (filters.quickFilter == "Last Week") {
+        final endOfLastWeek = now.subtract(Duration(days: now.weekday));
+        final startOfLastWeek = endOfLastWeek.subtract(const Duration(days: 6));
+
+        filtered = filtered.where((item) {
+          final date = _getItemDate(item);
+          if (date == null) return false;
+
+          final day = _dateOnly(date);
+          final startDay = _dateOnly(startOfLastWeek);
+          final endDay = _dateOnly(endOfLastWeek);
+
+          return !day.isBefore(startDay) && !day.isAfter(endDay);
+        }).toList();
+      }
+
+      else if (filters.quickFilter == "This Month") {
+        final startOfMonth = DateTime(now.year, now.month, 1);
+        final startOfNextMonth = DateTime(now.year, now.month + 1, 1);
+
+        filtered = filtered.where((item) {
+          final date = _getItemDate(item);
+          return date != null &&
+              date.isAfter(startOfMonth.subtract(const Duration(days: 1))) &&
+              date.isBefore(startOfNextMonth);
+        }).toList();
+      }
+
+      else if (filters.quickFilter == "Last Month") {
+        final startOfThisMonth = DateTime(now.year, now.month, 1);
+        final startOfLastMonth = DateTime(now.year, now.month - 1, 1);
+        final endOfLastMonth = startOfThisMonth.subtract(const Duration(days: 1));
+
+        filtered = filtered.where((item) {
+          final date = _getItemDate(item);
+          return date != null &&
+              date.isAfter(startOfLastMonth.subtract(const Duration(days: 1))) &&
+              date.isBefore(endOfLastMonth.add(const Duration(days: 1)));
+        }).toList();
+      }
+
+      else if (filters.quickFilter == "This Year") {
+        final startOfYear = DateTime(now.year, 1, 1);
+        final startOfNextYear = DateTime(now.year + 1, 1, 1);
+
+        filtered = filtered.where((item) {
+          final date = _getItemDate(item);
+          return date != null &&
+              date.isAfter(startOfYear.subtract(const Duration(days: 1))) &&
+              date.isBefore(startOfNextYear);
+        }).toList();
+      }
+    }
+
+    return filtered;
+  }
+
+
+  DateTime? _parseAppliedLeaveDate(String? s) {
+    if (s == null || s
+        .trim()
+        .isEmpty) return null;
+    s = s.trim();
+    final iso = DateTime.tryParse(s);
+    if (iso != null) return iso;
+    final formats = <String>[
+      'dd MMM, yyyy', // 01 Aug, 2025
+      'dd MMM yyyy', // 01 Aug 2025
+      'dd-MM-yyyy', // 01-08-2025
+      'dd/MM/yyyy', // 01/08/2025
+      'MM/dd/yyyy', // 08/01/2025
+      'yyyy-MM-dd', // 2025-08-01
+    ];
+
+    for (final f in formats) {
+      try {
+        final dt = DateFormat(f).parse(s);
+        return dt;
+      } catch (_) {
+        // ignore and try next
+      }
+    }
+
+    // replacing slashes/dots/dashes to a parseable form
+    try {
+      var normalized = s.replaceAll('/', '-').replaceAll('.', '-');
+      final dt2 = DateTime.tryParse(normalized);
+      return dt2;
+    } catch (_) {}
+
+    return null;
+  }
+
+
 
   /*void fetchAppliedLeaveData({int page = 1}) async {
     var result = await getAllAppliedLeave(context, page, _pageSize); // Make sure your API supports pagination
@@ -282,11 +499,12 @@ class _LeaveHistoryState extends State<LeaveHistory> {
           .toList();
     }
   }
+}
 
 
 
-  /// --- Show Leave History data in ListView
-  Widget _showLeaveHistoryDataInList(AppliedLeaveHistory leave) {
+  // --- Show Leave History data in ListView
+  Widget _showLeaveHistoryDataInList(AppliedLeaveHistory leave ,BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: GestureDetector(
@@ -334,7 +552,7 @@ class _LeaveHistoryState extends State<LeaveHistory> {
         return KAssets.casualLeave; // fallback icon
     }
   }
-}
+
 
 class BalanceLeave extends StatelessWidget {
   final String type;
