@@ -150,9 +150,8 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: Color(0xFF84DBFF), // Same as app bar
           statusBarIconBrightness:
-          Brightness.dark, // or .light depending on contrast
+          Brightness.dark,
         ),
         title: KCustomAppBar(
           screenTitle: 'Create Time Log',
@@ -430,7 +429,7 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
               children: [
                 ScaleTransition(
                   scale: _animation,
-                  child: Icon(Icons.mic, size: 44, color: Colors.red),
+                  child: Icon(Icons.mic, size: 44, color: KColors.appPrimaryRed),
                 ),
                 const SizedBox(height: 20),
                 const Text(

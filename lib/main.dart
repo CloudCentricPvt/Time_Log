@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:time_log/utils/constants/k_colors.dart';
 import 'package:time_log/views/all_privacy/help_and_support.dart';
 import 'package:time_log/views/all_privacy/leaves_policy_screen.dart';
 import 'package:time_log/views/all_privacy/posh_policy.dart';
@@ -62,17 +63,18 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'TimeLog',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        scaffoldBackgroundColor: KColors.lightGreyBGScreen,
         useMaterial3: true,
         appBarTheme: AppBarTheme(
             systemOverlayStyle: SystemUiOverlayStyle(
               statusBarColor: Color(0xFF84DBFF),
-            )
+            ),
         ),
       ),
 
       initialRoute: '/',
       routes: {
+
         '/': (context) => const SplashScreen(),
         '/login_screen' : (context) => const LoginScreen(),
         '/home_screen' : (context) => const HomeScreen(),
@@ -101,6 +103,9 @@ class MyApp extends StatelessWidget {
         '/upcoming_events_screen': (context) => const UpcomingEvents(),
         '/attendance_screen' :(context) => AttendanceScreen(),
         '/payroll_screen' :(context) => const PayrollScreen(),
+
+
+
       },
     );
   }

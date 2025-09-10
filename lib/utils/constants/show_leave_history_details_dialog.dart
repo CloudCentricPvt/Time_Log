@@ -63,7 +63,7 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
                           Card(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(2)),
-                            shadowColor: KColors.cardShadowColor,
+                            elevation: 0,
                             color: getStatusColor1(status),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -104,7 +104,7 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: KInfoCard(
-                backgroundColor: KColors.colorGray,
+                backgroundColor: KColors.dayWiseCardBGColor,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -192,7 +192,12 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
 
             const SizedBox(height: 15),
 
-            Text(des ?? "", style: KFonts.thin),
+            Text(des ?? "", style: TextStyle(
+              fontFamily: 'poppins',
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+              color: KColors.appBlackColor,
+            )),
 
           ],
         ),

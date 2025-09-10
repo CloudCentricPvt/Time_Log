@@ -49,66 +49,65 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: KColors.appPrimary,
       body: Column(
         children: [
-          ///image column.....
           SizedBox(
-            height: 350,
+            height:  MediaQuery.of(context).size.height*0.39,
             child: Image.asset(
               KAssets.login_image,
             ),
           ),
-
-          /// card  .....
           Expanded(
             child: SizedBox(
               width: double.infinity,
-              child: Card(
-                margin: EdgeInsets.zero,
-                // REMOVE extra space outside the card
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(50),
-                    topRight: Radius.circular(50),
+              child: SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight:  MediaQuery.of(context).size.height - MediaQuery.of(context).size.height*0.39,
                   ),
-                ),
-                elevation: 0,
-                color: Colors.white,
-
-                /// design part of inside card.....
-                child: Padding(
-                  padding:
-                      EdgeInsets.only(top: 51, left: 21, right: 21, bottom: 21),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Welcome Back",
-                          style: TextStyle(
-                            color: Color(0XFF38C4FF),
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w400,
+                  child: Card(
+                    margin: EdgeInsets.zero,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(50),
+                        topRight: Radius.circular(50),
+                      ),
+                    ),
+                    elevation: 0,
+                    color: KColors.appColorWhite,
+                    child: Padding(
+                      padding:
+                          EdgeInsets.only(top: 51, left: 21, right: 21, bottom: 21),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Welcome Back",
+                            style: TextStyle(
+                              color: KColors.appPrimary,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const Text(
-                          "Account Login",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontFamily: 'Poppins',
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
+                          const SizedBox(
+                            height: 10,
                           ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                          const Text(
+                            "Account Login",
+                            style: TextStyle(
+                              color: KColors.appBlackColor,
+                              fontFamily: 'Poppins',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
 
-                        /// Login Box....
-                        userLoginForm(),
-                        onClickLoginButton()
-                      ],
+                          /// Login Box....
+                          userLoginForm(),
+                          onClickLoginButton()
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -134,16 +133,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   _isHighlightedMessage = !_isHighlightedMessage;
                 });
               },
-              icon: _isHighlightedMessage
-                  ? SvgPicture.asset(KAssets.highlightedIconMessage)
-                  : SvgPicture.asset(KAssets.emailIcon),
+              icon: SvgPicture.asset(KAssets.emailIcon),
             ),
-            border: OutlineInputBorder(
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: KColors.appBlackColor),
               borderRadius: BorderRadius.circular(12.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: BorderSide(color: KColors.appBlackColor)
             ),
             contentPadding:
                 const EdgeInsets.only(left: 20, top: 10, bottom: 10, right: 10),
             labelText: 'Enter Email',
+            labelStyle: TextStyle(
+              color: KColors.appBlackColor,
+              fontSize: 16,
+            ),
           ),
         ),
         const SizedBox(
@@ -155,12 +161,21 @@ class _LoginScreenState extends State<LoginScreen> {
           obscureText: _isPasswordObscure,
           // Toggle password visibility
           decoration: InputDecoration(
-              border: OutlineInputBorder(
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: KColors.appBlackColor),
                 borderRadius: BorderRadius.circular(12.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: BorderSide(color: KColors.appBlackColor)
               ),
               contentPadding: const EdgeInsets.only(
                   left: 20, top: 10, bottom: 10, right: 10),
               labelText: 'Enter Password',
+              labelStyle: TextStyle(
+                color: KColors.appBlackColor,
+                fontSize: 16
+              ),
               suffixIcon: IconButton(
                 onPressed: () {
                   setState(() {
@@ -168,9 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     _isPasswordObscure = !_isPasswordObscure;
                   });
                 },
-                icon: _isHighlightedPassword
-                    ? SvgPicture.asset(KAssets.highlightedIconPassword)
-                    : SvgPicture.asset(KAssets.eyeIcon),
+                icon:SvgPicture.asset(KAssets.eyeIcon),
               )),
 
           style: const TextStyle(),
@@ -185,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Text(
                 "Forgot Password?",
                 style: TextStyle(
-                  color: Colors.blue,
+                  color: KColors.appPrimary,
                   fontSize: 14,
                   fontFamily: 'Poppins',
                 ),
@@ -265,7 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
           : const Text(
               "LOGIN NOW",
               style: TextStyle(
-                color: Colors.white,
+                color: KColors.appColorWhite,
                 fontSize: 18,
               ),
             ),

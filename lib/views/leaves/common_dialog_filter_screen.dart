@@ -106,15 +106,23 @@ class ReusableFilterDialog {
                       if (quickFilters.isNotEmpty)
                         _filterSection(
                           title: "Quick Filters",
-                          children: quickFilters.map((label) {
+                          children: [
+                            "This Week",
+                            "Last Week",
+                            "This Month",
+                            "Last Month",
+                            "this year"
+                          ].map((label) {
                             final isSelected = _quick == label;
                             return customSelectableBox(
                               label: label,
                               isSelected: isSelected,
-                              borderColor: Colors.blue,
-                              selectedColor: Colors.blue,
+                              borderColor: KColors.appPrimary,
+                              selectedColor: KColors.appPrimary,
                               onTap: () =>
-                                  dialogSetState(() => _quick = label),
+                                  dialogSetState((){
+                                    _quick = (_quick == label) ? null : label;
+                                  }),
                             );
                           }).toList(),
                         ),
@@ -125,7 +133,11 @@ class ReusableFilterDialog {
                       if (statusFilters.isNotEmpty)
                         _filterSection(
                           title: "Status Filters",
-                          children: statusFilters.entries.map((entry) {
+                          children: {
+                            "Pending": KColors.orangeColor,
+                            "Approved": KColors.greenColor,
+                            "Rejected": KColors.appPrimaryRed,
+                          }.entries.map((entry) {
                             final isSelected = _status == entry.key;
                             return customSelectableBox(
                               label: entry.key,
@@ -133,7 +145,9 @@ class ReusableFilterDialog {
                               borderColor: entry.value,
                               selectedColor: entry.value,
                               onTap: () =>
-                                  dialogSetState(() => _status = entry.key),
+                                  dialogSetState((){
+                                    _status = (_status == entry.key) ? null : entry.key;
+                                  }),
                             );
                           }).toList(),
                         ),
@@ -190,24 +204,34 @@ class ReusableFilterDialog {
                                   horizontal: 19, vertical: 2),
                             ),
                             onPressed: () {
-                              Navigator.pop(
-                                context,
-                                CommonDialogFilter(
-                                  quickFilter: null,
-                                  statusFilter: "All", // ✅ reset to All
-                                  fromDate: null,
-                                  toDate: null,
-                                  project: "Select Project",
-                                  task: "Select Task",
-                                ),
-                              );
+                              dialogSetState(() {
+                                _quick = null;
+                                _status = null;
+                                _from = null;
+                                _to = null;
+                                _project = null;
+                                _task = null;
+                                selectedQuickFilter = null;
+                                selectedStatusFilter = null;
+                                selectedProject = null;
+                                selectedTask = null;
+                              });
+                              // CommonDialogFilter(
+                              //   quickFilter: null,
+                              //   statusFilter: "All",
+                              //   fromDate: null,
+                              //   toDate: null,
+                              //   project: "Select Project",
+                              //   task: "Select Task",
+                              //
+                              // );
                             },
                             child: const Text("Clear Filter"),
                           ),
                           const Spacer(),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
+                              backgroundColor: KColors.appPrimary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
@@ -337,7 +361,7 @@ class ReusableFilterDialog {
                             ? DateFormat("dd MMM, yyyy").format(from)
                             : "Select From Date",
                         style: const TextStyle(
-                          color: Colors.blue,
+                          color: KColors.appPrimary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -386,7 +410,7 @@ class ReusableFilterDialog {
                             ? DateFormat("dd MMM, yyyy").format(to)
                             : "Select To Date",
                         style: const TextStyle(
-                          color: Colors.blue,
+                          color: KColors.appPrimary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),

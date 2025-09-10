@@ -277,7 +277,6 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: _applyLeaveForm(),
-
         ),
       ),
     );
@@ -470,7 +469,7 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
               const SnackBar(
                 content: Text(
                     'Please select both Start Date and End Date'),
-                backgroundColor: Colors.red,
+                backgroundColor: KColors.appPrimaryRed,
               ),
             );
           } else {
@@ -536,7 +535,7 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
               children: [
                 ScaleTransition(
                   scale: _animation,
-                  child: Icon(Icons.mic, size: 44, color: Colors.red),
+                  child: Icon(Icons.mic, size: 44, color: KColors.appPrimaryRed),
                 ),
                 const SizedBox(height: 20),
                 const Text(

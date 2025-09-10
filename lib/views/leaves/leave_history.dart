@@ -70,9 +70,9 @@ class _LeaveHistoryState extends State<LeaveHistory> {
             // Maybe retry or do something else
           },
           text: 'Okay',
-          color: Colors.red,
-          textStyle: const TextStyle(color: Colors.white),
-          iconColor: Colors.white,
+          color: KColors.appPrimaryRed,
+          textStyle: const TextStyle(color: KColors.appColorWhite),
+          iconColor: KColors.appColorWhite,
         ),
         "No Internet Connection",
         "Please check your internet connection and try again.",
@@ -124,7 +124,7 @@ class _LeaveHistoryState extends State<LeaveHistory> {
       body: RefreshIndicator(
         onRefresh: _refreshData,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding:  EdgeInsets.all(MediaQuery.of(context).size.height * 0.02,),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -134,7 +134,7 @@ class _LeaveHistoryState extends State<LeaveHistory> {
                   //mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     KFilterHeader(
-                        width: 65,
+                        width: MediaQuery.of(context).size.height * 0.08,
                         textTitle: 'All',
                         strokeColor: KColors.appPrimary,
                         textColor: selectedStatus == 'All'
@@ -322,7 +322,7 @@ class _LeaveHistoryState extends State<LeaveHistory> {
   List<AppliedLeaveHistory> _getFilteredListDialog(CommonDialogFilter filters) {
     List<AppliedLeaveHistory> filtered = List.from(appliedLeaveList);
 
-    // 🔹 Status filter
+    //  Status filter
     if (filters.statusFilter != null && filters.statusFilter != "All") {
       filtered = filtered
           .where((item) =>
@@ -331,7 +331,7 @@ class _LeaveHistoryState extends State<LeaveHistory> {
           .toList();
     }
 
-    // 🔹 Date range filter
+    //  Date range filter
     if (filters.fromDate != null && filters.toDate != null) {
       filtered = filtered.where((item) {
         try {
@@ -347,10 +347,9 @@ class _LeaveHistoryState extends State<LeaveHistory> {
       }).toList();
     }
 
-    // 🔹 Quick filters
+    //  Quick filters
     if (filters.quickFilter != null && filters.quickFilter!.isNotEmpty) {
       final now = DateTime.now();
-
       DateTime? _getItemDate(AppliedLeaveHistory item) =>
           _parseAppliedLeaveDate(item.startDate) ??
               _parseAppliedLeaveDate(item.endDate);
@@ -589,76 +588,79 @@ class BalanceLeave extends StatelessWidget {
       default:
         statusColor = Colors.grey; // Default color if status is unknown
     }
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      elevation: 3,
-      shadowColor: KColors.cardShadowColor,
-      color: KColors.appColorWhite,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: SvgPicture.asset(
-                iconAsset,
-                height: 40,
-                width: 40,
-                fit: BoxFit.cover,
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.11,
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        elevation: 3,
+        shadowColor: KColors.cardShadowColor,
+        color: KColors.appColorWhite,
+        margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 23),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: SvgPicture.asset(
+                  iconAsset,
+                  height: 40,
+                  width: 40,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(type.isEmpty ? '' : type,
-                          style: KFonts.normalHeading),
-                      const SizedBox(
-                        width: 2,
-                      ),
-                      const Text('|', style: KFonts.normalHeading),
-                      const SizedBox(
-                        width: 2,
-                      ),
-                      Text('${double.parse(day).toInt()} Day',
-                          style: KFonts.normalHeading),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Wrap(
-                    spacing: 4, // space between elements horizontally
-                    runSpacing: 2, // space between lines if wrapped
-                    children: [
-                      Text(KDateAndTime().getDay(startDate ?? ""),
-                          style: KFonts.normalBold),
-                      Text(KDateAndTime().getMonthYear(startDate ?? ""),
-                          style: KFonts.normal),
-                      Text('to', style: KFonts.normal),
-                      Text(KDateAndTime().getDay(endDate ?? ""),
-                          style: KFonts.normalBold),
-                      Text(KDateAndTime().getMonthYear(endDate ?? ""),
-                          style: KFonts.normal),
-                    ],
-                  ),
-                ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(type.isEmpty ? '' : type,
+                            style: KFonts.normalHeading),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        const Text('|', style: KFonts.normalHeading),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        Text('${double.parse(day).toInt()} Day',
+                            style: KFonts.normalHeading),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 4, // space between elements horizontally
+                      runSpacing: 2, // space between lines if wrapped
+                      children: [
+                        Text(KDateAndTime().getDay(startDate ?? ""),
+                            style: KFonts.normalBold),
+                        Text(KDateAndTime().getMonthYear(startDate ?? ""),
+                            style: KFonts.normal),
+                        Text('to', style: KFonts.normal),
+                        Text(KDateAndTime().getDay(endDate ?? ""),
+                            style: KFonts.normalBold),
+                        Text(KDateAndTime().getMonthYear(endDate ?? ""),
+                            style: KFonts.normal),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                elevation: 0,
+                color: statusColor, // Set background color dynamically
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  child: Text(status, style: KFonts.normalWithWhiteColor),
+                ),
               ),
-              elevation: 1,
-              color: statusColor, // Set background color dynamically
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Text(status, style: KFonts.normalWithWhiteColor),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

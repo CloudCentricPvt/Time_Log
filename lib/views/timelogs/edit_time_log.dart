@@ -204,7 +204,6 @@ class _EditTimeLogState extends State<EditTimeLog> {
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: Color(0xFF84DBFF), // Same as app bar
           statusBarIconBrightness: Brightness.dark, // or .light depending on contrast
         ),
         title: KCustomAppBar(
@@ -341,7 +340,7 @@ class _EditTimeLogState extends State<EditTimeLog> {
         ),
       ),
       dropdownButtonProps: DropdownButtonProps(
-        icon: Icon(Icons.keyboard_arrow_down_outlined, color: Colors.black),
+        icon: Icon(Icons.keyboard_arrow_down_outlined, color: KColors.appBlackColor),
       ),
       dropdownDecoratorProps: DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
@@ -352,7 +351,7 @@ class _EditTimeLogState extends State<EditTimeLog> {
                   children: [
                     TextSpan(
                       text: ' *',
-                      style: TextStyle(color: Colors.red),
+                      style: TextStyle(color: KColors.appPrimaryRed),
                     ),
                   ]
               )

@@ -36,15 +36,15 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   bool isListSelected = true;
   bool isSummarySelected = false;
   String selectedIcon = "list";
-
+  late ValueNotifier<bool> isDayWiseSelectedNotifier;
   Map<DateTime, List> attendanceData = {};
   final Map<DateTime, String> attendanceDataStatusMarkCalendar = {
     DateTime(2025, 8, 5): "Present",
-    DateTime(2025, 8, 6): "Absent",
-    DateTime(2025, 8, 7): "Leave",
+    DateTime(2025, 8, 6): "Leave",
+    DateTime(2025, 8, 7): "Absent",
     DateTime(2025, 8, 8): "Holiday",
     DateTime(2025, 8, 9): "Present",
-    DateTime(2025, 8, 12): "Absent",
+    DateTime(2025, 8, 12): "Present",
     DateTime(2025, 8, 15): "Leave",
     DateTime(2025, 8, 20): "Holiday",
     DateTime(2025, 8, 22): "Absent",
@@ -67,6 +67,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   @override
   void initState() {
     super.initState();
+    isDayWiseSelectedNotifier = ValueNotifier(true);
     _attendanceFutureListData = _loadData();
     selectedIcon = "list";
     selectedFilter = "This Week";
@@ -101,7 +102,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       ),
       body: Column(
         children: [
-          // Fixed header card
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.07,
             width: double.infinity,
@@ -109,11 +109,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               elevation: 0,
               margin: EdgeInsets.zero,
               color: KColors.appColorWhite,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.height * 0.02),
-                child: _thisWeekOrThisMonthCardDesign(),
+                  horizontal: MediaQuery.of(context).size.height * 0.02,
+                ),
+                child: _thisWeekOrThisMonthCardDesign(), // unaffected
               ),
             ),
           ),
@@ -122,8 +125,9 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             child: SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.width * 0.02,
-                    vertical: MediaQuery.of(context).size.height * 0.02),
+                  horizontal: MediaQuery.of(context).size.width * 0.03,
+                  vertical: MediaQuery.of(context).size.height * 0.02,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -134,157 +138,186 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                         elevation: 0,
                         child: Padding(
                           padding: EdgeInsets.symmetric(
-                              horizontal:
-                              MediaQuery.of(context).size.width * 0.03,
-                              vertical:
-                              MediaQuery.of(context).size.height * 0.03),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                            horizontal: MediaQuery.of(context).size.width * 0.03,
+                            vertical: MediaQuery.of(context).size.height * 0.02,
+                          ),
+                          child: ValueListenableBuilder<bool>(
+                            valueListenable: isDayWiseSelectedNotifier,
+                            builder: (context, isDayWise, _) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        isDayWiseSelected = true;
-                                      });
-                                    },
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          'Days Wise',
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                         isDayWiseSelectedNotifier.value = true;
+                                        },
+                                        child: Column(
+                                          children: [
+                                            const Text(
+                                              'Days Wise',
+                                              style: TextStyle(
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            if (isDayWise)
+                                              Container(
+                                                margin:
+                                                const EdgeInsets.only(top: 2),
+                                                height: 2,
+                                                width: _textWidth(
+                                                    context, 'Days Wise'),
+                                                color: KColors.appPrimary,
+                                              ),
+                                          ],
                                         ),
-                                        if(isDayWiseSelected)
-                                          Container(
-                                            margin: const EdgeInsets.only(top: 2),
-                                            height: 2,
-                                            width: _textWidth(context, 'Days Wise'),
-                                            color: KColors.appPrimary,
-                                          ),
-                                      ],
-                                    ),
+                                      ),
+                                      SizedBox(
+                                        width: MediaQuery.of(context).size.width *
+                                            0.06,
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          isDayWiseSelectedNotifier.value = false;
+                                        },
+                                        child: Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              'Hours Wise',
+                                              style: TextStyle(
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            if (!isDayWise)
+                                              Container(
+                                                margin:
+                                                const EdgeInsets.only(top: 2),
+                                                height: 2,
+                                                width: _textWidth(
+                                                    context, 'Hours Wise'),
+                                                color: KColors.appPrimary,
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              
+                                  SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.015,
+                                  ),
+                              
+                                  FutureBuilder<List<List<dynamic>>>(
+                                    future: _attendanceFutureListData,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const SizedBox();
+                                      }
+                                      if (snapshot.hasError) {
+                                        return Center(
+                                          child: Text(
+                                              "Error: ${snapshot.error}"),
+                                        );
+                                      }
+                              
+                                      final List<dynamic> dayData =
+                                      (snapshot.data != null &&
+                                          snapshot.data!.isNotEmpty)
+                                          ? (snapshot.data![0] ?? [])
+                                          : [];
+                              
+                                      final List<dynamic> hourData =
+                                      (snapshot.data != null &&
+                                          snapshot.data!.length > 1)
+                                          ? (snapshot.data![1] ?? [])
+                                          : [];
+                              
+                                      final selectedData = isDayWise
+                                          ? dayData
+                                          : hourData;
+                              
+                                      if (selectedData.isEmpty) {
+                                        return const SizedBox();
+                                      }
+                              
+                                      return Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.start,
+                                        children: List.generate(
+                                          selectedData.length,
+                                              (index) {
+                                            final value = selectedData[index];
+                                            final String status =
+                                                value["attendanceStatus"] ?? "";
+                                            final Color statusColor =
+                                            isDayWise
+                                                ? (dayWiseColorMap[status] ??
+                                                KColors.appPrimary)
+                                                : (hourWiseColorMap[status] ??
+                                                KColors.appPrimary);
+                              
+                                            return _dayWiseHourWiseDetailCard(
+                                              attendanceCount: value["count"],
+                                              attendanceCountType:
+                                              value["attendanceCountType"],
+                                              attendanceStatus:
+                                              value["attendanceStatus"],
+                                              attendanceStatusColor: statusColor,
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                              
+                                  SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.01,
+                                  ),
+                                  Divider(
+                                    thickness: 1,
+                                    height: 1,
+                                    color: KColors.grayLight,
                                   ),
                                   SizedBox(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.06),
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        isDayWiseSelected = false;
-                                      });
-                                    },
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Hours Wise',
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        if(!isDayWiseSelected)
-                                          Container(
-                                            margin: const EdgeInsets.only(top: 2),
-                                            height: 2,
-                                            width: _textWidth(context, 'Hours Wise'),
-                                            color: KColors.appPrimary,
-                                          ),
-                                      ],
-                                    ),
+                                    height: MediaQuery.of(context).size.height *
+                                        0.02,
+                                  ),
+                              
+                                  _weekendAndHolidayStatus(
+                                    isDayWise
+                                        ? "Weekend Days"
+                                        : "Weekend Hours",
+                                    isDayWise ? "02" : "16",
+                                  ),
+                                  const SizedBox(height: 10),
+                                  _weekendAndHolidayStatus(
+                                    isDayWise
+                                        ? "Holidays"
+                                        : "Holiday Hours",
+                                    isDayWise ? "01" : "08",
                                   ),
                                 ],
-                              ),
-                              SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.015),
-                              FutureBuilder<List<List<dynamic>>>(
-                                  future: _attendanceFutureListData,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return SizedBox();
-                                    }
-                                    if (snapshot.hasError) {
-                                      return Center(
-                                          child:
-                                          Text("Error: ${snapshot.error}"));
-                                    }
-                                    final List<dynamic> dayData =
-                                    (snapshot.data != null &&
-                                        snapshot.data!.isNotEmpty)
-                                        ? (snapshot.data![0] ?? [])
-                                        : [];
-
-                                    final List<dynamic> hourData =
-                                    (snapshot.data != null &&
-                                        snapshot.data!.length > 1)
-                                        ? (snapshot.data![1] ?? [])
-                                        : [];
-                                    final selectedData =
-                                    isDayWiseSelected ? dayData : hourData;
-                                    if (selectedData.isEmpty) {
-                                      return const SizedBox(); // nothing to show
-                                    }
-                                    return Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                      children: List.generate(
-                                          selectedData.length, (index) {
-                                        final value = selectedData[index];
-                                        final String status =value["attendanceStatus"] ?? "";
-                                        print("status of attendance  is :$status");
-                                        final Color statusColor = isDayWiseSelected
-                                            ? (dayWiseColorMap[status] ?? KColors.appPrimary)
-                                            : (hourWiseColorMap[status] ?? KColors.appPrimary);
-                                        return _dayWiseHourWiseDetailCard(
-                                          attendanceCount: value["count"],
-                                          attendanceCountType:
-                                          value["attendanceCountType"],
-                                          attendanceStatus:
-                                          value["attendanceStatus"],
-                                          attendanceStatusColor:statusColor,
-                                        );
-                                      }),
-                                    );
-                                  }),
-                              SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.01),
-                              Divider(
-                                thickness: 1,
-                                height: 1,
-                                color: KColors.grayLight,
-                              ),
-                              SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.02),
-                              _weekendAndHolidayStatus(
-                                isDayWiseSelected
-                                    ? "Weekend Days"
-                                    : "Weekend Hours",
-                                isDayWiseSelected ? "02" : "16",
-                              ),
-                              SizedBox(height: 10),
-                              _weekendAndHolidayStatus(
-                                isDayWiseSelected
-                                    ? "Holidays"
-                                    : "Holiday Hours",
-                                isDayWiseSelected ? "01" : "08",
-                              ),
-                            ],
+                              );
+                            }
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                    // Fix height to avoid infinite height issues inside scroll
+
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.01,
+                    ),
+
+                    // Calendar or This week/Month list
                     isCalendarSelected
                         ? SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
@@ -300,6 +333,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       ),
     );
   }
+
 
   Widget _thisWeekOrThisMonthCardDesign() {
     return Row(
@@ -752,52 +786,55 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         required String attendanceStatus,
         required Color attendanceStatusColor}) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.09,
-      width: MediaQuery.of(context).size.width * 0.29,
+      height: MediaQuery.of(context).size.height * 0.078,
+      width: MediaQuery.of(context).size.width * 0.28,
       child: Card(
         elevation: 0,
         color: KColors.dayWiseCardBGColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Padding(
           padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.height * 0.01),
+              horizontal: MediaQuery.of(context).size.width * 0.03,
+          vertical:MediaQuery.of(context).size.height * 0.004,
+          ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
                     attendanceCount.toString(),
                     style: TextStyle(
                       color: KColors.appBlackColor,
-                      fontSize: 16,
+                      fontSize: 19,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   SizedBox(
-                    width: 5,
+                    width: MediaQuery.of(context).size.height * 0.003,
                   ),
                   Text(
                     attendanceCountType,
                     style: TextStyle(
                       color: KColors.appBlackColor,
                       fontFamily: 'Poppins',
+                      fontSize: 12,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
               ),
-              SizedBox(
-                height: 5,
-              ),
+
               Text(
                 attendanceStatus,
                 style: TextStyle(
                   color: attendanceStatusColor,
+                  fontSize: 14,
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.w400,
                 ),
@@ -912,13 +949,13 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               child: Stack(
                 children: [
                   Container(
-                    constraints: const BoxConstraints(minHeight: 40),
+                    constraints: const BoxConstraints(minHeight: 45),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                     padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 16),
+                        vertical: 14, horizontal: 18),
                     child: (userStatus == "Present")
                         ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

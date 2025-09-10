@@ -33,7 +33,7 @@ class KCustomAppBar extends StatelessWidget {
         screenTitle,
         style: Theme.of(context).textTheme.headlineLarge!.copyWith(
               color: KColors.appColorWhite,
-              fontSize: 20,
+              fontSize: 19,
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w500,
               letterSpacing: 1
@@ -54,7 +54,7 @@ class KCustomAppBar extends StatelessWidget {
                     historyTitle, // Use custom title
                     style: const TextStyle(
                       color: KColors.appPrimary,
-                      fontSize: 15,
+                      fontSize: 17,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Poppins',
                     ),

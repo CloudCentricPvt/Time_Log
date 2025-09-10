@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
+import '../constants/k_colors.dart';
+
 class KCircularProgressBar {
   static Widget circularIndicator({
     double radius = 65.0,
@@ -40,7 +42,8 @@ class KCircularProgressBar {
                     style: valueStyle ??
                         TextStyle(
                           fontSize: valueTextSize ?? 22,
-                          fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600
                         ),
                     textAlign: TextAlign.center,
                   ),
@@ -49,8 +52,10 @@ class KCircularProgressBar {
                       label,
                       style: labelStyle ??
                           TextStyle(
-                            fontSize: labelTextSize ?? 16,
-                            color: Colors.black54,
+                            fontSize: labelTextSize ?? 15,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500,
+                            color: KColors.appBlackColor,
                           ),
                       textAlign: TextAlign.center,
                     ),
@@ -58,22 +63,21 @@ class KCircularProgressBar {
               ),
             ),
 
-            progressColor: progressColor ?? Colors.blue,
+            progressColor: progressColor ?? KColors.appPrimary,
             backgroundColor: backgroundColor ?? Colors.grey[300]!,
             circularStrokeCap: CircularStrokeCap.round,
           ),
         ),
-        // ✅ Add space before bottom label to avoid overlapping
         if (bottomLabel != null) ...[
-          const SizedBox(height: 8), // ← spacing between circle and bottom label
           Text(
             bottomLabel,
             textAlign: TextAlign.center,
             style: bottomLabelStyle ??
                 TextStyle(
-                  fontSize: bottomLabelTextSize ?? 14,
-                  color: bottomLabelColor ?? Colors.black,
-                  fontWeight: FontWeight.bold,
+                  fontSize: bottomLabelTextSize ?? 12,
+                  color: bottomLabelColor ?? KColors.appBlackColor,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600
                 ),
           ),
         ],

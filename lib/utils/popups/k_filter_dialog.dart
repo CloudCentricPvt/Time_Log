@@ -47,7 +47,7 @@ class FilterDialog {
                           Text(
                             'Request WFH History Filters',
                             style: TextStyle(
-                              color: Colors.black,
+                              color: KColors.appBlackColor,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.w600,
                             ),
@@ -68,13 +68,13 @@ class FilterDialog {
                               padding: EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white,
+                                color: KColors.appColorWhite,
                               ),
                               child: const CircleAvatar(
                                 backgroundColor: Color(0xFFF6F4FC),
                                 radius: 20,
                                 child: Icon(Icons.close,
-                                    size: 20, color: Colors.black),
+                                    size: 22, color: KColors.appBlackColor),
                               ),
                             ),
                           ),
@@ -97,9 +97,11 @@ class FilterDialog {
                           return customSelectableBox(
                             label: label,
                             isSelected: isSelected,
-                            borderColor: Colors.blue,
-                            selectedColor: Colors.blue,
-                            onTap: () => dialogSetState(() => _quick = label),
+                            borderColor: KColors.appPrimary,
+                            selectedColor:KColors.appPrimary,
+                            onTap: () => dialogSetState((){
+                              _quick = (_quick == label) ? null : label;
+                            }),
                           );
                         }).toList(),
                       ),
@@ -120,7 +122,9 @@ class FilterDialog {
                             borderColor: entry.value,
                             selectedColor: entry.value,
                             onTap: () =>
-                                dialogSetState(() => _status = entry.key),
+                                dialogSetState((){
+                                  _status = (_status == entry.key) ? null : entry.key;
+                                }),
                           );
                         }).toList(),
                       ),
@@ -154,23 +158,25 @@ class FilterDialog {
                                   horizontal: 19, vertical: 2),
                             ),
                             onPressed: () {
-                              Navigator.pop(
-                                  context,  WfhFilters(
-                                quickFilter: null,
-                                statusFilter: "All",
-                                fromDate: null,
-                                toDate: null,
-                                project: "Select Project",
-                                task: "Select Task",
-                              ),
-                              );
+                              dialogSetState(() {
+                                _quick = null;
+                                _status = null;
+                                _from = null;
+                                _to = null;
+                                _project = null;
+                                _task = null;
+                                selectedQuickFilter = null;
+                                selectedStatusFilter = null;
+                                selectedProject = null;
+                                selectedTask = null;
+                              });
                             },
                             child: const Text("Clear Filter"),
                           ),
                           const Spacer(),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
+                              backgroundColor: KColors.appPrimary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
@@ -186,7 +192,7 @@ class FilterDialog {
                               ),
                             ),
                             child: const Text("Apply All Filters",
-                                style: TextStyle(color: Colors.white)),
+                                style: TextStyle(color: KColors.appColorWhite)),
                           ),
                         ],
                       ),
@@ -220,9 +226,9 @@ class FilterDialog {
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
-    Color selectedColor = Colors.blue,
-    Color unselectedColor = Colors.white,
-    Color borderColor = Colors.blue,
+    Color selectedColor = KColors.appPrimary,
+    Color unselectedColor = KColors.appColorWhite,
+    Color borderColor = KColors.appPrimary,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -238,7 +244,7 @@ class FilterDialog {
           style: TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 13,
-            color: isSelected ? Colors.white : borderColor,
+            color: isSelected ? KColors.appColorWhite : borderColor,
           ),
         ),
       ),
@@ -302,7 +308,7 @@ class FilterDialog {
                             ? DateFormat("dd MMM, yyyy").format(from)
                             : "Select From Date",
                         style: const TextStyle(
-                          color: Colors.blue,
+                          color:KColors.appPrimary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -321,7 +327,7 @@ class FilterDialog {
                 child: Text(
                   "${dayDiff.toString().padLeft(2, "0")} Day",
                   style: const TextStyle(
-                      color: Colors.red, fontWeight: FontWeight.w600),
+                      color: KColors.appPrimaryRed, fontWeight: FontWeight.w600),
                 ),
               ),
 
@@ -351,7 +357,7 @@ class FilterDialog {
                             ? DateFormat("dd MMM, yyyy").format(to)
                             : "Select To Date",
                         style: const TextStyle(
-                          color: Colors.blue,
+                          color: KColors.appPrimary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -377,7 +383,7 @@ class FilterDialog {
       label: Text(
         label,
         style: TextStyle(
-          color: selected ? Colors.white : color,
+          color: selected ? KColors.appColorWhite : color,
           fontFamily: 'Poppins',
           fontSize: 13,
           fontWeight: FontWeight.w400,
@@ -387,7 +393,7 @@ class FilterDialog {
       showCheckmark: false,
       onSelected: onSelected,
       selectedColor: color,
-      backgroundColor: Colors.white,
+      backgroundColor: KColors.appColorWhite,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(color: color, width: 1),

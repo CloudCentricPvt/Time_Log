@@ -29,7 +29,7 @@ import '../../utils/constants/k_working_hrs_graph.dart';
 import '../../utils/popups/k_material_dialog.dart';
 
 class CheckInCheckOut extends StatefulWidget {
-  final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
+  final ValueNotifier<bool>? isBottomNavVisible;
 
   const CheckInCheckOut({super.key,this.isBottomNavVisible});
 
@@ -53,11 +53,11 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   String pendingCount = '';
   String leaveTaken = '';
   String totalWorkingHrs = '';
+  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _getUserLocation();
     fetchData();
 
   }
@@ -74,9 +74,9 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
             // Maybe retry or do something else
           },
           text: 'Okay',
-          color: Colors.red,
-          textStyle: const TextStyle(color: Colors.white),
-          iconColor: Colors.white,
+          color: KColors.appPrimaryRed,
+          textStyle: const TextStyle(color: KColors.appColorWhite),
+          iconColor: KColors.appColorWhite,
         ),
         "No Internet Connection",
         "Please check your internet connection and try again.",
@@ -110,7 +110,6 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: KCustomDrawer.customDrawer(
         context: context,
@@ -118,13 +117,17 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
         hello: true,
         subtitle: "Welcome to Ressourcia",
         showBellIcon: true,
-        // Show Bell Icon
-        showProfileIcon: true, // Hide Profile Icon
+        showProfileIcon: true,
+        topPaddingFactor: 0.07,
       ),
-      drawer: CustomDrawerMenu(context: context,isBottomNavVisible: widget.isBottomNavVisible,),
+      drawer: CustomDrawerMenu(context: context,isBottomNavVisible: widget.isBottomNavVisible,selectedIndex: _selectedIndex,
+      onMenuTap: (index){
+        setState(() {
+          _selectedIndex = index;
+        });
+      },),
 
       onDrawerChanged: (isOpened) {
-        // 👇 hide when drawer opens, show when closes
         widget.isBottomNavVisible?.value = !isOpened;
       },
       body: _isLoading
@@ -141,22 +144,26 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                             Container(
                               color: KColors.appPrimary,
                               width: double.infinity,
-                              height: 65,
+                              height: 75,
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(top: 20),
+                              padding:  EdgeInsets.only(
+                                top: MediaQuery.of(context).size.height * 0.03,
+                                left: MediaQuery.of(context).size.height * 0.015,
+                                right: MediaQuery.of(context).size.height * 0.015,
+                              ),
                               child: Column(
                                 children: [
-                                  /// --- show total working hrs, leave taken this month, pending time log
+                                  // show total working hrs, leave taken this month, pending time log
                                   _showWorkingHrsAnd(),
 
-                                  ///--- Start check in UI
+                                  // Start check in UI
                                   _startCheckIn(),
 
-                                  ///--- Check out UI
+                                  // Check out UI
                                   _startCheckOut(),
 
-                                  ///--- Your are check out for today UI
+                                  // Your are check out for today UI
                                   _checkOutForToadyCard(),
 
                                   const SizedBox(
@@ -170,20 +177,22 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                     height: 10,
                                   ),
 
-                                  /// --- show upcoming events
+                                  // show upcoming events
                                   _showUpcomingEvents(),
 
-                                  /// --- upcoming holidays Test title.
+                                  // upcoming holidays Test title.
                                   const SizedBox(
                                     height: 10,
                                   ),
 
                                   _upcomingHolidays(),
 
-                                  ///--- flow chart
+                                  // flow chart
                                   Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 20, right: 20, bottom: 20),
+                                    padding: EdgeInsets.only(
+                                      left: MediaQuery.of(context).size.height * 0.015,
+                                      right: MediaQuery.of(context).size.height * 0.015,
+                                    ),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -200,19 +209,20 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                         ),
                                         buildLegend([
                                           {
-                                            "color": Colors.blue,
+                                            "color": KColors.appPrimary,
                                             "text": "Monthly Leave"
                                           },
                                           {
-                                            "color": Colors.yellow,
+                                            "color": KColors.appPrimaryYellow,
                                             "text": "Annual Leave"
                                           },
                                           {
-                                            "color": Colors.red,
+                                            "color": KColors.appPrimaryRed,
+                                            "color": KColors.appPrimaryRed,
                                             "text": "Comp Off Request"
                                           },
                                           {
-                                            "color": Colors.green,
+                                            "color": KColors.greenColor,
                                             "text": "WFH Request"
                                           },
                                         ]),
@@ -234,11 +244,11 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                         ),
                                         buildLegend([
                                           {
-                                            "color": Colors.blue,
+                                            "color": KColors.appPrimary,
                                             "text": "Working Hours"
                                           },
                                           {
-                                            "color": Colors.orange,
+                                            "color": KColors.orangeColor,
                                             "text": "Self Study Hours"
                                           },
                                         ]),
@@ -344,7 +354,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
               : !(allCheckInOut[0].checkInCheckOut ?? true),
 
           child: Padding(
-            padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
+            padding: const EdgeInsets.only(top: 20),
             child: SizedBox(
               width: double.infinity,
               child: Card(
@@ -397,10 +407,11 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                             borderRadius: BorderRadius.circular(5.0),
                           ),
                           labelText: 'Type Check-in Description',
+                          labelStyle: TextStyle(color:KColors.appBlackColor),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5.0),
                             borderSide: const BorderSide(
-                              color: Colors.grey,
+                              color: KColors.appBlackColor,
                               // Border color
                               width: 1.0, // Stroke width (1dp)
                             ),
@@ -408,7 +419,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5.0),
                             borderSide: const BorderSide(
-                              color: Colors.blue,
+                              color: KColors.appBlackColor,
                               // Border color when focused
                               width: 1.0, // Focused stroke width
                             ),
@@ -417,7 +428,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                         style: const TextStyle(
                             fontFamily: "Poppins",
                             fontWeight: FontWeight.w400,
-                            color: KColors.textColor),
+                            color: KColors.appBlackColor),
                       ),
                     ),
                     Padding(
@@ -430,6 +441,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                               onPressed: () async {
                                 setState(() {
                                   _isLoading = true;
+                                  _getUserLocation();
                                 });
 
                                 await _controller.checkIn(
@@ -491,7 +503,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
           visible: allCheckInOut.isNotEmpty &&
               (allCheckInOut[0].checkInCheckOut ?? false),
           child: Padding(
-            padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
+            padding: const EdgeInsets.only(top: 20),
             child: SizedBox(
               width: double.infinity,
               child: Card(
@@ -505,7 +517,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                     ),
                     const Text(
                       "Your Work for",
-                      style: TextStyle(fontSize: 14),
+                      style: TextStyle(fontSize: 15),
                     ),
                     const SizedBox(
                       height: 10,
@@ -546,10 +558,11 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                             borderRadius: BorderRadius.circular(5.0),
                           ),
                           labelText: 'Type Check-out Description',
+                          labelStyle: TextStyle(color:KColors.appBlackColor),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5.0),
                             borderSide: const BorderSide(
-                              color: Colors.grey,
+                              color: KColors.appBlackColor,
                               // Border color
                               width: 1.0, // Stroke width (1dp)
                             ),
@@ -557,7 +570,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5.0),
                             borderSide: const BorderSide(
-                              color: Colors.blue,
+                              color: KColors.appBlackColor,
                               // Border color when focused
                               width: 1.0, // Focused stroke width
                             ),
@@ -566,7 +579,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                         style: const TextStyle(
                             fontFamily: "Poppins",
                             fontWeight: FontWeight.w400,
-                            color: KColors.textColor),
+                            color: KColors.appBlackColor),
                       ),
                     ),
                     Padding(
@@ -579,6 +592,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                               onPressed: () async {
                                 setState(() {
                                   _isLoading = true;
+                                  _getUserLocation();
                                 });
 
                                 await _controller.checkOut(
@@ -644,10 +658,10 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
             child: Container(
                 width: MediaQuery.of(context).size.width * double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: KColors.appColorWhite,
                   // Background color
                   border: Border.all(
-                    color: Colors.grey,
+                    color: KColors.appBlackColor,
                     // Border color
                     width: 1.0, // Border width
                   ),
@@ -689,8 +703,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                               ? allCheckInOut[0].checkIndescription ?? ''
                               : '',
                           style: TextStyle(
-                              color: KColors.textColor,
-                              fontSize: 12,
+                              color: KColors.appBlackColor,
+                              fontSize: 15,
                               fontFamily: "Poppins",
                               fontWeight: FontWeight.w400),
                           maxLines: 10,
@@ -717,7 +731,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                     ? allCheckInOut[0].checkInLocation ?? ''
                                     : '',
                                 style: TextStyle(
-                                    color: KColors.textColor,
+                                    color: KColors.appBlackColor,
                                     fontSize: 12,
                                     fontFamily: "Poppins",
                                     fontWeight: FontWeight.w400),
@@ -746,7 +760,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                                 '')
                                     : '',
                                 style: TextStyle(
-                                    color: KColors.textColor,
+                                    color: KColors.appBlackColor,
                                     fontSize: 12,
                                     fontFamily: "Poppins",
                                     fontWeight: FontWeight.w400),
@@ -776,10 +790,10 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
             child: Container(
                 width: MediaQuery.of(context).size.width * double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: KColors.appColorWhite,
                   // Background color
                   border: Border.all(
-                    color: Colors.grey,
+                    color: KColors.appBlackColor,
                     // Border color
                     width: 1.0, // Border width
                   ),
@@ -821,8 +835,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                               ? allCheckInOut[0].checkOutdescription ?? ''
                               : '',
                           style: TextStyle(
-                              color: KColors.textColor,
-                              fontSize: 12,
+                              color: KColors.appBlackColor,
+                              fontSize: 15,
                               fontFamily: "Poppins",
                               fontWeight: FontWeight.w400),
                           maxLines: 10,
@@ -850,7 +864,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                         'Location Not found'
                                     : '',
                                 style: TextStyle(
-                                    color: KColors.textColor,
+                                    color: KColors.appBlackColor,
                                     fontSize: 12,
                                     fontFamily: "Poppins",
                                     fontWeight: FontWeight.w400),
@@ -879,7 +893,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                                 '')
                                     : '',
                                 style: TextStyle(
-                                  color: KColors.textColor,
+                                  color: KColors.appBlackColor,
                                   fontSize: 12,
                                   fontFamily: "Poppins",
                                   fontWeight: FontWeight.w400,
@@ -1005,7 +1019,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
       case "Paternity Leave":
         return KColors.appPrimaryYellow;
       default:
-        return Colors.grey; // Default color if no match
+        return KColors.colorGray; // Default color if no match
     }
   }
 
@@ -1109,7 +1123,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                   Container(
                                     width: 2,
                                     height: 30,
-                                    color: KColors.colorGray,
+                                    color: KColors.appBlackColor,
                                   ),
                                   SizedBox(
                                     width: 10,
@@ -1152,7 +1166,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
       children: [
         SizedBox(
             height: 112,
-            width: screenWidth * 0.3,
+            width: screenWidth * 0.31,
             child: Card(
               elevation: 2,
               color: KColors.appSkyGary,
@@ -1177,9 +1191,9 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                       "Total working hours this month",
                       maxLines: 3,
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
-                        color: KColors.textColorGray,
+                        color: KColors.appBlackColor,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -1193,7 +1207,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
           },
           child: SizedBox(
               height: 112,
-              width: screenWidth * 0.3,
+              width: screenWidth * 0.31,
               child: Card(
                 elevation: 2,
                 color: KColors.appLightBlue,
@@ -1218,8 +1232,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                         "Leaves Taken in this month",
                         maxLines: 3,
                         style: TextStyle(
-                          color: KColors.textColorGray,
-                          fontSize: 10,
+                          color: KColors.appBlackColor,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
@@ -1235,7 +1249,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
           },
           child: SizedBox(
               height: 112,
-              width: screenWidth * 0.3,
+              width: screenWidth * 0.31,
               child: Card(
                 elevation: 2,
                 color: KColors.appLightYellow,
@@ -1260,8 +1274,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                         "Pending Time Logs",
                         maxLines: 3,
                         style: TextStyle(
-                          color: KColors.textColorGray,
-                          fontSize: 10,
+                          color: KColors.appBlackColor,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
@@ -1410,9 +1424,10 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   Widget _checkOutForToadyCard() {
     return Visibility(
       visible:
-          allCheckInOut.isNotEmpty && allCheckInOut[0].checkInTime.isNotEmpty,
+          allCheckInOut.isNotEmpty && allCheckInOut[0].checkInTime!= null &&
+              allCheckInOut[0].checkOutTime!.isNotEmpty,
       child: Padding(
-        padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
+        padding: const EdgeInsets.only(top: 20),
         child: SizedBox(
           width: double.infinity,
           child: Card(
@@ -1540,7 +1555,7 @@ class UpcomingLeavesCard extends StatelessWidget {
       width: 100,
       child: Card(
         elevation: 0,
-        color: Colors.white,
+        color: KColors.appColorWhite,
         shadowColor: shadowColor ?? Colors.grey.shade300,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5.0),
@@ -1553,7 +1568,7 @@ class UpcomingLeavesCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: textColor ?? Colors.black,
+                color: textColor ?? KColors.appBlackColor,
               ),
             ),
             SizedBox(
@@ -1582,7 +1597,7 @@ class UpcomingLeavesCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: textColor ?? Colors.black,
+                color: textColor ?? KColors.appBlackColor,
               ),
             ),
           ],
@@ -1593,7 +1608,7 @@ class UpcomingLeavesCard extends StatelessWidget {
 }
 
 
-/// ---- Open dialog for show details
+// ---- Open dialog for show details
 class CheckInOutDetailsInDialog extends StatelessWidget {
   final String? location;
   final String? des;
@@ -1619,17 +1634,17 @@ class CheckInOutDetailsInDialog extends StatelessWidget {
         //width: double.infinity, // Match parent
         padding: EdgeInsets.all(12),
         child: Column(
-          mainAxisSize: MainAxisSize.min, // 👈 Wrap content height
+          mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
               child: Container(
                   width: MediaQuery.of(context).size.width * double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: KColors.appColorWhite,
                     // Background color
                     border: Border.all(
-                      color: Colors.grey,
+                      color: KColors.appBlackColor,
                       // Border color
                       width: 1.0, // Border width
                     ),
@@ -1655,7 +1670,7 @@ class CheckInOutDetailsInDialog extends StatelessWidget {
                           Text(
                            des ?? '',
                             style: TextStyle(
-                                color: KColors.textColor,
+                                color: KColors.appBlackColor,
                                 fontSize: 12,
                                 fontFamily: "Poppins",
                                 fontWeight: FontWeight.w400),
@@ -1679,7 +1694,7 @@ class CheckInOutDetailsInDialog extends StatelessWidget {
                                 child: Text(
                                   location ?? '',
                                   style: TextStyle(
-                                      color: KColors.textColor,
+                                      color: KColors.appBlackColor,
                                       fontSize: 12,
                                       fontFamily: "Poppins",
                                       fontWeight: FontWeight.w400),
@@ -1703,7 +1718,7 @@ class CheckInOutDetailsInDialog extends StatelessWidget {
                                         .formatCustomDateMonthYearWithTime(
                                          date ?? ''),
                                   style: TextStyle(
-                                      color: KColors.textColor,
+                                      color: KColors.appBlackColor,
                                       fontSize: 12,
                                       fontFamily: "Poppins",
                                       fontWeight: FontWeight.w400),

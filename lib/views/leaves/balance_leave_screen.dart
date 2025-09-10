@@ -72,18 +72,16 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
   void _checkInternetConnection() async {
     bool connected = await _checkInternet.isConnected();
     if (!connected) {
-      // Show no internet dialog or handle no connectivity case
       KMaterialDialogs.noInternetFound(
         context,
         IconsButton(
           onPressed: () {
             Navigator.pop(context);
-            // Maybe retry or do something else
           },
           text: 'Okay',
-          color: Colors.red,
-          textStyle: const TextStyle(color: Colors.white),
-          iconColor: Colors.white,
+          color: KColors.appPrimaryRed,
+          textStyle: const TextStyle(color: KColors.appColorWhite),
+          iconColor: KColors.appColorWhite,
         ),
         "No Internet Connection",
         "Please check your internet connection and try again.",
@@ -116,7 +114,8 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
         child: SingleChildScrollView(
           physics: AlwaysScrollableScrollPhysics(), // <- Required!
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.05,
+              right: MediaQuery.of(context).size.width * 0.05,top:MediaQuery.of(context).size.height * 0.02, ),
             child: Column(
               children: [
                 data?.totalCasualLeave != null &&
@@ -180,7 +179,7 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
       case "Comp Off Leave":
         return KColors.pinkColor;
       default:
-        return Colors.grey; // Default color if no match
+        return KColors.colorGray; // Default color if no match
     }
   }
 
@@ -280,19 +279,13 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
     double left = data?.elLeaveBal != null ? data!.elLeaveBal : 0.0;
     double total = data?.totalElLeave != null ? data!.totalElLeave : 0.0;
     double consumed = total - left;
-
-    log("LeftValue : $left");
-    log("TotalValue : $total");
-
     var splitConsume = consumed.toString().split(".");
     var finalConsume = "";
-
     if(splitConsume[1] == "0"){
       finalConsume = consumed.toInt().toString();
     }else{
       finalConsume = consumed.toString();
     }
-
     var splitLeft = left.toString().split(".");
     var splitTotal = total.toString().split(".");
 
@@ -324,10 +317,6 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
     double left = data?.compOffLeaveBal != null ? data!.compOffLeaveBal : 0.0;
     double total = data?.totalCompOffLeave != null ? data!.totalCompOffLeave : 0.0;
     double consumed = total - left;
-
-    log("LeftValue : $left");
-    log("TotalValue : $total");
-
     var splitLeft = left.toString().split(".");
     var splitTotal = total.toString().split(".");
 
@@ -444,7 +433,7 @@ class BalanceLeave extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       elevation: 2,
-      color: Colors.white,
+      color: KColors.appColorWhite,
       shadowColor: KColors.cardShadowColor,
       // Card background set to white
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -523,7 +512,7 @@ class BalanceLeave extends StatelessWidget {
                               consumed,
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Colors.white,
+                                color: KColors.appColorWhite,
                                 fontWeight: FontWeight.w500,
                                 fontFamily: 'Poppins',
                               ),
@@ -540,8 +529,10 @@ class BalanceLeave extends StatelessWidget {
                         const Text(
                           "Left/Total",
                           style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.black54,
+                            fontSize: 13,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500,
+                            color: KColors.appBlackColor,
                           ),
                         ),
                         Text(
@@ -550,7 +541,7 @@ class BalanceLeave extends StatelessWidget {
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             fontFamily: 'Poppins',
-                            color: KColors.textColorGray,
+                            color: KColors.appBlackColor,
                           ),
                         ),
                       ],

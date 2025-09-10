@@ -47,7 +47,7 @@ class _KRadioGroupState extends State<KRadioGroup> {
                       Radio<String>(
                         value: option,
                         groupValue: selectedOption,
-                        activeColor: Colors.blue,
+                        activeColor: KColors.appPrimary,
                         visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
                         onChanged: (String? newValue) {
                           setState(() {
@@ -65,7 +65,7 @@ class _KRadioGroupState extends State<KRadioGroup> {
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w400,
                           fontSize: 14,
-                          color: selectedOption == option ? Colors.blue : Colors.black,
+                          color: selectedOption == option ? KColors.appPrimary : KColors.appBlackColor,
                         ),
                       ),
                     ],

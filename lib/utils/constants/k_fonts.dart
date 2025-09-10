@@ -8,8 +8,8 @@ class KFonts {
 
   static  const TextStyle heading = TextStyle(
     fontFamily: poppins,
-    fontSize: 18,
-    fontWeight: FontWeight.w600,
+    fontSize: 19,
+    fontWeight: FontWeight.w700,
     color: KColors.textHeadingColor,
   );
 
@@ -21,7 +21,7 @@ class KFonts {
   );
   static const TextStyle normalBold = TextStyle(
     fontFamily: poppins,
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: FontWeight.w600,
     color: KColors.textHeadingColor,
   );
@@ -96,7 +96,7 @@ class KFonts {
   );
   static const TextStyle normalWithWithText = TextStyle(
     fontFamily: poppins,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: FontWeight.w500,
     color: KColors.appColorWhite,
     letterSpacing: 0.12,

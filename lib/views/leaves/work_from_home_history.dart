@@ -237,7 +237,7 @@ class _WorkFromHomeHistoryState extends State<WorkFromHomeHistory> {
   /// --- Show WFH History data in ListView
   Widget _showWFHHistoryDataInList(WFHRequest leave) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      padding:  EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.01,),
       child: GestureDetector(
         child: BalanceLeave(
           type: leave.requestType.toString() ?? '',
@@ -412,76 +412,79 @@ class BalanceLeave extends StatelessWidget {
       default:
         statusColor = Colors.grey; // Default color if status is unknown
     }
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      elevation: 3,
-      shadowColor: KColors.cardShadowColor,
-      color: KColors.appColorWhite,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: SvgPicture.asset(
-                iconAsset,
-                height: 40,
-                width: 40,
-                fit: BoxFit.cover,
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.11,
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        elevation: 3,
+        shadowColor: KColors.cardShadowColor,
+        color: KColors.appColorWhite,
+        margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 0),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 27),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: SvgPicture.asset(
+                  iconAsset,
+                  height: 40,
+                  width: 40,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(type == 'Work From Home' ? 'WFH' : 'WFH',
-                          style: KFonts.normalHeading),
-                      const SizedBox(
-                        width: 2,
-                      ),
-                      const Text('|', style: KFonts.normalHeading),
-                      const SizedBox(
-                        width: 2,
-                      ),
-                      Text('${double.parse(day).toInt()} Day',
-                          style: KFonts.normalHeading),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Wrap(
-                    spacing: 4, // space between elements horizontally
-                    runSpacing: 2, // space between lines if wrapped
-                    children: [
-                      Text(KDateAndTime().getDay(startDate ?? ""),
-                          style: KFonts.normalBold),
-                      Text(KDateAndTime().getMonthYear(startDate ?? ""),
-                          style: KFonts.normal),
-                      Text('to', style: KFonts.normal),
-                      Text(KDateAndTime().getDay(endDate ?? ""),
-                          style: KFonts.normalBold),
-                      Text(KDateAndTime().getMonthYear(endDate ?? ""),
-                          style: KFonts.normal),
-                    ],
-                  ),
-                ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(type == 'Work From Home' ? 'WFH' : 'WFH',
+                            style: KFonts.normalHeading),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        const Text('|', style: KFonts.normalHeading),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        Text('${double.parse(day).toInt()} Day',
+                            style: KFonts.normalHeading),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 4, // space between elements horizontally
+                      runSpacing: 2, // space between lines if wrapped
+                      children: [
+                        Text(KDateAndTime().getDay(startDate ?? ""),
+                            style: KFonts.normalBold),
+                        Text(KDateAndTime().getMonthYear(startDate ?? ""),
+                            style: KFonts.normal),
+                        Text('to', style: KFonts.normal),
+                        Text(KDateAndTime().getDay(endDate ?? ""),
+                            style: KFonts.normalBold),
+                        Text(KDateAndTime().getMonthYear(endDate ?? ""),
+                            style: KFonts.normal),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                elevation: 0,
+                color: statusColor, // Set background color dynamically
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  child: Text(status, style: KFonts.normalWithWhiteColor),
+                ),
               ),
-              elevation: 1,
-              color: statusColor, // Set background color dynamically
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Text(status, style: KFonts.normalWithWhiteColor),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

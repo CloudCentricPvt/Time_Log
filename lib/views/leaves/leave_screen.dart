@@ -19,10 +19,11 @@ import '../../utils/constants/k_nav_header.dart';
 import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_circular_progress.dart';
 import 'apply_leave.dart';
-class LeaveScreen extends StatefulWidget {
-  final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
 
-  const LeaveScreen({super.key,this.isBottomNavVisible});
+class LeaveScreen extends StatefulWidget {
+  final ValueNotifier<bool>? isBottomNavVisible;
+
+  const LeaveScreen({super.key, this.isBottomNavVisible});
 
   @override
   State<LeaveScreen> createState() => LeaveScreenState();
@@ -53,13 +54,13 @@ class LeaveScreenState extends State<LeaveScreen> {
   double compOffP = 0.0;
   List<UpcomingLeave> leaveList = [];
   List<Holiday> upcomingHolidays = [];
+  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
     fetchData();
   }
-
 
   /// --- check internet connection
   void _checkInternetConnection() async {
@@ -75,8 +76,8 @@ class LeaveScreenState extends State<LeaveScreen> {
           },
           text: 'Okay',
           color: Colors.red,
-          textStyle: const TextStyle(color: Colors.white),
-          iconColor: Colors.white,
+          textStyle: const TextStyle(color: KColors.appColorWhite),
+          iconColor: KColors.appColorWhite,
         ),
         "No Internet Connection",
         "Please check your internet connection and try again.",
@@ -91,10 +92,12 @@ class LeaveScreenState extends State<LeaveScreen> {
   void fetchData() {
     _checkInternetConnection();
   }
+
   /// --- refresh data when swap down screen
   Future<void> _refreshData() async {
     // Your logic to refresh data
-    await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
+    await Future.delayed(
+        Duration(seconds: 1)); // Simulate API call or database load
     setState(() {
       fetchAnnualLeaveDetails();
       fetchLeaveList();
@@ -102,14 +105,13 @@ class LeaveScreenState extends State<LeaveScreen> {
     });
   }
 
-
   ///--- go back then Reload Leave list.
-  Future<void>_goBackToApplyLeaveScreen() async {
+  Future<void> _goBackToApplyLeaveScreen() async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ApplyLeave()),
     );
-    print("Result from ApplyLeave: $result");  // Check if the result is true
+    print("Result from ApplyLeave: $result"); // Check if the result is true
 
     if (result == true) {
       fetchAnnualLeaveDetails();
@@ -137,7 +139,6 @@ class LeaveScreenState extends State<LeaveScreen> {
       fetchAnnualLeaveDetails();
     }
   }
-
 
   Future<void> fetchAnnualLeaveDetails() async {
     setState(() {
@@ -205,7 +206,6 @@ class LeaveScreenState extends State<LeaveScreen> {
         });
 
         calculatePercentage();
-
       } else {
         setState(() {
           _isLoading = false;
@@ -227,222 +227,263 @@ class LeaveScreenState extends State<LeaveScreen> {
     final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
     return Scaffold(
       appBar: KCustomDrawer.customDrawer(
+          context: context,
+          title: "Leaves Details & Apply",
+          titleColor: KColors.appBlackColor,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          showBellIcon: true,
+          showProfileIcon: false,
+          topPaddingFactor: 0.04),
+      drawer: CustomDrawerMenu(
         context: context,
-        title: "Leaves Details & Apply",
-        titleColor: KColors.appBlackColor,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        showBellIcon: true,
-        // Show Bell Icon
-        showProfileIcon: false, // Hide Profile Icon
+        isBottomNavVisible: widget.isBottomNavVisible, selectedIndex: _selectedIndex, onMenuTap: (index) {
+        setState(() {
+          _selectedIndex = index;
+        });
+      },
       ),
-      drawer: CustomDrawerMenu(context: context,isBottomNavVisible: widget.isBottomNavVisible,),
       onDrawerChanged: (isOpened) {
-        // 👇 hide when drawer opens, show when closes
         widget.isBottomNavVisible?.value = !isOpened;
       },
-      body: _isLoading? KLoader() : RefreshIndicator(
-        onRefresh: _refreshData,
-        child: SingleChildScrollView(
-          physics: AlwaysScrollableScrollPhysics(), // <- Required!
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                      color: KColors.appColorWhite),
+      body: _isLoading
+          ? KLoader()
+          : RefreshIndicator(
+              onRefresh: _refreshData,
+              child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(), // <- Required!
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.height * 0.025,
+                    right: MediaQuery.of(context).size.height * 0.025,
+                  ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      KSizedBox.h15,
-                      const Text(
-                        "Annual Leave Details",
-                        style: TextStyle(
-                            fontFamily: "Poppins",
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16),
-                      ),
-                      KSizedBox.h10,
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(6),
+                            color: KColors.appColorWhite),
+                        child: Column(
+                          children: [
+                            KSizedBox.h15,
+                            const Text(
+                              "Annual Leave Details",
+                              style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16),
+                            ),
+                            KSizedBox.h10,
 
+                            Center(
+                              child: KCircularProgressBar.circularIndicator(
+                                percent: leaveP,
+                                value: leaveBal ?? '',
+                                valueTextSize: 28,
+                                label: 'Leave balance',
+                                radius: isTablet ? 80.0 : 68.0,
+                              ),
+                            ),
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.015,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: MediaQuery.of(context).size.height * 0.03,
+                                right:
+                                    MediaQuery.of(context).size.height * 0.03,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    children: [
+                                      const Text('Total Leaves'),
+                                      Text(
+                                        totalLeaveBal.toString() ?? '',
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text('Leave Used'),
+                                      Text(usedLeave1.toString() ?? '',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w500)),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
 
-                      Center(
-                        child: KCircularProgressBar.circularIndicator(
-                          percent: leaveP,
-                          value: leaveBal ?? '',
-                          valueTextSize: 28,
-                          label: 'Leave balance',
-                          radius: isTablet ? 80.0 : 60.0, // ✅ Correct dynamic sizing
+                            /// ---- Design Circular progress bar Horizontally
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: MediaQuery.of(context).size.width * 0.02,
+                                right: MediaQuery.of(context).size.width * 0.02,
+                                top: MediaQuery.of(context).size.width * 0.05,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                      child: KCircularProgressBar
+                                          .circularIndicator(
+                                              progressColor:
+                                                  KColors.purpleColor,
+                                              percent: (clP ?? 0) > 0 ? clP : 0,
+                                              value: casualLeave.toString(),
+                                              valueTextSize: 18,
+                                              radius: isTablet ? 60.0 : 32.0,
+                                              bottomLabel: 'Casual Leave',
+                                              bottomLabelColor:
+                                                  KColors.appBlackColor)),
+                                  Expanded(
+                                      child: KCircularProgressBar
+                                          .circularIndicator(
+                                              progressColor: KColors.greenColor,
+                                              percent: (slP ?? 0) > 0 ? slP : 0,
+                                              value: sickLeave.toString() ?? '',
+                                              valueTextSize: 18,
+                                              radius: isTablet ? 60.0 : 32.0,
+                                              bottomLabel: 'Sick Leave',
+                                              bottomLabelColor:
+                                                  KColors.appBlackColor)),
+                                  Expanded(
+                                      child: KCircularProgressBar
+                                          .circularIndicator(
+                                              progressColor:
+                                                  KColors.orangeColor,
+                                              percent: (elP ?? 0) > 0 ? elP : 0,
+                                              value: earnLeave.toString() ?? '',
+                                              valueTextSize: 18,
+                                              radius: isTablet ? 60.0 : 32.0,
+                                              bottomLabel: 'Earn Leave',
+                                              bottomLabelColor:
+                                                  KColors.appBlackColor)),
+                                  Expanded(
+                                      child: KCircularProgressBar
+                                          .circularIndicator(
+                                              progressColor: KColors.pinkColor,
+                                              percent:
+                                                  (compOffP ?? 0) > 0
+                                                      ? compOffP
+                                                      : 0.0,
+                                              value: compOff.toString() ?? '',
+                                              valueTextSize: 18,
+                                              radius: isTablet ? 60.0 : 32.0,
+                                              bottomLabel: 'Comp Off',
+                                              bottomLabelColor:
+                                                  KColors.appBlackColor)),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: MediaQuery.of(context).size.width * 0.04,),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 20),
+                              child: GestureDetector(
+                                child: const Center(
+                                  child: Text(
+                                    "View Balance Leave",
+                                    style: TextStyle(
+                                        fontFamily: "Poppins",
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 14,
+                                        color: KColors.appPrimary),
+                                  ),
+                                ),
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                      context, '/balance_leave_screen');
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+
+                      /// ---- Design Apply section
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Column(
-                            children: [
-                              const Text('Total Leaves'),
-                              Text(
-                                totalLeaveBal.toString() ?? '',
-                                style: const TextStyle(
-                                    fontSize: 16,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w700),
-                              ),
-                            ],
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 14, right: 5),
+                              child: KFeatureCard(
+                                  iconAsset: KAssets.applyLeave,
+                                  title: 'Apply Leaves',
+                                  onTap: () async {
+                                    //Navigator.pushReplacementNamed(context, '/apply_leave_screen');
+                                    await _goBackToApplyLeaveScreen();
+                                  }),
+                            ),
                           ),
-                          Column(
-                            children: [
-                              Text('Leave Used'),
-                              Text(usedLeave1.toString() ?? '',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w700)),
-                            ],
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 14, right: 5, left: 5),
+                              child: KFeatureCard(
+                                iconAsset: KAssets.requestWFH,
+                                title: 'Request WFH',
+                                onTap: () async {
+                                  //Navigator.pushNamed(context, '/request_wfh_screen');
+                                  await _goBackToWFHLeaveScreen();
+                                },
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 14, right: 5, left: 5),
+                              child: KFeatureCard(
+                                iconAsset: KAssets.requestCompOFF,
+                                title: 'Comp Off',
+                                onTap: () async {
+                                  //Navigator.pushNamed(context, '/comp_off_screen');
+                                  await _goBackToCompOffLeaveScreen();
+                                },
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 14, left: 5),
+                              child: KFeatureCard(
+                                iconAsset: KAssets.holidaysList,
+                                title: 'Holidays List',
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                      context, '/holiday_list_screen');
+                                },
+                              ),
+                            ),
                           ),
                         ],
                       ),
 
-                      /// ---- Design Circular progress bar Horizontally
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                                child: KCircularProgressBar.circularIndicator(
-                                    progressColor: KColors.purpleColor,
-                                    percent: (clP ?? 0) > 0 ? clP : 0,
-                                    value: casualLeave.toString(),
-                                    valueTextSize: 18,
-                                    radius: isTablet ? 60.0 : 32.0,
-                                    bottomLabel: 'Casual Leave',
-                                    bottomLabelColor: KColors.textColorGray)),
-                            Expanded(
-                                child: KCircularProgressBar.circularIndicator(
-                                    progressColor: KColors.greenColor,
-                                    percent: (slP ?? 0) > 0 ? slP : 0,
-                                    value: sickLeave.toString() ?? '',
-                                    valueTextSize: 18,
-                                    radius: isTablet ? 60.0 : 32.0,
-                                    bottomLabel: 'Sick Leave',
-                                    bottomLabelColor: KColors.textColorGray)),
-                            Expanded(
-                                child: KCircularProgressBar.circularIndicator(
-                                    progressColor: KColors.orangeColor,
-                                    percent: (elP ?? 0) > 0 ? elP : 0,
-                                    value: earnLeave.toString() ?? '',
-                                    valueTextSize: 18,
-                                    radius: isTablet ? 60.0 : 32.0,
-                                    bottomLabel: 'Earn Leave',
-                                    bottomLabelColor: KColors.textColorGray)),
-                            Expanded(
-                                child: KCircularProgressBar.circularIndicator(
-                                    progressColor: KColors.pinkColor,
-                                    percent: (compOffP ?? 0) > 0 ? compOffP : 0.0,
-                                    value: compOff.toString() ?? '',
-                                    valueTextSize: 18,
-                                    radius: isTablet ? 60.0 : 32.0,
-                                    bottomLabel: 'Comp Off',
-                                    bottomLabelColor: KColors.textColorGray)),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: GestureDetector(
-                          child: const Center(
-                            child: Text(
-                              "View Balance Leave",
-                              style: TextStyle(
-                                  fontFamily: "Poppins",
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 16,
-                                  color: KColors.appPrimary),
-                            ),
-                          ),
-                          onTap: () {
-                            Navigator.pushNamed(context, '/balance_leave_screen');
-                          },
-                        ),
-                      ),
+                      /// ---- Design Upcoming Your Leaves
+                      KSizedBox.h14,
+                      _upcomingYourLeaves(),
+
+                      /// --- Upcoming holidays
+                      KSizedBox.h14,
+
+                      _upcomingHolidays(),
                     ],
                   ),
                 ),
-
-                /// ---- Design Apply section
-                Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 14, right: 5),
-                        child: KFeatureCard(
-                          iconAsset: KAssets.applyLeave,
-                          title: 'Apply Leaves',
-                            onTap: () async {
-                              //Navigator.pushReplacementNamed(context, '/apply_leave_screen');
-                              await _goBackToApplyLeaveScreen();
-                            }
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.only(top: 14, right: 5, left: 5),
-                        child: KFeatureCard(
-                          iconAsset: KAssets.requestWFH,
-                          title: 'Request WFH',
-                          onTap: () async {
-                            //Navigator.pushNamed(context, '/request_wfh_screen');
-                            await _goBackToWFHLeaveScreen();
-                          },
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.only(top: 14, right: 5, left: 5),
-                        child: KFeatureCard(
-                          iconAsset: KAssets.requestCompOFF,
-                          title: 'Comp Off',
-                          onTap: () async{
-                            //Navigator.pushNamed(context, '/comp_off_screen');
-                            await _goBackToCompOffLeaveScreen();
-                          },
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 14, left: 5),
-                        child: KFeatureCard(
-                          iconAsset: KAssets.holidaysList,
-                          title: 'Holidays List',
-                          onTap: () {
-                            Navigator.pushNamed(context, '/holiday_list_screen');
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                /// ---- Design Upcoming Your Leaves
-                KSizedBox.h14,
-                _upcomingYourLeaves(),
-
-                /// --- Upcoming holidays
-                KSizedBox.h14,
-
-                _upcomingHolidays(),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -463,7 +504,7 @@ class LeaveScreenState extends State<LeaveScreen> {
       case "Paternity Leave":
         return KColors.appPrimaryYellow;
       default:
-        return Colors.grey; // Default color if no match
+        return KColors.appBlackColor; // Default color if no match
     }
   }
 
@@ -604,7 +645,6 @@ class LeaveScreenState extends State<LeaveScreen> {
     }
   }
 
-
   /*Widget _upcomingYourLeaves() {
     return Visibility(
       visible: leaveList.isEmpty ? false : true,
@@ -654,7 +694,7 @@ class LeaveScreenState extends State<LeaveScreen> {
               fontFamily: "Poppins",
               fontWeight: FontWeight.w600,
               fontSize: 16,
-              color: KColors.textHeadingColor,
+              color: KColors.appBlackColor,
             ),
           ),
           KSizedBox.h10,
@@ -678,7 +718,6 @@ class LeaveScreenState extends State<LeaveScreen> {
       ),
     );
   }
-
 
   Widget _upcomingHolidays() {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -707,7 +746,9 @@ class LeaveScreenState extends State<LeaveScreen> {
               ),
             ],
           ),
-          SizedBox(height: 10,),
+          SizedBox(
+            height: 10,
+          ),
           SizedBox(
               height: 98,
               child: ListView.builder(
@@ -776,7 +817,6 @@ class LeaveScreenState extends State<LeaveScreen> {
       });
     }
   }
-
 }
 
 class UpcomingLeavesCard extends StatelessWidget {
@@ -803,8 +843,8 @@ class UpcomingLeavesCard extends StatelessWidget {
       width: 100,
       child: Card(
         elevation: 0,
-        color: Colors.white,
-        shadowColor: shadowColor ?? Colors.grey.shade300,
+        color: KColors.appColorWhite,
+        shadowColor: shadowColor ?? KColors.appBlackColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5.0),
         ),
@@ -816,7 +856,7 @@ class UpcomingLeavesCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: textColor ?? Colors.black,
+                color: textColor ?? KColors.appBlackColor,
               ),
             ),
             SizedBox(
@@ -824,7 +864,7 @@ class UpcomingLeavesCard extends StatelessWidget {
               width: 60,
               child: Card(
                 color: cardColor ?? KColors.orangeColor,
-                shadowColor: shadowColor ?? Colors.grey.shade300,
+                shadowColor: shadowColor ?? KColors.appBlackColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(2.0),
                 ),
@@ -834,7 +874,7 @@ class UpcomingLeavesCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: textColor ?? Colors.white,
+                      color: textColor ?? KColors.appColorWhite,
                     ),
                   ),
                 ),
@@ -845,7 +885,7 @@ class UpcomingLeavesCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: textColor ?? Colors.black,
+                color: textColor ?? KColors.appBlackColor,
               ),
             ),
           ],
@@ -874,7 +914,7 @@ class KFeatureCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: 91,
-        height: isTablet ? 140.0 : 90.0, // ✅ Correct dynamic sizing,
+        height: isTablet ? 140.0 : 90.0,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6),
           color: KColors.appColorWhite,

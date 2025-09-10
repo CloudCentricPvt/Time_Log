@@ -75,9 +75,9 @@ class _HolidayListState extends State<HolidayList> {
             // Maybe retry or do something else
           },
           text: 'Okay',
-          color: Colors.red,
-          textStyle: const TextStyle(color: Colors.white),
-          iconColor: Colors.white,
+          color: KColors.appPrimaryRed,
+          textStyle: const TextStyle(color: KColors.appColorWhite),
+          iconColor: KColors.appColorWhite,
         ),
         "No Internet Connection",
         "Please check your internet connection and try again.",
@@ -133,194 +133,182 @@ class _HolidayListState extends State<HolidayList> {
   }
 
   Widget _showOfficialHolidaysInListView() {
-    return Stack(
-      children: [
-        _isLoading
-            ? KLoader()
-            : ListView.builder(
-                scrollDirection: Axis.vertical,
-                itemCount: officialHolidays.length,
-                itemBuilder: (context, index) {
-                  final item = officialHolidays[index];
-                  return officialHolidays.isEmpty
-                      ? const Center(child: Text("No data found!"))
-                      : Column(
-                          children: [
-                            Row(
-                              children: [
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 90,
-                                      child: Card(
-                                        elevation: 2,
-                                        color: KColors.appColorWhite,
-                                        shadowColor: KColors.cardShadowColor,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5.0),
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            const SizedBox(height: 2),
-                                            Text(
-                                              KDateAndTime().getMonthName(
-                                                      item.formattedDate) ??
-                                                  '',
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                fontFamily: 'Poppins',
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 50,
-                                              width: 50,
-                                              child: Card(
-                                                color: getCardColor(index),
-                                                // Apply dynamic color
-                                                shadowColor:
-                                                    KColors.cardShadowColor,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          2.0),
-                                                ),
-                                                child: Center(
-                                                  child: Text(
-                                                    KDateAndTime()
-                                                            .getDateNumber(item
-                                                                .formattedDate) ??
-                                                        '',
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors
-                                                          .white, // Ensure text is visible
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+    return _isLoading
+        ? KLoader()
+        : ListView.builder(
+      padding: EdgeInsets.zero,
+      itemCount: officialHolidays.length + 1,
+      itemBuilder: (context, index) {
+        if (index < officialHolidays.length) {
+          final item = officialHolidays[index];
+          return Column(
+            children: [
+              Row(
+                children: [
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.21,
+                        child: Card(
+                          elevation: 2,
+                          color: KColors.appColorWhite,
+                          shadowColor: KColors.cardShadowColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 2),
+                              Text(
+                              (KDateAndTime()
+                                    .getMonthName(item.formattedDate) ??
+                                    '').toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'Poppins',
                                 ),
-                                KSizedBox.w14,
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.holidayTitle ?? '',
+                              ),
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.07,
+                                width: MediaQuery.of(context).size.width * 0.18,
+                                child: Card(
+                                  color: getCardColor(index),
+                                  shadowColor: KColors.cardShadowColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(5.0),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      KDateAndTime().getDateNumber(
+                                          item.formattedDate) ??
+                                          '',
                                       style: const TextStyle(
-                                        color: KColors.textHeadingColor,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14,
-                                        fontFamily: 'Poppins',
+                                        fontSize: 23,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
                                       ),
                                     ),
-                                    Card(
-                                      color: getCardColor(
-                                          index), // Apply dynamic color
-                                      shadowColor: KColors.cardShadowColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(2.0),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 10, right: 10),
-                                        child: Text(
-                                          KDateAndTime().getDayName(
-                                                  item.formattedDate) ??
-                                              '',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 12,
-                                            fontFamily: 'Poppins',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ],
+                              ),
+                               SizedBox(height: MediaQuery.of(context).size.height * 0.001),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                 SizedBox(width: MediaQuery.of(context).size.width * 0.06,),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.holidayTitle ?? '',
+                        style: const TextStyle(
+                          color: KColors.appBlackColor,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                      Card(
+                        color: getCardColor(index),
+                        shadowColor: KColors.cardShadowColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(2.0),
+                        ),
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.height * 0.12,
+                          child: Padding(
+                            padding:
+                             EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.height * 0.01,),
+                            child: Text(
+                              KDateAndTime()
+                                  .getDayName(item.formattedDate) ??
+                                  '',
+                              style: const TextStyle(
+                                color: KColors.appColorWhite,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                              ),
                             ),
-                            const Divider(
-                              color: KColors.grayLight,
-                              thickness: 1,
-                            ),
-                          ],
-                        );
-                },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-        Positioned(
-          bottom: 10,
-          left: 16,
-          right: 16,
-          child: Card(
-            elevation: 0,
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Padding(
+              if (index != officialHolidays.length - 1)
+                const Divider(
+                  color: KColors.grayLight,
+                  thickness: 1,
+                ),
+            ],
+          );
+        } else {
+          return Padding(
+            padding: const EdgeInsets.only(top: 14.0, bottom: 20),
+            child: Card(
+              elevation: 0,
+              color: KColors.appColorWhite,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Note',
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Poppins',
-                          color: Colors.pink),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Poppins',
+                        color: Colors.pink,
+                      ),
                     ),
                     Text.rich(
                       TextSpan(
                         text:
-                            'Apart from Holidays, Company provides the RH (Restricted Holiday) of Employee\'s ',
-                        style: TextStyle(
-                          fontSize: 14,
+                        'Apart from Holidays, Company provides the RH (Restricted Holiday) of Employee\'s ',
+                        style: const TextStyle(
+                          fontSize: 12,
                           fontFamily: 'Poppins',
-                          color: Colors.black,
+                          color: KColors.appBlackColor,
                         ),
-                        children: [
+                        children: const [
                           TextSpan(
                             text: 'Marriage Anniversary',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: KColors.appBlackColor,
                             ),
                           ),
-                          TextSpan(
-                            text: ' and ',
-                          ),
+                          TextSpan(text: ' and '),
                           TextSpan(
                             text: 'Birthday',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color:KColors.appBlackColor,
                             ),
                           ),
-                          TextSpan(
-                            text: '.',
-                          ),
+                          TextSpan(text: '.'),
                         ],
                       ),
-                    )
+                    ),
                   ],
-                )),
-          ),
-        ),
-      ],
+                ),
+              ),
+            ),
+          );
+        }
+      },
     );
   }
+
 }

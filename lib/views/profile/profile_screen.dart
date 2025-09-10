@@ -16,8 +16,9 @@ import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_info_card.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
-  const ProfileScreen({super.key,this.isBottomNavVisible});
+  final ValueNotifier<bool>? isBottomNavVisible;
+
+  const ProfileScreen({super.key, this.isBottomNavVisible});
 
   @override
   State<ProfileScreen> createState() => ProfileScreenState();
@@ -28,8 +29,8 @@ class ProfileScreenState extends State<ProfileScreen> {
   final storage = GetStorage();
   LstemployeeDetail? employeeData;
   bool _isLoading = true;
+  int _selectedIndex = 0;
 
-  // 👇 This is your refresh method
   void refreshProfileData() {
     print("Refreshing profile data...");
     _checkInternetConnection(); // your actual data reload logic
@@ -59,9 +60,9 @@ class ProfileScreenState extends State<ProfileScreen> {
             Navigator.pop(context);
           },
           text: 'Okay',
-          color: Colors.red,
-          textStyle: const TextStyle(color: Colors.white),
-          iconColor: Colors.white,
+          color: KColors.appPrimaryRed,
+          textStyle: const TextStyle(color: KColors.appColorWhite),
+          iconColor: KColors.appColorWhite,
         ),
         "No Internet Connection",
         "Please check your internet connection and try again.",
@@ -76,7 +77,7 @@ class ProfileScreenState extends State<ProfileScreen> {
     _checkInternetConnection();
   }
 
-  /// --- refresh data when swap down screen
+  // refresh data when swap down screen
   Future<void> _refreshData() async {
     // Your logic to refresh data
     await Future.delayed(
@@ -91,14 +92,23 @@ class ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: KCustomDrawer.customDrawer(
+          context: context,
+          title: "Profile",
+          titleColor: KColors.appBlackColor,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          showBellIcon: true,
+          showProfileIcon: false,
+          topPaddingFactor: 0.04),
+      drawer: CustomDrawerMenu(
         context: context,
-        title: "Profile",
-        titleColor: KColors.appBlackColor,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        showBellIcon: true,// Show Bell Icon
-        showProfileIcon: false, // Hide Profile Icon
+        isBottomNavVisible: widget.isBottomNavVisible,
+        selectedIndex: _selectedIndex,
+        onMenuTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
       ),
-      drawer: CustomDrawerMenu(context: context,isBottomNavVisible: widget.isBottomNavVisible,),
       onDrawerChanged: (isOpened) {
         widget.isBottomNavVisible?.value = !isOpened;
       },
@@ -109,49 +119,53 @@ class ProfileScreenState extends State<ProfileScreen> {
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(), // <- Required!
                 child: Padding(
-                  padding:
-                      const EdgeInsets.only(left: 16, right: 16, bottom: 20),
+                  padding: EdgeInsets.only(
+                      left: MediaQuery.of(context).size.height * 0.03,
+                      right: MediaQuery.of(context).size.height * 0.03),
                   child: Column(
                     children: [
-                      const SizedBox(
-                        height: 40,
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.001,
                       ),
                       const Center(
                           child: CircleAvatar(
-                        radius: 30,
+                        radius: 38,
                         backgroundColor: KColors.grayLight,
                         child: Icon(
                           Icons.person,
                           size: 30,
-                          color: KColors.colorGray,
+                          color: KColors.appColorWhite,
                         ),
                       )),
-                      const SizedBox(
-                        height: 10,
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.01,
                       ),
                       Text(employeeData?.employeeName ?? '',
                           style: KFonts.heading),
                       Text(
                         '${employeeData?.employeeDesignation ?? ''} | ${employeeData?.employeeCode ?? ''}',
                         style: TextStyle(
-                            fontSize: 15, color: KColors.appSecondary),
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            color: KColors.appPrimary),
                       ),
 
                       ///--- Personal details
                       const SizedBox(
-                        height: 20,
+                        height: 15,
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
                             "Personal Details",
                             style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
-                                color: KColors.textColorGray,
+                                color: KColors.appBlackColor,
                                 fontFamily: 'Poppins'),
                           ),
+                          Spacer(),
                           InkWell(
                             child: Container(
                               padding:
@@ -174,7 +188,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                                   const Text("Edit",
                                       style: TextStyle(
                                           fontSize: 15,
-                                          color: KColors.textColorGray))
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w400,
+                                          color: KColors.appBlackColor))
                                 ],
                               ),
                             ),
@@ -233,7 +249,8 @@ class ProfileScreenState extends State<ProfileScreen> {
                                     },
                                     child: const Text(
                                       "OK",
-                                      style: TextStyle(color: KColors.appPrimary),
+                                      style:
+                                          TextStyle(color: KColors.appPrimary),
                                     ),
                                   ),
                                   "Alert!",
@@ -248,7 +265,7 @@ class ProfileScreenState extends State<ProfileScreen> {
 
                       ///--- Design Profile Details
                       const SizedBox(
-                        height: 10,
+                        height: 12,
                       ),
                       KInfoCard(
                         children: [
@@ -261,34 +278,32 @@ class ProfileScreenState extends State<ProfileScreen> {
                             "Gender:",
                             employeeData?.employeeGender ?? '',
                             context,
-                            color: KColors.textColorGray,
+                            color: KColors.appBlackColor,
                             fontFamily: 'Poppins',
                           ),
                           buildRowForProfile("Phone:",
                               employeeData?.employeePhone ?? '', context,
-                              color: KColors.appSecondary,
-                              fontFamily: 'Poppins'),
+                              color: KColors.appPrimary, fontFamily: 'Poppins'),
                           buildRowForProfile("Email:",
                               employeeData?.employeeEmail ?? '', context,
-                              color: KColors.appSecondary,
-                              fontFamily: 'Poppins'),
+                              color: KColors.appPrimary, fontFamily: 'Poppins'),
                           buildRowForProfile(
                               "DOB:",
                               KDateAndTime().useFormatDateInMyApp(
                                   employeeData?.employeeDob ?? ''),
                               context,
-                              color: KColors.textColorGray,
+                              color: KColors.appBlackColor,
                               fontFamily: 'Poppins'),
                           buildRowForProfile(
                               "Anniversary date:",
                               KDateAndTime().useFormatDateInMyApp(
                                   employeeData?.employeeAnniversaryDate ?? ''),
                               context,
-                              color: KColors.textColorGray,
+                              color: KColors.appBlackColor,
                               fontFamily: 'Poppins'),
                           buildRowForProfile("Address:",
                               employeeData?.employeeAddress ?? '', context,
-                              color: KColors.textColorGray,
+                              color: KColors.appBlackColor,
                               fontFamily: 'Poppins'),
                         ],
                       ),
@@ -299,13 +314,12 @@ class ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const Align(
                         alignment: Alignment.centerLeft,
-                        // Aligns text to the start (left)
                         child: Text(
                           "Company Details",
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: KColors.textColorGray,
+                            color: KColors.appBlackColor,
                           ),
                         ),
                       ),
@@ -320,18 +334,17 @@ class ProfileScreenState extends State<ProfileScreen> {
                               fontFamily: 'Poppins'),
                           buildRowForCompany("Employee Id:",
                               employeeData?.employeeCode ?? '', context,
-                              color: KColors.appSecondary,
-                              fontFamily: 'Poppins'),
+                              color: KColors.appPrimary, fontFamily: 'Poppins'),
                           buildRowForCompany("Designation:",
                               employeeData?.employeeDesignation ?? '', context,
-                              color: KColors.textColorGray,
+                              color: KColors.appBlackColor,
                               fontFamily: 'Poppins'),
                           buildRowForCompany(
                               "Joining date:",
                               KDateAndTime().useFormatDateInMyApp(
                                   employeeData?.employeeJoiningDate ?? ''),
                               context,
-                              color: KColors.textColorGray,
+                              color: KColors.appBlackColor,
                               fontFamily: 'Poppins'),
                         ],
                       ),
@@ -348,7 +361,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: KColors.textColorGray,
+                            color: KColors.appBlackColor,
                           ),
                         ),
                       ),
@@ -360,14 +373,18 @@ class ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           buildRowForManager("Manager Name:",
                               employeeData?.employeeManagerName ?? '', context,
-                              color: KColors.textColor, fontFamily: 'Poppins'),
+                              color: KColors.appBlackColor,
+                              fontFamily: 'Poppins'),
                           buildRowForManager("Manager Email:",
                               employeeData?.employeeManagerEmail ?? '', context,
-                              color: KColors.appSecondary),
+                              color: KColors.appPrimary),
                           buildRowForManager("Manager Phone:",
                               employeeData?.employeeManagerPhone ?? '', context,
-                              color: KColors.appSecondary),
+                              color: KColors.appPrimary),
                         ],
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.03,
                       ),
                     ],
                   ),
@@ -385,8 +402,7 @@ class ProfileScreenState extends State<ProfileScreen> {
     String? fontFamily,
     FontWeight? fontWeight,
   }) {
-    double labelWidth =
-        MediaQuery.of(context).size.width * 0.3; // 30% of screen width
+    double labelWidth = MediaQuery.of(context).size.width * 0.3;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -394,13 +410,13 @@ class ProfileScreenState extends State<ProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: labelWidth, // Dynamic width based on screen size
+            width: labelWidth,
             child: Text(
               label,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: KColors.textColorGray,
+                color: KColors.appBlackColor,
                 fontFamily: 'Poppins',
                 letterSpacing: 0.12,
               ),
@@ -411,8 +427,9 @@ class ProfileScreenState extends State<ProfileScreen> {
               value,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.normal,
-                color: color ?? Colors.black,
+                fontFamily: fontFamily ?? 'Poppins',
+                fontWeight: fontWeight ?? FontWeight.w500,
+                color: color ?? KColors.appBlackColor,
                 letterSpacing: 0.5,
               ),
             ),
@@ -439,7 +456,7 @@ class ProfileScreenState extends State<ProfileScreen> {
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: KColors.textColorGray,
+                color: KColors.appBlackColor,
                 fontFamily: 'Poppins',
                 letterSpacing: 0.12,
               ),
@@ -450,8 +467,9 @@ class ProfileScreenState extends State<ProfileScreen> {
               value,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.normal,
-                color: color ?? Colors.black,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w500,
+                color: color ?? KColors.appBlackColor,
                 letterSpacing: 0.5,
               ),
             ),
@@ -478,7 +496,7 @@ class ProfileScreenState extends State<ProfileScreen> {
               style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: KColors.textColorGray,
+                  color: KColors.appBlackColor,
                   fontFamily: 'Poppins'),
             ),
           ),
@@ -487,8 +505,9 @@ class ProfileScreenState extends State<ProfileScreen> {
               value,
               style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                  color: color ?? Colors.black,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w500,
+                  color: color ?? KColors.appBlackColor,
                   letterSpacing: 0.5),
             ),
           ),

@@ -19,20 +19,22 @@ class CustomCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final double cardHeight = size.height * 0.12; // 12% of screen height
-    final double cardWidth = size.width * 0.25; // 25% of screen width
+    final double cardWidth = size.width * 0.28; // 25% of screen width
     final double fontSizeDigit = size.width * 0.045; // responsive font size
     final double fontSizeText = size.width * 0.03;
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width * 0.01,
+      ),
       child: Container(
         height: 94,
-        width:cardWidth,
+        width: cardWidth,
         decoration: BoxDecoration(
           color: myColor,
           borderRadius: BorderRadius.circular(5),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(2.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -42,6 +44,7 @@ class CustomCard extends StatelessWidget {
                 style: TextStyle(
                   color: textColor,
                   fontFamily: 'Poppins',
+                  fontSize: 17,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -52,7 +55,7 @@ class CustomCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontWeight: FontWeight.normal, // Make the text bold
-                      fontSize: 12,
+                      fontSize: 13,
                       color: textColor,
                       // Adjust size if needed
                     ),
@@ -62,7 +65,7 @@ class CustomCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontWeight: FontWeight.normal, // Make the text bold
-                      fontSize: 12,
+                      fontSize: 13,
                       color: textColor,
                       // Adjust size if needed
                     ),

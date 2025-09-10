@@ -135,8 +135,8 @@ class KTextInputFormField extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
-            borderSide: const BorderSide(
-              color: Colors.blue,
+            borderSide: BorderSide(
+              color: (readOnly ?? false) ? KColors.appBlackColor : Colors.blue,
               width: 1.0,
             ),
           ),

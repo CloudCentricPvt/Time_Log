@@ -37,7 +37,8 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
 
   List<LstTimeLog> allTimeLogs = []; // original list (from API)
   List<LstTimeLog> timeLogs = []; // filtered list (for display)
-
+  int currentPage = 1;
+  int itemsPerPage = 5;
   int pendingCount = 0;
   int rejectedCount = 0;
   dynamic totalWorkingHrs = 0;
@@ -52,7 +53,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
   String? selectedTask;
   List<Lstproject> assignProject = [];
   List<String> assignTask = [];
-
+  int _selectedIndex = 0;
 
   /// time log filter chip functions.....
   int selectedIndex = 0;
@@ -107,18 +108,22 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
 
     //  Chip filter
     if (selectedFilter.isNotEmpty && selectedFilter != "All") {
-      filtered = filtered.where((log) =>
-      (log.status ?? "").trim().toLowerCase() ==
-          selectedFilter.trim().toLowerCase()).toList();
+      filtered = filtered
+          .where((log) =>
+              (log.status ?? "").trim().toLowerCase() ==
+              selectedFilter.trim().toLowerCase())
+          .toList();
     }
 
     //  Status filter
     if (selectedStatusFilter != null &&
         selectedStatusFilter!.isNotEmpty &&
         selectedStatusFilter != "All") {
-      filtered = filtered.where((log) =>
-      (log.status ?? "").trim().toLowerCase() ==
-          selectedStatusFilter!.trim().toLowerCase()).toList();
+      filtered = filtered
+          .where((log) =>
+              (log.status ?? "").trim().toLowerCase() ==
+              selectedStatusFilter!.trim().toLowerCase())
+          .toList();
     }
 
     //  Date range filter
@@ -128,7 +133,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
         try {
           final logDate = DateTime.parse(log.formattedDate!);
           return logDate.isAfter(
-              selectedFromDate!.subtract(const Duration(days: 1))) &&
+                  selectedFromDate!.subtract(const Duration(days: 1))) &&
               logDate.isBefore(selectedToDate!.add(const Duration(days: 1)));
         } catch (e) {
           return false;
@@ -138,23 +143,28 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
 
     // Project filter (by name)
     if (selectedProject != null) {
-      filtered = filtered.where((log) =>
-      (log.projectName ?? "").trim().toLowerCase() ==
-          (selectedProject!.projectName ?? "").trim().toLowerCase()).toList();
+      filtered = filtered
+          .where((log) =>
+              (log.projectName ?? "").trim().toLowerCase() ==
+              (selectedProject!.projectName ?? "").trim().toLowerCase())
+          .toList();
     }
 
     //  Task filter (by name)
     if (selectedTask != null && selectedTask!.isNotEmpty) {
-      filtered = filtered.where((log) =>
-      (log.taskName ?? "").trim().toLowerCase() ==
-          selectedTask!.trim().toLowerCase()).toList();
+      filtered = filtered
+          .where((log) =>
+              (log.taskName ?? "").trim().toLowerCase() ==
+              selectedTask!.trim().toLowerCase())
+          .toList();
     }
 
     //  Quick filters (keep your existing working logic)
     if (selectedQuickFilter != null && selectedQuickFilter!.isNotEmpty) {
       final now = DateTime.now();
-      DateTime? _getLogDate(LstTimeLog log) =>
-          log.formattedDate != null ? DateTime.tryParse(log.formattedDate!) : null;
+      DateTime? _getLogDate(LstTimeLog log) => log.formattedDate != null
+          ? DateTime.tryParse(log.formattedDate!)
+          : null;
 
       DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
@@ -195,12 +205,14 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
       } else if (selectedQuickFilter == "Last Month") {
         final startOfThisMonth = DateTime(now.year, now.month, 1);
         final startOfLastMonth = DateTime(now.year, now.month - 1, 1);
-        final endOfLastMonth = startOfThisMonth.subtract(const Duration(days: 1));
+        final endOfLastMonth =
+            startOfThisMonth.subtract(const Duration(days: 1));
 
         filtered = filtered.where((log) {
           final date = _getLogDate(log);
           return date != null &&
-              date.isAfter(startOfLastMonth.subtract(const Duration(days: 1))) &&
+              date.isAfter(
+                  startOfLastMonth.subtract(const Duration(days: 1))) &&
               date.isBefore(endOfLastMonth.add(const Duration(days: 1)));
         }).toList();
       } else if (selectedQuickFilter == "This Year") {
@@ -218,8 +230,6 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
 
     return filtered;
   }
-
-
 
   @override
   void initState() {
@@ -272,9 +282,9 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
             // Maybe retry or do something else
           },
           text: 'Okay',
-          color: Colors.red,
-          textStyle: const TextStyle(color: Colors.white),
-          iconColor: Colors.white,
+          color: KColors.appPrimaryRed,
+          textStyle: const TextStyle(color: KColors.appColorWhite),
+          iconColor: KColors.appColorWhite,
         ),
         "No Internet Connection",
         "Please check your internet connection and try again.",
@@ -317,7 +327,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
       case 3:
         return KColors.appPrimaryRed;
       default:
-        return Colors.grey;
+        return KColors.grayLight;
     }
   }
 
@@ -331,12 +341,18 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
         titleColor: KColors.appBlackColor,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         showBellIcon: true,
-        // Show Bell Icon
-        showProfileIcon: false, // Hide Profile Icon
+        showProfileIcon: false,
+        topPaddingFactor: 0.04,
       ),
       drawer: CustomDrawerMenu(
         context: context,
         isBottomNavVisible: widget.isBottomNavVisible,
+        selectedIndex: _selectedIndex,   // now available
+        onMenuTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
       ),
 
       onDrawerChanged: (isOpened) {
@@ -346,8 +362,9 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
         onRefresh: _refreshData,
         child: SingleChildScrollView(
           child: Padding(
-            padding:
-                const EdgeInsets.only(top: 10, left: 8, right: 8, bottom: 8),
+            padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width * 0.02,
+                vertical: MediaQuery.of(context).size.height * 0.01),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -355,61 +372,58 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                   alignment: Alignment.topCenter,
                   child: Padding(
                     padding: const EdgeInsets.only(
-                        left: 8, right: 8, top: 0, bottom: 8),
+                        left: 9, right: 9, top: 0, bottom: 8),
                     child: Column(
                       children: [
                         // Your content here
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8, right: 8),
-                          child: Column(
-                            children: [
-                              /// alignment of three card of hours and leave and pending leave......
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  CustomCard(
-                                    textColor: KColors.appColorWhite,
-                                    myColor: KColors.appPrimary,
-                                    containerTextDigit:
-                                        (totalWorkingHrs is double)
-                                            ? totalWorkingHrs.toInt().toString()
-                                            : totalWorkingHrs.toString(),
-                                    containerTextOne: "Total working",
-                                    containerTextTwo: "hours this month",
-                                  ),
+                        Column(
+                          children: [
+                            /// alignment of three card of hours and leave and pending leave......
+                            Row(
+                              children: [
+                                CustomCard(
+                                  textColor: KColors.appColorWhite,
+                                  myColor: KColors.appPrimary,
+                                  containerTextDigit:
+                                      (totalWorkingHrs is double)
+                                          ? totalWorkingHrs.toInt().toString()
+                                          : totalWorkingHrs.toString(),
+                                  containerTextOne: "Total working",
+                                  containerTextTwo: "hours this month",
+                                ),
 
-                                  /// Second card.....
-                                  CustomCard(
-                                    textColor: KColors.appColorWhite,
-                                    myColor: KColors.orangeColor,
-                                    containerTextDigit: pendingCount.toString(),
-                                    containerTextOne: "Pending Time ",
-                                    containerTextTwo: "Logs",
-                                  ),
+                                /// Second card.....
+                                CustomCard(
+                                  textColor: KColors.appColorWhite,
+                                  myColor: KColors.orangeColor,
+                                  containerTextDigit: pendingCount.toString(),
+                                  containerTextOne: "Pending Time ",
+                                  containerTextTwo: "Logs",
+                                ),
 
-                                  /// third card.....
-                                  CustomCard(
-                                    textColor: KColors.appColorWhite,
-                                    myColor: KColors.appPrimaryRed,
-                                    containerTextDigit:
-                                        rejectedCount.toString(),
-                                    containerTextOne: "Rejected Time",
-                                    containerTextTwo: "Logs",
-                                  ),
-                                ],
-                              ),
+                                /// third card.....
+                                CustomCard(
+                                  textColor: KColors.appColorWhite,
+                                  myColor: KColors.appPrimaryRed,
+                                  containerTextDigit: rejectedCount.toString(),
+                                  containerTextOne: "Rejected Time",
+                                  containerTextTwo: "Logs",
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.018),
 
-                              ///  Time Log listview Filter....
-                              _listViewFilter(),
-                              SizedBox(
-                                height: 10,
-                              ),
+                            ///  Time Log listview Filter....
+                            _listViewFilter(),
+                            SizedBox(
+                              height: 10,
+                            ),
 
-                              /// --- show all the Filled time log.
-                              _filledTimeLogAndShowInList(),
-                            ],
-                          ),
+                            /// --- show all the Filled time log.
+                            _filledTimeLogAndShowInList(),
+                          ],
                         )
                       ],
                     ),
@@ -429,32 +443,33 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
         }, // Edit icon to indicate edit functionality
         backgroundColor: KColors.appPrimary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        child: const Icon(Icons.add), // Change color if needed
+        child: const Icon(Icons.add,color: KColors.appColorWhite,), // Change color if needed
       ),
     );
   }
 
   Widget _listViewFilter() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        ...List.generate(filters.length, (index) {
-          bool isSelected = selectedIndex == index;
-          return Padding(
-            padding: const EdgeInsets.only(left: 1, right: 1),
-            child: Padding(
-              padding: const EdgeInsets.all(0.8),
-              child: ChoiceChip(
-                  checkmarkColor: Colors.white,
+        Wrap(
+          spacing: 2,
+          runSpacing: 2,
+          children: [
+            ...List.generate(filters.length, (index) {
+              bool isSelected = selectedIndex == index;
+              return ChoiceChip(
+                  checkmarkColor: KColors.appColorWhite,
                   showCheckmark: false,
-                  label: Padding(
-                    padding: const EdgeInsets.only(left: 1, right: 1),
-                    child: Text(filters[index]["label"],
-                        style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                              color: isSelected
-                                  ? Colors.white
-                                  : filters[index]["textColor"],
-                            )),
+                  label: Center(
+                    child: Padding(
+                      padding:  EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.001,),
+                      child: Text(filters[index]["label"],
+                          style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                                color: isSelected
+                                    ? KColors.appColorWhite
+                                    : filters[index]["textColor"],
+                              )),
+                    ),
                   ),
                   selected: isSelected,
                   backgroundColor: Colors.transparent,
@@ -462,6 +477,8 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                   shape: StadiumBorder(
                     side: BorderSide(color: filters[index]["borderColor"]),
                   ),
+                  labelPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   onSelected: (bool selected) {
                     setState(() {
                       selectedIndex = index;
@@ -478,83 +495,83 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                       selectedStatusFilter = selectedFilter;
                       timeLogs = getFilteredProjectsDialog();
                     });
-                  }),
-            ),
-          );
-        }),
-        Container(
-          margin: EdgeInsets.only(left: 8),
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6),
-            color: Colors.white,
-          ),
-          child: IconButton(
-            icon: const Icon(
-              Icons.tune,
-              color: Colors.blue,
-              size: 20,
-            ),
-            onPressed: () async {
-              final _prevQuickFilter = selectedQuickFilter;
-              final _prevStatusFilter = selectedStatusFilter;
-              final _prevFromDate = selectedFromDate;
-              final _prevToDate = selectedToDate;
-              final _prevProject = selectedProject;
-              final _prevTask = selectedTask;
-
-              final result = await showDialog<Map<String, dynamic>>(
-                context: context,
-                builder: (context) => _timeLogFilterPopUp(
-                  context,
-                  selectedQuickFilter,
-                  selectedStatusFilter,
-                  selectedFromDate,
-                  selectedToDate,
-                  selectedProject,
-                  selectedTask,
+                  });
+            }),
+            Container(
+              margin: EdgeInsets.only(left: 2),
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                color: KColors.appColorWhite,
+              ),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.tune,
+                  color: KColors.appPrimary,
+                  size: 20,
                 ),
-              );
+                onPressed: () async {
+                  final _prevQuickFilter = selectedQuickFilter;
+                  final _prevStatusFilter = selectedStatusFilter;
+                  final _prevFromDate = selectedFromDate;
+                  final _prevToDate = selectedToDate;
+                  final _prevProject = selectedProject;
+                  final _prevTask = selectedTask;
 
-              if (result != null) {
-                setState(() {
-                  selectedQuickFilter = result['quickFilter'];
-                  selectedStatusFilter = result['statusFilter'];
-                  selectedFromDate = result['fromDate'];
-                  selectedToDate = result['toDate'];
-                  selectedProject = result['project'];
-                  selectedTask = result['task'];
+                  final result = await showDialog<Map<String, dynamic>>(
+                    context: context,
+                    builder: (context) => _timeLogFilterPopUp(
+                      context,
+                      selectedQuickFilter,
+                      selectedStatusFilter,
+                      selectedFromDate,
+                      selectedToDate,
+                      selectedProject,
+                      selectedTask,
+                    ),
+                  );
 
-                  if (selectedStatusFilter != null) {
-                    selectedFilter = selectedStatusFilter!;
-                    if (selectedStatusFilter == "Pending") {
-                      selectedIndex = 1;
-                    } else if (selectedStatusFilter == "Approved") {
-                      selectedIndex = 2;
-                    } else if (selectedStatusFilter == "Rejected") {
-                      selectedIndex = 3;
-                    }
+                  if (result != null) {
+                    setState(() {
+                      selectedQuickFilter = result['quickFilter'];
+                      selectedStatusFilter = result['statusFilter'];
+                      selectedFromDate = result['fromDate'];
+                      selectedToDate = result['toDate'];
+                      selectedProject = result['project'];
+                      selectedTask = result['task'];
+
+                      if (selectedStatusFilter != null) {
+                        selectedFilter = selectedStatusFilter!;
+                        if (selectedStatusFilter == "Pending") {
+                          selectedIndex = 1;
+                        } else if (selectedStatusFilter == "Approved") {
+                          selectedIndex = 2;
+                        } else if (selectedStatusFilter == "Rejected") {
+                          selectedIndex = 3;
+                        }
+                      } else {
+                        // No status selected in dialog → keep "All"
+                        selectedFilter = selectedStatusFilter ?? "All";
+                        selectedIndex = 0;
+                      }
+                      timeLogs = getFilteredProjectsDialog();
+                    });
                   } else {
-                    // No status selected in dialog → keep "All"
-                    selectedFilter = selectedStatusFilter ?? "All";
-                    selectedIndex = 0;
+                    setState(() {
+                      selectedQuickFilter = _prevQuickFilter;
+                      selectedStatusFilter = _prevStatusFilter;
+                      selectedFromDate = _prevFromDate;
+                      selectedToDate = _prevToDate;
+                      selectedProject = _prevProject;
+                      selectedTask = _prevTask;
+                      timeLogs = getFilteredProjectsDialog();
+                    });
                   }
-                  timeLogs = getFilteredProjectsDialog();
-                });
-              } else {
-                setState(() {
-                  selectedQuickFilter = _prevQuickFilter;
-                  selectedStatusFilter = _prevStatusFilter;
-                  selectedFromDate = _prevFromDate;
-                  selectedToDate = _prevToDate;
-                  selectedProject = _prevProject;
-                  selectedTask = _prevTask;
-                  timeLogs = getFilteredProjectsDialog();
-                });
-              }
-            },
-          ),
+                },
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -564,9 +581,9 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
-    Color selectedColor = Colors.blue,
-    Color unselectedColor = Colors.white,
-    Color borderColor = Colors.blue,
+    Color selectedColor = KColors.appPrimary,
+    Color unselectedColor = KColors.appColorWhite,
+    Color borderColor = KColors.appPrimary,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -582,7 +599,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
           style: TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 13,
-            color: isSelected ? Colors.white : borderColor,
+            color: isSelected ? KColors.appColorWhite : borderColor,
           ),
         ),
       ),
@@ -590,14 +607,14 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
   }
 
   Widget _timeLogFilterPopUp(
-      BuildContext context,
-      String? selectedQuickFilter,
-      String? selectedStatusFilter,
-      DateTime? fromDate,
-      DateTime? toDate,
-      Lstproject? selectedProject,
-      String? selectedTask,
-      ) {
+    BuildContext context,
+    String? selectedQuickFilter,
+    String? selectedStatusFilter,
+    DateTime? fromDate,
+    DateTime? toDate,
+    Lstproject? selectedProject,
+    String? selectedTask,
+  ) {
     String? _quick = selectedQuickFilter;
     String? _status = selectedStatusFilter;
     DateTime? _from = fromDate;
@@ -652,7 +669,8 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                             child: const CircleAvatar(
                               backgroundColor: Color(0xFFF6F4FC),
                               radius: 20,
-                              child: Icon(Icons.close, size: 20, color: Colors.black),
+                              child: Icon(Icons.close,
+                                  size: 20, color: KColors.appBlackColor),
                             ),
                           ),
                         ],
@@ -674,9 +692,11 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                           return customSelectableBox(
                             label: label,
                             isSelected: isSelected,
-                            borderColor: Colors.blue,
-                            selectedColor: Colors.blue,
-                            onTap: () => dialogSetState(() => _quick = label),
+                            borderColor: KColors.appPrimary,
+                            selectedColor: KColors.appPrimary,
+                            onTap: () => dialogSetState((){
+                              _quick = (_quick == label) ? null : label;
+                            }),
                           );
                         }).toList(),
                       ),
@@ -697,7 +717,10 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                             isSelected: isSelected,
                             borderColor: entry.value,
                             selectedColor: entry.value,
-                            onTap: () => dialogSetState(() => _status = entry.key),
+                            onTap: () =>
+                                dialogSetState((){
+                                  _status = (_status == entry.key) ? null : entry.key;
+                                }),
                           );
                         }).toList(),
                       ),
@@ -710,31 +733,29 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                         dialogSetState,
                         _from,
                         _to,
-                            (date) => dialogSetState(() => _from = date),
-                            (date) => dialogSetState(() => _to = date),
+                        (date) => dialogSetState(() => _from = date),
+                        (date) => dialogSetState(() => _to = date),
                       ),
 
                       const Divider(color: Color(0x1A5C5C5C)),
-
-                      // --- PROJECT dropdown: pass a setter that updates local _project
                       _selectProject(
                         dialogSetState,
                         _project,
-                            (Lstproject? v) => dialogSetState(() => _project = v),
+                        (Lstproject? v) => dialogSetState((){
+                          _project = (_project == v) ? null : v;
+                        }),
                       ),
 
                       const Divider(color: Color(0x1A5C5C5C)),
-
-                      // --- TASK dropdown: pass a setter that updates local _task
                       _selectTask(
                         dialogSetState,
                         _task,
-                            (String? v) => dialogSetState(() => _task = v),
+                        (String? v) => dialogSetState((){
+                          _task = (_task == v) ? null : v;
+                        }),
                       ),
 
                       const SizedBox(height: 12),
-
-                      // Buttons clear and apply all
                       Row(
                         children: [
                           OutlinedButton(
@@ -744,16 +765,23 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 19, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 19, vertical: 2),
                             ),
                             onPressed: () {
-                              Navigator.pop(context, {
-                                "quickFilter": null,
-                                "statusFilter": null,
-                                "fromDate": null,
-                                "toDate": null,
-                                "project": null,
-                                "task": null,
+                              dialogSetState(() {
+                                _quick = null;
+                                _status = null;
+                                _from = null;
+                                _to = null;
+                                _project = null;
+                                _task = null;
+                                selectedQuickFilter = null;
+                                selectedStatusFilter = null;
+                                selectedFromDate = null;
+                                selectedToDate = null;
+                                selectedProject = null;
+                                selectedTask = null;
                               });
                             },
                             child: const Text("Clear Filter"),
@@ -761,7 +789,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                           const Spacer(),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
+                              backgroundColor: KColors.appPrimary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
@@ -771,10 +799,11 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                               "statusFilter": _status,
                               "fromDate": _from,
                               "toDate": _to,
-                              "project": _project, // <-- return selected project object
-                              "task": _task,       // <-- return selected task string
+                              "project": _project,
+                              "task": _task,
                             }),
-                            child: const Text("Apply All Filters", style: TextStyle(color: Colors.white)),
+                            child: const Text("Apply All Filters",
+                                style: TextStyle(color: KColors.appColorWhite)),
                           ),
                         ],
                       ),
@@ -788,7 +817,6 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
       ),
     );
   }
-
 
   Widget _filterSection(
       {required String title, required List<Widget> children}) {
@@ -859,7 +887,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                             ? DateFormat("dd MMM, yyyy").format(from)
                             : "Select From Date",
                         style: const TextStyle(
-                          color: Colors.blue,
+                          color: KColors.appPrimary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -879,7 +907,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                 child: Text(
                   "${dayDiff.toString().padLeft(2, "0")} Day",
                   style: const TextStyle(
-                      color: Colors.red, fontWeight: FontWeight.w600),
+                      color: KColors.appPrimaryRed, fontWeight: FontWeight.w600),
                 ),
               ),
 
@@ -909,7 +937,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                             ? DateFormat("dd MMM, yyyy").format(to)
                             : "Select To Date",
                         style: const TextStyle(
-                          color: Colors.blue,
+                          color: KColors.appPrimary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -924,12 +952,11 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
     );
   }
 
-
   Widget _selectProject(
-      Function(void Function()) dialogSetState,
-      Lstproject? project,
-      ValueChanged<Lstproject?> onChanged,
-      ) {
+    Function(void Function()) dialogSetState,
+    Lstproject? project,
+    ValueChanged<Lstproject?> onChanged,
+  ) {
     return Column(
       children: [
         KDropdownField<Lstproject>(
@@ -951,13 +978,11 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
     );
   }
 
-
-
   Widget _selectTask(
-      Function(void Function()) dialogSetState,
-      String? task,
-      ValueChanged<String?> onChanged,
-      ) {
+    Function(void Function()) dialogSetState,
+    String? task,
+    ValueChanged<String?> onChanged,
+  ) {
     return Column(
       children: [
         KDropdownField<String>(
@@ -977,10 +1002,6 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
       ],
     );
   }
-
-
-
-
 
   Widget buildDetailRow(String title, String? value) {
     return Padding(
@@ -1036,6 +1057,22 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
   Widget _filledTimeLogAndShowInList() {
     final isTablet = MediaQuery.of(context).size.width > 600;
     final filteredProjects = getFilteredProjectsDialog();
+    final totalPages = (filteredProjects.isEmpty)
+        ? 0
+        : (filteredProjects.length / itemsPerPage).ceil();
+    if (currentPage > totalPages && totalPages > 0) {
+      currentPage = totalPages;
+    } else if (totalPages == 0) {
+      currentPage = 1;
+    }
+    final startIndex = (currentPage - 1) * itemsPerPage;
+    final endIndex = (startIndex + itemsPerPage) > filteredProjects.length
+        ? filteredProjects.length
+        : (startIndex + itemsPerPage);
+    final currentPageItems =
+    (filteredProjects.isNotEmpty && startIndex < filteredProjects.length)
+        ? filteredProjects.sublist(startIndex, endIndex)
+        : [];
     return Padding(
       padding: const EdgeInsets.only(bottom: 0),
       child: isLoading
@@ -1049,207 +1086,272 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                   height: MediaQuery.of(context).size.height * 0.5,
                   child: Center(child: Text("No Data Found!")),
                 )
-              : ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.zero,
-                  itemCount: filteredProjects.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final project = filteredProjects[index];
+              : Column(
+                children: [
+                  ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      padding: EdgeInsets.zero,
+                      itemCount: currentPageItems.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final project = currentPageItems[index];
 
-                    Color statusColor = project.status == "Pending"
-                        ? KColors.orangeColor
-                        : project.status == "Approved"
-                            ? KColors.greenColor
-                            : KColors.appPrimaryRed;
+                        Color statusColor = project.status == "Pending"
+                            ? KColors.orangeColor
+                            : project.status == "Approved"
+                                ? KColors.greenColor
+                                : KColors.appPrimaryRed;
 
-                    return GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => DetailDialog(
-                            onUpdate: fetchLogs,
-                            timeLogId: project.timelogId,
-                            projectId: project.projectId,
-                            project: project.projectName,
-                            task: project.taskName,
-                            date: KDateAndTime()
-                                .getDay(project.formattedDate ?? ""),
-                            des: project.description,
-                            remarks: project.remarks,
-                            monthYear: KDateAndTime()
-                                .getMonthYear(project.formattedDate ?? ""),
-                            hrs: project.hours.toString(),
-                            min: project.minutes.toString(),
-                            status: project.status ?? "",
-                          ),
-                        );
-                      },
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.width > 600
-                            ? MediaQuery.of(context).size.height *
-                                0.11 // Tablet height
-                            : null, // Let it wrap content on phones
-                        width: 374,
-                        child: Card(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 0,
-                          shadowColor: KColors.cardShadowColor,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border(
-                                left: BorderSide(
-                                  color: statusColor,
-                                  width: 2,
+                        return GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => DetailDialog(
+                                onUpdate: fetchLogs,
+                                timeLogId: project.timelogId,
+                                projectId: project.projectId,
+                                project: project.projectName,
+                                task: project.taskName,
+                                date: KDateAndTime()
+                                    .getDay(project.formattedDate ?? ""),
+                                des: project.description,
+                                remarks: project.remarks,
+                                monthYear: KDateAndTime()
+                                    .getMonthYear(project.formattedDate ?? ""),
+                                hrs: project.hours.toString(),
+                                min: project.minutes.toString(),
+                                status: project.status ?? "",
+                              ),
+                            );
+                          },
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.width > 600
+                                ? MediaQuery.of(context).size.height *
+                                    0.11 // Tablet height
+                                :  MediaQuery.of(context).size.height *
+                                0.14 , // Let it wrap content on phones
+                            width: 374,
+                            child: Card(
+                              color: KColors.appColorWhite,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              elevation: 0,
+                              shadowColor: KColors.cardShadowColor,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border(
+                                    left: BorderSide(
+                                      color: statusColor,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                                padding: EdgeInsets.all(10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 7,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                project.projectName ?? "No Project",
+                                                maxLines: 1,
+                                                style: KFonts.normalBold,
+                                              ),
+                                              SizedBox(height: 5),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 10),
+                                                child: DecoratedBox(
+                                                  decoration: BoxDecoration(
+                                                    color: statusColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(2),
+                                                  ),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                            horizontal: 10,
+                                                            vertical: 1),
+                                                    child: Text(
+                                                      project.taskName ?? "Null",
+                                                      maxLines: 1,
+                                                      style:
+                                                          KFonts.normalWithWithText,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Expanded(
+                                            flex: 1,
+                                            child: Column(
+                                              children: [
+                                                Container(
+                                                  height: 35,
+                                                  width: 1,
+                                                  color: Color(0xFFEDEDED),
+                                                ),
+                                              ],
+                                            )),
+                                        Expanded(
+                                            flex: 3,
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  KDateAndTime().getDay(
+                                                      project.formattedDate ?? ""),
+                                                  style: TextStyle(
+                                                    color: statusColor,
+                                                    fontFamily: 'Poppins',
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  KDateAndTime().getMonthYear(
+                                                      project.formattedDate ?? ""),
+                                                  style: KFonts.normalBoldWithGray,
+                                                ),
+                                              ],
+                                            )),
+                                      ],
+                                    ),
+                                    SizedBox(height: MediaQuery.of(context).size.height * 0.01,),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 7,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                project.description ??
+                                                    "No Description",
+                                                style: KFonts.thin,
+                                                maxLines: 2,
+                                              ),
+                                              SizedBox(height: 5),
+                                            ],
+                                          ),
+                                        ),
+                                        Expanded(
+                                            flex: 1,
+                                            child: Column(
+                                              children: [
+                                                Container(
+                                                  height: 35,
+                                                  width: 1,
+                                                  color: Color(0xFFEDEDED),
+                                                ),
+                                              ],
+                                            )),
+                                        Expanded(
+                                            flex: 3,
+                                            child: Column(
+                                              children: [
+                                                Text(
+                                                  project.minutes == 0
+                                                      ? "${project.hours}"
+                                                      : "${project.hours}:${project.minutes}",
+                                                  style: TextStyle(
+                                                    color: statusColor,
+                                                    fontFamily: 'Poppins',
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'Hours',
+                                                  style: KFonts.normalBoldWithGray,
+                                                ),
+                                              ],
+                                            )),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
-                            padding: EdgeInsets.all(10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 6,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            project.projectName ?? "No Project",
-                                            maxLines: 1,
-                                            style: KFonts.normalBold,
-                                          ),
-                                          SizedBox(height: 5),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 10),
-                                            child: DecoratedBox(
-                                              decoration: BoxDecoration(
-                                                color: statusColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 10,
-                                                        vertical: 1),
-                                                child: Text(
-                                                  project.taskName ?? "Null",
-                                                  maxLines: 1,
-                                                  style:
-                                                      KFonts.normalWithWithText,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Expanded(
-                                        flex: 1,
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              height: 35,
-                                              width: 1,
-                                              color: Color(0xFFEDEDED),
-                                            ),
-                                          ],
-                                        )),
-                                    Expanded(
-                                        flex: 3,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              KDateAndTime().getDay(
-                                                  project.formattedDate ?? ""),
-                                              style: TextStyle(
-                                                color: statusColor,
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            Text(
-                                              KDateAndTime().getMonthYear(
-                                                  project.formattedDate ?? ""),
-                                              style: KFonts.normalBoldWithGray,
-                                            ),
-                                          ],
-                                        )),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 6,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            project.description ??
-                                                "No Description",
-                                            style: KFonts.thin,
-                                            maxLines: 2,
-                                          ),
-                                          SizedBox(height: 5),
-                                        ],
-                                      ),
-                                    ),
-                                    Expanded(
-                                        flex: 1,
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              height: 35,
-                                              width: 1,
-                                              color: Color(0xFFEDEDED),
-                                            ),
-                                          ],
-                                        )),
-                                    Expanded(
-                                        flex: 3,
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              project.minutes == 0
-                                                  ? "${project.hours}"
-                                                  : "${project.hours}:${project.minutes}",
-                                              style: TextStyle(
-                                                color: statusColor,
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            Text(
-                                              'Hours',
-                                              style: KFonts.normalBoldWithGray,
-                                            ),
-                                          ],
-                                        )),
-                                  ],
-                                ),
-                              ],
-                            ),
                           ),
+                        );
+                      },
+                    ),
+                   SizedBox(height: MediaQuery.of(context).size.height * 0.001,),
+                  if (totalPages > 1)
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_ios, size: 16),
+                          onPressed: currentPage > 1
+                              ? () => setState(() => currentPage--)
+                              : null,
                         ),
-                      ),
-                    );
-                  },
-                ),
+
+                        // Page numbers with ellipsis
+                        ..._buildPageNumbers(totalPages),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_forward_ios, size: 16),
+                          onPressed: currentPage < totalPages
+                              ? () => setState(() => currentPage++)
+                              : null,
+                        ),
+                      ],
+                    ),
+                ],
+              ),
     );
   }
+
+  List<Widget> _buildPageNumbers(int totalPages) {
+    List<Widget> pages = [];
+
+    for (int i = 1; i <= totalPages; i++) {
+      if (i == 1 ||
+          i == totalPages ||
+          (i >= currentPage - 1 && i <= currentPage + 1)) {
+        pages.add(
+          GestureDetector(
+            onTap: () => setState(() => currentPage = i),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: currentPage == i ? KColors.appPrimary : KColors.appColorWhite,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: KColors.appPrimary),
+              ),
+              child: Text(
+                "$i",
+                style: TextStyle(
+                  color: currentPage == i ? KColors.appColorWhite : KColors.appPrimary,
+                ),
+              ),
+            ),
+          ),
+        );
+      } else if (i == 2 && currentPage > 3) {
+        pages.add(const Text("..."));
+      } else if (i == totalPages - 1 && currentPage < totalPages - 2) {
+        pages.add(const Text("..."));
+      }
+    }
+
+    return pages;
+  }
+
 }
 
 class DetailDialog extends StatelessWidget {

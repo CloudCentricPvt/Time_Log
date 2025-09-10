@@ -136,7 +136,9 @@ class _PayrollScreenState extends State<PayrollScreen> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Payroll OverView'),
+                        Text('Payroll OverView',
+                        style: TextStyle( fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500,fontSize: 14),),
                         SizedBox(
                           height: MediaQuery
                               .of(context)
@@ -192,9 +194,10 @@ class _PayrollScreenState extends State<PayrollScreen> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('All Pay Slips'),
+                        Text('All Pay Slips',style: TextStyle(fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,fontSize: 14),),
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.01,
+                          height: MediaQuery.of(context).size.height * 0.004,
                         ),
 
                         // Show slips
@@ -281,7 +284,8 @@ class _PayrollScreenState extends State<PayrollScreen> {
                               ],
                             );
                           }),
-                        ]
+                        ],
+                        SizedBox(height:MediaQuery.of(context).size.width * 0.04 ,),
                       ],
                     );
                   },
@@ -385,11 +389,15 @@ class _PayrollScreenState extends State<PayrollScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(amountValue),
+              Text(amountValue,style: TextStyle(fontFamily: 'Poppins',
+                fontWeight: FontWeight.w500,fontSize: 15),),
               Text(
                 amountType,
                 style: TextStyle(
                   color: amountTypeTextColor,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 13
                 ),
               ),
             ],
@@ -408,7 +416,7 @@ class _PayrollScreenState extends State<PayrollScreen> {
       Color monthNameTextColor,
       Color statusOfPaymentTextColor) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.23,
+      height: MediaQuery.of(context).size.height * 0.18,
       width: double.infinity,
       child: Card(
         elevation: 0,
@@ -417,7 +425,7 @@ class _PayrollScreenState extends State<PayrollScreen> {
         child: Padding(
           padding: EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width * 0.05,
-            vertical: MediaQuery.of(context).size.height * 0.02,
+            vertical: MediaQuery.of(context).size.height * 0.01,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,7 +435,8 @@ class _PayrollScreenState extends State<PayrollScreen> {
                 children: [
                   Text(
                     monthName,
-                    style: TextStyle(color: monthNameTextColor, fontSize: 14),
+                    style: TextStyle(color: monthNameTextColor, fontSize: 15,fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,),
                   ),
                   Container(
                     padding: EdgeInsets.symmetric(
@@ -498,7 +507,7 @@ class _PayrollScreenState extends State<PayrollScreen> {
                 height: MediaQuery.of(context).size.height * 0.01,
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.width * 0.08,
+                height: MediaQuery.of(context).size.width * 0.09,
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {

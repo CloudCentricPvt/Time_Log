@@ -24,13 +24,13 @@ class KFilterHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 40, // Set height if provided
+      height: MediaQuery.of(context).size.height * 0.046, // Set height if provided
       width: width,   // Set width if provided
       child: Card(
         color: backgroundColor,
         shadowColor: KColors.cardShadowColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50), // Rounded corners
+          borderRadius: BorderRadius.circular(20), // Rounded corners
           side: BorderSide(color: strokeColor!, width: 1), // Stroke border
         ),
         child: InkWell(
@@ -39,16 +39,13 @@ class KFilterHeader extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             child: Center(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 4,right: 4),
-                child: Text(
-                  textTitle,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontFamily: 'Poppins',
-                    fontSize: 14,
-                    color: textColor,
-                  ),
+              child: Text(
+                textTitle,
+                style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontFamily: 'Poppins',
+                  fontSize: 14,
+                  color: textColor,
                 ),
               ),
             ),
