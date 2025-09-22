@@ -53,7 +53,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
   String? selectedTask;
   List<Lstproject> assignProject = [];
   List<String> assignTask = [];
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
 
   /// time log filter chip functions.....
   int selectedIndex = 0;

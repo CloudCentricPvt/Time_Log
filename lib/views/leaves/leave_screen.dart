@@ -54,7 +54,7 @@ class LeaveScreenState extends State<LeaveScreen> {
   double compOffP = 0.0;
   List<UpcomingLeave> leaveList = [];
   List<Holiday> upcomingHolidays = [];
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
 
   @override
   void initState() {

@@ -265,7 +265,6 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                                           context,
                                           'assets/icons/dash_board.svg',
                                           'Dashboard',
-
                                           0),
                                       _buildMenuItem(
                                           context,
@@ -464,13 +463,13 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
       onTap: () {
         Navigator.pop(context);
         widget.onMenuTap(index);
-        // Future.delayed(const Duration(milliseconds: 100), () {
-        //   Navigator.pushReplacementNamed(
-        //     context,
-        //     '/home_screen',
-        //     arguments: index,
-        //   );
-        // });
+        Future.delayed(const Duration(milliseconds: 100), () {
+          Navigator.pushReplacementNamed(
+            context,
+            '/home_screen',
+            arguments: index,
+          );
+        });
 
       },
     );

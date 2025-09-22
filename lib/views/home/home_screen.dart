@@ -119,11 +119,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           _buildNavItem(
                             SvgPicture.asset(
                               KAssets.homeIcon,
-                              width: 18,
-                              height: 18,
+                              width: 24,
+                              height: 24,
                               color: _selectedIndex == 0
                                   ? KColors.appPrimary
-                                  : KColors.textColor,
+                                  : KColors.textColor ,
                             ),
                             "Dashboard",
                             0,
@@ -131,8 +131,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           _buildNavItem(
                             SvgPicture.asset(
                               KAssets.timeLoge,
-                              width: 18,
-                              height: 18,
+                              width: 28,
+                              height: 28,
                               color: _selectedIndex == 1
                                   ? KColors.orangeColor
                                   : KColors.textColor,
@@ -143,11 +143,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           _buildNavItem(
                             SvgPicture.asset(
                               KAssets.leaveIcon,
-                              width: 18,
-                              height: 18,
+                              width: 28,
+                              height: 28,
                               color: _selectedIndex == 2
                                   ? KColors.greenColor
-                                  : KColors.textColor,
+                                  :KColors.textColor,
                             ),
                             "Leaves",
                             2,
@@ -155,8 +155,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           _buildNavItem(
                             SvgPicture.asset(
                               KAssets.profileIcon,
-                              width: 18,
-                              height: 18,
+                              width: 28,
+                              height: 28,
                               color: _selectedIndex == 3
                                   ? KColors.appPrimaryYellow
                                   : KColors.textColor,
