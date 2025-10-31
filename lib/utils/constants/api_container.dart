@@ -1,7 +1,8 @@
 class KApiContainer {
   KApiContainer._();
 
-  static String BASE_URL = "https://cloudcentric--qb.sandbox.my.salesforce.com/services/";
+  //static String BASE_URL = "https://cloudcentric--qb.sandbox.my.salesforce.com/services/";
+  static String BASE_URL = "https://cloudcentric.my.salesforce.com/services/";
 
   static KApiEndPoints kApiEndPoints = KApiEndPoints();
 }
@@ -30,13 +31,16 @@ class KApiEndPoints {
   static String getCompOff = "${KApiContainer.BASE_URL}apexrest/CompOffDetails";
   static String applyWFH = "${KApiContainer.BASE_URL}apexrest/RequestWorkFromHome";
   static String wfhHistory = "${KApiContainer.BASE_URL}apexrest/AppliedWFHDetails";
-  static String getAnnualLeaveDetails = "${KApiContainer.BASE_URL}apexrest/AnnualLeaveDetailsAPI";
+  //static String getAnnualLeaveDetails = "${KApiContainer.BASE_URL}apexrest/AnnualLeaveDetailsAPI";
+  static String getAnnualLeaveDetails = "${KApiContainer.BASE_URL}apexrest/AnnualLeaveDetails";
   static String getAnnualLeaveDetailsForGraph = "${KApiContainer.BASE_URL}apexrest/AnnualLeaveGraphDetailsAPI";
   static String getUpcomingAllLeave = "${KApiContainer.BASE_URL}apexrest/UpcomingLeave";
   static String getUpcomingHolidays = "${KApiContainer.BASE_URL}apexrest/UpcomingHolidays";
   static String getOfficialHolidays = "${KApiContainer.BASE_URL}apexrest/HolidayList";
   static String getProfileDetails = "${KApiContainer.BASE_URL}apexrest/ProfileDetailsAPI";
   static String updateProfile = "${KApiContainer.BASE_URL}apexrest/ProfileDetailsUpdateAPI";
+
+
 
 
 }

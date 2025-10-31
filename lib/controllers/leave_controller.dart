@@ -76,11 +76,43 @@ class ApplyLeaveController {
           KShowInfo.showSuccessMessage(context, response['message']);
           print('Check_Res:"success"');
         }else{
-          KShowInfo.showInfoMessage(context, response['message']);
+          //KShowInfo.showInfoMessage(context, response['message']);
+
+         /* KShowInfo.showInfoMessage(
+            context,
+            (response['message']?.toString() ?? '').replaceAllMapped(
+              RegExp(r'-?\d+\.\d+'),
+                  (m) {
+                final d = double.tryParse(m[0]!) ?? 0.0;
+                return (d % 1 == 0) ? d.toInt().toString() : d.toString();
+              },
+            ),
+          );*/
+          KShowInfo.showInfoMessage(
+            context,
+            (response['message']?.toString() ?? '').replaceAllMapped(
+              RegExp(r'-?\d+(\.\d+)?'),
+                  (m) {
+                final d = double.tryParse(m[0]!) ?? 0.0;
+                return d % 1 == 0 ? d.toInt().toString() : d.toString();
+              },
+            ),
+          );
+
           print('ELSE_part:"else_failed"');
         }
       }else{
-        KShowInfo.showInfoMessage(context, response['message']);
+        //KShowInfo.showInfoMessage(context, response['message']);
+        KShowInfo.showInfoMessage(
+          context,
+          (response['message']?.toString() ?? '').replaceAllMapped(
+            RegExp(r'-?\d+(\.\d+)?'),
+                (m) {
+              final d = double.tryParse(m[0]!) ?? 0.0;
+              return d % 1 == 0 ? d.toInt().toString() : d.toString();
+            },
+          ),
+        );
         print('ELSE_part:"res_null"');
       }
 
@@ -126,11 +158,31 @@ class ApplyLeaveController {
           KShowInfo.showSuccessMessage(context, response['message']);
           print('Check_Res:"success"');
         }else{
-          KShowInfo.showInfoMessage(context, response['message']);
+          //KShowInfo.showInfoMessage(context, response['message']);
+          KShowInfo.showInfoMessage(
+            context,
+            (response['message']?.toString() ?? '').replaceAllMapped(
+              RegExp(r'-?\d+\.\d+'),
+                  (m) {
+                final d = double.tryParse(m[0]!) ?? 0.0;
+                return (d % 1 == 0) ? d.toInt().toString() : d.toString();
+              },
+            ),
+          );
           print('ELSE_part:"else_failed"');
         }
       }else{
-        KShowInfo.showInfoMessage(context, response['message']);
+        //KShowInfo.showInfoMessage(context, response['message']);
+        KShowInfo.showInfoMessage(
+          context,
+          (response['message']?.toString() ?? '').replaceAllMapped(
+            RegExp(r'-?\d+\.\d+'),
+                (m) {
+              final d = double.tryParse(m[0]!) ?? 0.0;
+              return (d % 1 == 0) ? d.toInt().toString() : d.toString();
+            },
+          ),
+        );
         print('ELSE_part:"res_null"');
       }
 
@@ -176,11 +228,31 @@ class ApplyLeaveController {
           KShowInfo.showSuccessMessage(context, response['message']);
           print('Check_Res:"success"');
         }else{
-          KShowInfo.showInfoMessage(context, response['message']);
+          //KShowInfo.showInfoMessage(context, response['message']);
+          KShowInfo.showInfoMessage(
+            context,
+            (response['message']?.toString() ?? '').replaceAllMapped(
+              RegExp(r'-?\d+\.\d+'),
+                  (m) {
+                final d = double.tryParse(m[0]!) ?? 0.0;
+                return (d % 1 == 0) ? d.toInt().toString() : d.toString();
+              },
+            ),
+          );
           print('ELSE_part:"else_failed"');
         }
       }else{
-        KShowInfo.showInfoMessage(context, response['message']);
+        //KShowInfo.showInfoMessage(context, response['message']);
+        KShowInfo.showInfoMessage(
+          context,
+          (response['message']?.toString() ?? '').replaceAllMapped(
+            RegExp(r'-?\d+\.\d+'),
+                (m) {
+              final d = double.tryParse(m[0]!) ?? 0.0;
+              return (d % 1 == 0) ? d.toInt().toString() : d.toString();
+            },
+          ),
+        );
         print('ELSE_part:"res_null"');
       }
 

@@ -127,60 +127,6 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
     super.dispose();
   }
 
-  /*void _addVoiceNote() async {
-    bool available = await _speech.initialize(
-      onStatus: (status) {
-        print('Speech status: $status');
-        if (status == 'done' || status == 'notListening') {
-          setState(() => _isListening = false);
-          _animationController.stop();
-          _speech.stop();
-
-          if (_bottomSheetContext != null) {
-            Navigator.of(_bottomSheetContext!).pop();
-          }
-        }
-      },
-      onError: (error) {
-        print('Speech error: $error');
-        setState(() => _isListening = false);
-        _animationController.stop();
-
-        if (_bottomSheetContext != null) {
-          Navigator.of(_bottomSheetContext!).pop();
-        }
-      },
-    );
-
-    if (available) {
-      // Save the existing text when starting the mic
-      _previousText = _controller.descriptionController.text;
-
-      setState(() => _isListening = true);
-      _animationController.repeat(reverse: true);
-
-      _showMicBottomSheet();
-
-      _speech.listen(
-        onResult: (result) {
-          print('Recognized: ${result.recognizedWords}');
-          setState(() {
-            /// Combine previous text + current recognized words
-            _controller.descriptionController.text = '$_previousText ${result.recognizedWords}'.trim();
-
-            _controller.descriptionController.selection = TextSelection.fromPosition(
-              TextPosition(offset: _controller.descriptionController.text.length),
-            );
-          });
-        },
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Speech recognition not available')),
-      );
-    }
-  }*/
-
   void _addVoiceNote() async {
     if (_speech.isListening) {
       await _speech.stop();
@@ -582,6 +528,4 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
       _bottomSheetContext = null; // Clear the context
     }
   }
-
-
 }

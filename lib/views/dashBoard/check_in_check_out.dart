@@ -1,9 +1,6 @@
 import 'package:app_settings/app_settings.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:location/location.dart';
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
@@ -29,7 +26,7 @@ import '../../utils/constants/k_working_hrs_graph.dart';
 import '../../utils/popups/k_material_dialog.dart';
 
 class CheckInCheckOut extends StatefulWidget {
-  final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
+  final ValueNotifier<bool>? isBottomNavVisible;
 
   const CheckInCheckOut({super.key,this.isBottomNavVisible});
 
@@ -53,6 +50,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   String pendingCount = '';
   String leaveTaken = '';
   String totalWorkingHrs = '';
+
+
 
   @override
   void initState() {
@@ -114,7 +113,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     return Scaffold(
       appBar: KCustomDrawer.customDrawer(
         context: context,
-        title: storage.read(KStorageKey.userName ?? ''),
+        title: (storage.read(KStorageKey.userName ?? '') ?? '').split(' ').first,
         hello: true,
         subtitle: "Welcome to Ressourcia",
         showBellIcon: true,
@@ -335,6 +334,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
 
   ///--- Start Check In
   Widget _startCheckIn() {
+    //print((allCheckInOut[0].checkInCheckOut ?? true),);
+    print("CHECK");
     return Column(
       children: [
         Visibility(
@@ -951,14 +952,16 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
         pendingCount = response.data.pendingTimeLogEntryCount;
         eventsList = response.data.events;
         upcomingHolidays = response.data.holidays;
-        storage.write(
-            KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs ?? '');
+        //storage.write(KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs ?? '');
+        storage.write(KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs.toString() ?? '');
         storage.write(KStorageKey.leaveTakenInThisMonth, leaveTaken ?? '');
+
+        print("#Whrs:$totalWorkingHrs");
       });
     }
   }
 
-  /// --- when location permission will Deny, after that open this dialog, user can click open Setting and allow permission manually.
+  /// --- When location permission will Deny, after that open this dialog, user can click open Setting and allow permission manually.
   normalConfirmationDialog(String confirmation, String? title, String? buttonText) {
     showDialog(
         context: context,
@@ -1164,13 +1167,17 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                   const SizedBox(
                     height: 10,
                   ),
-                  Text(
+                  Text(_formatWorkingHours(totalWorkingHrs+" hrs".toString()) ?? '',style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                  ),),
+                  /*Text(
                     totalWorkingHrs+" hrs" ?? '0',
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
                     ),
-                  ),
+                  ),*/
                   const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text(
@@ -1205,12 +1212,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                     SizedBox(
                       height: 10,
                     ),
-                    Text(
-                      leaveTaken ?? '0',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Text(leaveTaken ?? '0', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,),
                     ),
                     Padding(
                       padding: EdgeInsets.all(8.0),
@@ -1490,6 +1492,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
       employeeData = dataList[0];
       storage.write(KStorageKey.employeeName,
           (dataList.isNotEmpty ? employeeData!.employeeName : '') ?? '');
+
       storage.write(KStorageKey.employeeGender,
           (dataList.isNotEmpty ? employeeData!.employeeGender : '') ?? '');
       storage.write(KStorageKey.employeeMobile,
@@ -1498,10 +1501,12 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
           (dataList.isNotEmpty ? employeeData!.employeeEmail : '') ?? '');
       storage.write(KStorageKey.employeeDOB,
           (dataList.isNotEmpty ? employeeData!.employeeDob : '') ?? '');
+      /*storage.write(KStorageKey.employeeAnniversary, (dataList.isNotEmpty ? employeeData!.employeeAnniversaryDate : '') ?? '');*/
       storage.write(
-          KStorageKey.employeeAnniversary,
-          (dataList.isNotEmpty ? employeeData!.employeeAnniversaryDate : '') ??
-              '');
+        KStorageKey.employeeAnniversary,
+        employeeData?.employeeAnniversaryDate ?? '', // write empty string if null
+      );
+
       storage.write(KStorageKey.employeeAddress,
           (dataList.isNotEmpty ? employeeData!.employeeAddress : '') ?? '');
       print('EMP_Name1:${storage.read(KStorageKey.employeeName)}');
@@ -1513,6 +1518,19 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
       print("Unexpected response type or failed to parse response");
     }
   }
+
+  String _formatWorkingHours(String value) {
+    if (value.contains(".")) {
+      var parts = value.split(".");
+      if (parts[1] == "0" || parts[1] == "00") {
+        return parts[0]; // Just hours
+      } else {
+        return "${parts[0]}:${parts[1].padRight(2, '0')}"; // Hours:Minutes
+      }
+    }
+    return value; // No decimal, show as is
+  }
+
 }
 
 /// --- design upcoming leave with card back ground.

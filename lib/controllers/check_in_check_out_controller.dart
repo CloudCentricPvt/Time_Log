@@ -48,7 +48,8 @@ class CheckInCheckOutController{
       if(response!=null){
         if(response['code']==201 && response['status']==true){
 
-          storage.write("${KStorageKey.attendeeId}", response['attendeeId']);
+          //storage.write("${KStorageKey.attendeeId}", response['attendeeId']);
+          storage.write("${KStorageKey.attendeeId}", response['atendeeId']);
           print('#Attendee_ID:${storage.read(KStorageKey.attendeeId)}');
 
           KShowInfo.showSuccessMessage(context, response['message']?.toString() ?? 'No message');

@@ -19,6 +19,7 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
   final storage = GetStorage();
   String _selectedMenu = 'Dashboard';
 
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -67,10 +68,14 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                                 letterSpacing: 1
                             ),
                           ),
-                           Text(
+                           /*Text(
                               storage.read(KStorageKey.designation ?? '')+" | "+storage.read(KStorageKey.employeeCode ?? ''),
                             style: TextStyle(color: KColors.appPrimary, fontSize: 14,),
-                          ),
+                          ),*/
+                          Text(
+                            _wrapText(storage.read(KStorageKey.designation ?? '')+" | "+storage.read(KStorageKey.employeeCode ?? '')),
+                            style: TextStyle(color: KColors.appPrimary, fontSize: 14),
+                          )
                         ],
                       ),
                       const Spacer(),
@@ -96,7 +101,9 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(storage.read(KStorageKey.tWorkingHrsInTHisMonth)?? '', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+
+                              //Text(storage.read(KStorageKey.tWorkingHrsInTHisMonth)?? '', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              Text(_formatWorkingHours(storage.read(KStorageKey.tWorkingHrsInTHisMonth) ?? ''), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
                               Text("Total working hours in month", style: TextStyle(color: KColors.textColorGray, fontSize: 12)),
                             ],
                           ),
@@ -419,4 +426,27 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
       ),
     );
   }
+
+  String _formatWorkingHours(String value) {
+    if (value.contains(".")) {
+      var parts = value.split(".");
+      if (parts[1] == "0" || parts[1] == "00") {
+        return parts[0]; // Just hours
+      } else {
+        return "${parts[0]}:${parts[1].padRight(2, '0')}"; // Hours:Minutes
+      }
+    }
+    return value; // No decimal, show as is
+  }
 }
+
+String _wrapText(String text) {
+  const chunkSize = 30;
+  final buffer = StringBuffer();
+  for (int i = 0; i < text.length; i += chunkSize) {
+    int end = (i + chunkSize < text.length) ? i + chunkSize : text.length;
+    buffer.writeln(text.substring(i, end)); // add '\n'
+  }
+  return buffer.toString();
+}
+

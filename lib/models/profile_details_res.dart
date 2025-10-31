@@ -17,7 +17,7 @@ Future<dynamic>getProfileDetails(BuildContext context)async{
 
   try{
     var response = await apiNetwork.getRequest('${KApiEndPoints.getProfileDetails}?employeeId=$empID',context);
-    print("GET_URL_Profile: ${KApiEndPoints.getProfileDetails}?=$empID");
+    print("GET_URL_Profile: ${KApiEndPoints.getProfileDetails}?employeeId=$empID");
 
     if(response != null && response['status'] == true){
       ProfileDetailsResponse profileDetailsResponse = ProfileDetailsResponse.fromJson(response);
@@ -87,7 +87,7 @@ class ProfileDetails {
 }
 
 class LstemployeeDetail {
-  String employeePhone;
+  /*String employeePhone;
   String employeeName;
   dynamic employeeManagerPhone;
   dynamic employeeManagerName;
@@ -100,8 +100,24 @@ class LstemployeeDetail {
   String employeeDesignation;
   String employeeDepartment;
   String employeeCode;
-  String employeeAnniversaryDate;
-  String employeeAddress;
+  String? employeeAnniversaryDate;
+  String employeeAddress;*/
+
+  String? employeePhone;
+  String? employeeName;
+  String? employeeManagerPhone;
+  String? employeeManagerName;
+  String? employeeManagerEmail;
+  String? employeeJoiningDate;
+  String? employeeId;
+  String? employeeGender;
+  String? employeeEmail;
+  String? employeeDob;
+  String? employeeDesignation;
+  String? employeeDepartment;
+  String? employeeCode;
+  String? employeeAnniversaryDate;
+  String? employeeAddress;
 
   LstemployeeDetail({
     required this.employeePhone,
@@ -117,11 +133,11 @@ class LstemployeeDetail {
     required this.employeeDesignation,
     required this.employeeDepartment,
     required this.employeeCode,
-    required this.employeeAnniversaryDate,
+    this.employeeAnniversaryDate,
     required this.employeeAddress,
   });
 
-  factory LstemployeeDetail.fromJson(Map<String, dynamic> json) => LstemployeeDetail(
+  /*factory LstemployeeDetail.fromJson(Map<String, dynamic> json) => LstemployeeDetail(
     employeePhone: json["employeePhone"],
     employeeName: json["employeeName"],
     employeeManagerPhone: json["employeeManagerPhone"],
@@ -137,7 +153,26 @@ class LstemployeeDetail {
     employeeCode: json["employeeCode"],
     employeeAnniversaryDate: json["employeeAnniversaryDate"],
     employeeAddress: json["employeeAddress"],
+  );*/
+
+  factory LstemployeeDetail.fromJson(Map<String, dynamic> json) => LstemployeeDetail(
+    employeePhone: json["employeePhone"] ?? '',
+    employeeName: json["employeeName"] ?? '',
+    employeeManagerPhone: json["employeeManagerPhone"],
+    employeeManagerName: json["employeeManagerName"],
+    employeeManagerEmail: json["employeeManagerEmail"],
+    employeeJoiningDate: json["employeeJoiningDate"] ?? '',
+    employeeId: json["employeeID"] ?? '',
+    employeeGender: json["employeeGender"] ?? '',
+    employeeEmail: json["employeeEmail"] ?? '',
+    employeeDob: json["employeeDOB"] ?? '',
+    employeeDesignation: json["employeeDesignation"] ?? '',
+    employeeDepartment: json["employeeDepartment"] ?? '',
+    employeeCode: json["employeeCode"] ?? '',
+    employeeAnniversaryDate: json["employeeAnniversaryDate"],
+    employeeAddress: json["employeeAddress"],
   );
+
 
   Map<String, dynamic> toJson() => {
     "employeePhone": employeePhone,

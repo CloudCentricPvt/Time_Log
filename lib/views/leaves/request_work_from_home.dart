@@ -62,7 +62,7 @@ class _RequestWorkFromHomeState extends State<RequestWorkFromHome> with SingleTi
   }
 
 // Function to calculate date difference
-  void _calculateDateDifference() {
+ /* void _calculateDateDifference() {
     if (_startDate != null &&
         _endDate != null &&
         _startDate!.isNotEmpty &&
@@ -70,6 +70,35 @@ class _RequestWorkFromHomeState extends State<RequestWorkFromHome> with SingleTi
       try {
         // Use the correct format
         DateFormat inputFormat = DateFormat("dd, MMMM yyyy");
+
+        DateTime startDate = inputFormat.parse(_startDate!.trim());
+        DateTime endDate = inputFormat.parse(_endDate!.trim());
+
+        if (startDate.isAfter(endDate)) {
+          print("Start date is after end date");
+          return;
+        }
+
+        setState(() {
+          _differenceInDays = endDate.difference(startDate).inDays + 1;
+        });
+
+        print("Days between: $_differenceInDays");
+      } catch (e) {
+        print("Date parsing error: $e");
+      }
+    } else {
+      print("One or both dates are null or empty");
+    }
+  }*/
+
+  void _calculateDateDifference() {
+    if (_startDate != null &&
+        _endDate != null &&
+        _startDate!.isNotEmpty &&
+        _endDate!.isNotEmpty) {
+      try {
+        DateFormat inputFormat = DateFormat("dd, MMM yyyy");
 
         DateTime startDate = inputFormat.parse(_startDate!.trim());
         DateTime endDate = inputFormat.parse(_endDate!.trim());

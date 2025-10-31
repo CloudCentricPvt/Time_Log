@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -19,8 +20,9 @@ import '../../utils/constants/k_nav_header.dart';
 import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_circular_progress.dart';
 import 'apply_leave.dart';
+
 class LeaveScreen extends StatefulWidget {
-  final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
+  final ValueNotifier<bool>? isBottomNavVisible;
 
   const LeaveScreen({super.key,this.isBottomNavVisible});
 
@@ -138,8 +140,99 @@ class LeaveScreenState extends State<LeaveScreen> {
     }
   }
 
-
   Future<void> fetchAnnualLeaveDetails() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await getAnnualLeaveDetails(context);
+
+      if (response is AnnualLeaveDetailsResponse) {
+        if (response.leaveDetails.isNotEmpty) {
+          // Access the first record (or loop if multiple)
+          final data = response.leaveDetails.first;
+
+          // Extract the leave details
+          final totalLeave = data.totalLeave;
+          final totalCL = data.totalCl;
+          final totalSL = data.totalSl;
+          final totalCompOff = data.totalCompOffLeave;
+          final totalEL = data.totalEl;
+
+          final casualLeaveBal = data.balancedCl;
+          final sickLeaveBal = data.balancedSl;
+          final compOffLeaveBal = data.balancedCompOff;
+          final elLeaveBal = data.balancedEl;
+          final calendarYear = data.calendarYear;
+
+          // NOTE: your old model had leaveBalance, usedLeave
+          // You can calculate leaveBalance = totalLeave - usedLeave if needed.
+          final usedLeave = double.tryParse(data.totalAvailedLeave) ?? 0.0;
+          final leaveBalance = totalLeave - usedLeave;
+
+          setState(() {
+            totalLeaveBal = (totalLeave % 1 == 0)
+                ? totalLeave.toInt().toString()
+                : totalLeave.toString();
+            leaveBal = (leaveBalance % 1 == 0)
+                ? leaveBalance.toInt().toString()
+                : leaveBalance.toString();
+            casualLeave = (casualLeaveBal % 1 == 0)
+                ? casualLeaveBal.toInt().toString()
+                : casualLeaveBal.toString();
+            usedLeave1 = usedLeave.toInt();
+            sickLeave = (sickLeaveBal % 1 == 0)
+                ? sickLeaveBal.toInt().toString()
+                : sickLeaveBal.toString();
+            earnLeave = (elLeaveBal % 1 == 0)
+                ? elLeaveBal.toInt().toString()
+                : elLeaveBal.toString();
+            compOff = (compOffLeaveBal % 1 == 0)
+                ? compOffLeaveBal.toInt().toString()
+                : compOffLeaveBal.toString();
+
+            /// ---- total assigned leave
+            tCL = (totalCL % 1 == 0)
+                ? totalCL.toInt().toString()
+                : totalCL.toString();
+            tSL = (totalSL % 1 == 0)
+                ? totalSL.toInt().toString()
+                : totalSL.toString();
+            tEL = (totalEL % 1 == 0)
+                ? totalEL.toInt().toString()
+                : totalEL.toString();
+            tCompOff = (totalCompOff % 1 == 0)
+                ? totalCompOff.toInt().toString()
+                : totalCompOff.toString();
+
+            _isLoading = false;
+          });
+
+          calculatePercentage();
+        } else {
+          print("⚠️ No leave details found.");
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      } else {
+        print("Response is not of type AnnualLeaveDetailsResponse.");
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print("❌ Error in fetchAnnualLeaveDetails: $e");
+    }
+  }
+
+
+
+  /*Future<void> fetchAnnualLeaveDetails() async {
     setState(() {
       _isLoading = true;
     });
@@ -218,7 +311,7 @@ class LeaveScreenState extends State<LeaveScreen> {
       });
       print("Error in fetchAnnualLeaveDetails: $e");
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {

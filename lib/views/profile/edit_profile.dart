@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -49,30 +48,6 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
-    /*final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    if(args == null){
-      print("No arguments passed!");
-
-    }else{
-      _editProfileController.fullNameController.text  = args['fullName'] ?? '';
-       _editProfileController.genderController.text= args['gender'] ?? '';
-        phone = args['phone'] ?? '';
-       _editProfileController.emailController.text  = args['email'] ?? '';
-       _editProfileController.dobController.text  = KDateAndTime().useFormatDateInMyApp(args['dob'] ?? '');
-       anniversaryDate= KDateAndTime().useFormatDateInMyApp(args['anniversaryDate'] ?? '');
-       address  = args['address'] ?? '';
-
-       if(_editProfileController.anniversaryController.text.isEmpty){
-         _editProfileController.anniversaryController.text= anniversaryDate;
-       }
-       if(_editProfileController.mailingAddressController.text.isEmpty){
-         _editProfileController.mailingAddressController.text = address;
-       }
-       if(_editProfileController.phoneController.text.isEmpty){
-       _editProfileController.phoneController.text = phone;
-     }
-
-    }*/
 
     return Scaffold(
       appBar: AppBar(
@@ -252,12 +227,21 @@ class _EditProfileState extends State<EditProfile> {
 
   void _bindDataInEditProfileForm() {
 
-    _editProfileController.fullNameController.text = storage.read(KStorageKey.employeeName);
-    _editProfileController.genderController.text = storage.read(KStorageKey.employeeGender);
-    _editProfileController.phoneController.text = storage.read(KStorageKey.employeeMobile);
-    _editProfileController.emailController.text = storage.read(KStorageKey.employeeEmail);
-    _editProfileController.dobController.text = KDateAndTime().useFormatDateInMyApp(storage.read(KStorageKey.employeeDOB));
-    _editProfileController.anniversaryController.text = KDateAndTime().useFormatDateInMyApp(storage.read(KStorageKey.employeeAnniversary));
-    _editProfileController.mailingAddressController.text = storage.read(KStorageKey.employeeAddress);
+    _editProfileController.fullNameController.text = storage.read(KStorageKey.employeeName)?? '';
+    _editProfileController.genderController.text = storage.read(KStorageKey.employeeGender)?? '';
+    _editProfileController.phoneController.text = storage.read(KStorageKey.employeeMobile)?? '';
+    _editProfileController.emailController.text = storage.read(KStorageKey.employeeEmail)?? '';
+    _editProfileController.dobController.text = KDateAndTime().useFormatDateInMyApp(storage.read(KStorageKey.employeeDOB)?? '');
+    //_editProfileController.anniversaryController.text = KDateAndTime().useFormatDateInMyApp(storage.read(KStorageKey.employeeAnniversary ?? '')?? 'N/A');
+    final anniversary = storage.read(KStorageKey.employeeAnniversary);
+    if (anniversary != null && anniversary.toString().isNotEmpty) {
+      _editProfileController.anniversaryController.text =
+          KDateAndTime().useFormatDateInMyApp(anniversary);
+    } else {
+      _editProfileController.anniversaryController.text = '';
+    }
+
+    _editProfileController.mailingAddressController.text = storage.read(KStorageKey.employeeAddress)?? 'N/A';
+
   }
 }

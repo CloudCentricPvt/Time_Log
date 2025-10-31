@@ -27,7 +27,8 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
   bool _isLoading = true;
   double casualLeave = 0.0;
   double casualLeaveBal = 0.0;
-  LeaveBal? data;
+  //LeaveBal? data;
+   LeaveDetail? data;
 
   @override
   void initState() {
@@ -41,8 +42,8 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
 
       if (response is AnnualLeaveDetailsResponse) {
         setState(() {
-          final dataList = response.data;
-          data = dataList;
+          final dataList = response.leaveDetails;
+          data = dataList.first;
           _isLoading = false;
         });
       } else {
@@ -119,17 +120,17 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      data?.totalCasualLeave != null &&
-                              data!.totalCasualLeave != 0
+                      data?.totalCl != null &&
+                              data!.totalCl != 0
                           ? _showCasualLeave()
                           : SizedBox(),
 
-                      data?.totalSickLeave != null && data!.totalSickLeave != 0
+                      data?.totalSl != null && data!.totalSl != 0
                           ? _showSickLeave()
                           : SizedBox(),
                       // or SizedBox.shrink() if you want it to take no space
 
-                      data?.totalElLeave != null && data!.totalElLeave != 0
+                      data?.totalEl != null && data!.totalEl != 0
                           ? _showEarnLeave()
                           : SizedBox(),
 
@@ -185,8 +186,8 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
   }
 
   Widget _showCasualLeave() {
-    double left = data?.casualLeaveBal != null ? data!.casualLeaveBal : 0.0;
-    double total = data?.totalCasualLeave != null ? data!.totalCasualLeave  : 0.0;
+    double left = data?.balancedCl != null ? data!.balancedCl : 0.0;
+    double total = data?.totalCl != null ? data!.totalCl  : 0.0;
     double consumed = total - left;
 
     log("LeftValue : $left");
@@ -232,8 +233,8 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
   }
 
   Widget _showSickLeave() {
-    double left = data?.sickLeaveBal != null ? data!.sickLeaveBal : 0.0;
-    double total = data?.totalSickLeave != null ? data!.totalSickLeave : 0.0;
+    double left = data?.balancedSl != null ? data!.balancedSl : 0.0;
+    double total = data?.totalSl != null ? data!.totalSl : 0.0;
     double consumed = total - left;
 
     log("LeftValue : $left");
@@ -277,8 +278,8 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
   }
 
   Widget _showEarnLeave() {
-    double left = data?.elLeaveBal != null ? data!.elLeaveBal : 0.0;
-    double total = data?.totalElLeave != null ? data!.totalElLeave : 0.0;
+    double left = data?.balancedEl != null ? data!.balancedEl : 0.0;
+    double total = data?.totalEl != null ? data!.totalEl : 0.0;
     double consumed = total - left;
 
     log("LeftValue : $left");
@@ -321,7 +322,7 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
   }
 
   Widget _showCompOffLeave() {
-    double left = data?.compOffLeaveBal != null ? data!.compOffLeaveBal : 0.0;
+    double left = data?.balancedCompOff != null ? data!.balancedCompOff : 0.0;
     double total = data?.totalCompOffLeave != null ? data!.totalCompOffLeave : 0.0;
     double consumed = total - left;
 
@@ -368,7 +369,7 @@ class _BalanceLeaveScreenState extends State<BalanceLeaveScreen> {
   Widget _showLWPLeave() {
 
     //double left = data?.lwpAvailed != null ? data!.lwpAvailed : 0.0;
-    double total = data?.lwpAvailed != null ? data!.lwpAvailed : 0.0;
+    double total = data?.availedLwp != null ? data!.availedLwp : 0.0;
     //double consumed = total - left;
 
 

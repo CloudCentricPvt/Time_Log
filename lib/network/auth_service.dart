@@ -3,12 +3,20 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  static const String tokenUrl = "https://test.salesforce.com/services/oauth2/token";
+  //static const String tokenUrl = "https://test.salesforce.com/services/oauth2/token";
+  //static const String baseURL = "https://cloudcentric--qb.sandbox.my.salesforce.com/services/apexrest/ValidateCredentials";
+  //static const String clientId = "3MVG9C63IhCOd.9FvdRGPk8SZdfeY7U7aBHcXKjJXC7M8ski1kb0MYu8CaKQ6SIaN_Xa4cF4JbDzGeX.kNq.x";
+  //static const String clientSecret = "B18E406773B575B7AB16CD58A48237376A8992165652A16849C1CB092E596ECA";
+  //static const String username = "shivamsharma@cccinfotech.com";
+  //static const String password = "Cloud@20251";//"Cloud@20251";
+
+  ///--- For Production
+  static const String tokenUrl = "https://login.salesforce.com/services/oauth2/token?";
   static const String baseURL = "https://cloudcentric--qb.sandbox.my.salesforce.com/services/apexrest/ValidateCredentials";
-  static const String clientId = "3MVG9C63IhCOd.9FvdRGPk8SZdfeY7U7aBHcXKjJXC7M8ski1kb0MYu8CaKQ6SIaN_Xa4cF4JbDzGeX.kNq.x";
-  static const String clientSecret = "B18E406773B575B7AB16CD58A48237376A8992165652A16849C1CB092E596ECA";
-  static const String username = "shivamsharma@cccinfotech.com";
-  static const String password = "Cloud@20251";
+  static const String clientId = "3MVG9KsVczVNcM8xCaQDTOaK2R5FYZpC6bCyAL0ax_cof78bqfyjTFFX2GKUS2BsgIwm0w0fYHVH5BPAec_95";
+  static const String clientSecret = "9ED2715A61E7E6B0706C847CAEF785DC4FFD1232F354A5288149C3BEEA9B3FA1";
+  static const String username = "integrationuser@cccinfotech.com";
+  static const String password = "Integration@2025";//"Cloud@20251";
 
   final  storageService = GetStorage();
 

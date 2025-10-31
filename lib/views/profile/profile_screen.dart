@@ -17,7 +17,7 @@ import '../../utils/reusable_widgit/k_info_card.dart';
 
 class ProfileScreen extends StatefulWidget {
   final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
-  const ProfileScreen({super.key,this.isBottomNavVisible});
+  const ProfileScreen({super.key, this.isBottomNavVisible});
 
   @override
   State<ProfileScreen> createState() => ProfileScreenState();
@@ -95,10 +95,14 @@ class ProfileScreenState extends State<ProfileScreen> {
         title: "Profile",
         titleColor: KColors.appBlackColor,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        showBellIcon: true,// Show Bell Icon
+        showBellIcon: true,
+        // Show Bell Icon
         showProfileIcon: false, // Hide Profile Icon
       ),
-      drawer: CustomDrawerMenu(context: context,isBottomNavVisible: widget.isBottomNavVisible,),
+      drawer: CustomDrawerMenu(
+        context: context,
+        isBottomNavVisible: widget.isBottomNavVisible,
+      ),
       onDrawerChanged: (isOpened) {
         widget.isBottomNavVisible?.value = !isOpened;
       },
@@ -233,7 +237,8 @@ class ProfileScreenState extends State<ProfileScreen> {
                                     },
                                     child: const Text(
                                       "OK",
-                                      style: TextStyle(color: KColors.appPrimary),
+                                      style:
+                                          TextStyle(color: KColors.appPrimary),
                                     ),
                                   ),
                                   "Alert!",
@@ -279,13 +284,23 @@ class ProfileScreenState extends State<ProfileScreen> {
                               context,
                               color: KColors.textColorGray,
                               fontFamily: 'Poppins'),
-                          buildRowForProfile(
+                          /*buildRowForProfile(
                               "Anniversary date:",
                               KDateAndTime().useFormatDateInMyApp(
                                   employeeData?.employeeAnniversaryDate ?? ''),
                               context,
                               color: KColors.textColorGray,
-                              fontFamily: 'Poppins'),
+                              fontFamily: 'Poppins'),*/
+                          buildRowForProfile(
+                            "Anniversary date:",
+                            (employeeData?.employeeAnniversaryDate != null &&
+                                employeeData!.employeeAnniversaryDate!.isNotEmpty)
+                                ? KDateAndTime().useFormatDateInMyApp(employeeData!.employeeAnniversaryDate!)
+                                : 'N/A', // or leave empty
+                            context,
+                            color: KColors.textColorGray,
+                            fontFamily: 'Poppins',
+                          ),
                           buildRowForProfile("Address:",
                               employeeData?.employeeAddress ?? '', context,
                               color: KColors.textColorGray,
@@ -509,6 +524,8 @@ class ProfileScreenState extends State<ProfileScreen> {
         return;
       }
 
+
+
       employeeData = dataList[0];
       storage.write(KStorageKey.employeeName,
           (dataList.isNotEmpty ? employeeData!.employeeName : '') ?? '');
@@ -526,6 +543,10 @@ class ProfileScreenState extends State<ProfileScreen> {
               '');
       storage.write(KStorageKey.employeeAddress,
           (dataList.isNotEmpty ? employeeData!.employeeAddress : '') ?? '');
+
+
+
+      print("#NNNNNN:${KStorageKey.employeeName}");
 
       setState(() {
         _isLoading = false;

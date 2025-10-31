@@ -164,6 +164,7 @@ class KNetworkApiServices extends KBaseApiServices {
         return responseJson;
 
       case 401:
+        print("401 is called");
         dynamic responseJson = jsonDecode(response.body);
         return
         KMaterialDialogs.sessionTimeOut(
@@ -184,7 +185,7 @@ class KNetworkApiServices extends KBaseApiServices {
           "Session Expired",
           "Your session has expired. Please login again.",
         );
-        
+
         log("GetAPIStatusCode:401 : ${response.statusCode}");
         throw KSnackBarEvents.errorSnackBar(
             title: "Opps", message: "Invalid request");

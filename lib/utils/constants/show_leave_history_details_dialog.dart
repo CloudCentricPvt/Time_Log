@@ -32,13 +32,12 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.all(20),
-        child: Column(
+        child: SingleChildScrollView(
+            child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             Row(
-
               children: [
                 // --- show svg icon
                 ClipRRect(
@@ -56,7 +55,8 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(leaveType!.isEmpty ? '': leaveType!, style: KFonts.normalHeading),
+                      Text(leaveType!.isEmpty ? '' : leaveType!,
+                          style: KFonts.normalHeading),
                       Row(
                         children: [
                           Text('Status: '),
@@ -66,8 +66,10 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
                             shadowColor: KColors.cardShadowColor,
                             color: getStatusColor1(status),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 6),
-                              child: Text(status ?? "Pending", style: KFonts.normalWithWithText),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6),
+                              child: Text(status ?? "Pending",
+                                  style: KFonts.normalWithWithText),
                             ),
                           ),
                         ],
@@ -76,7 +78,6 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
                   ),
                 ),
                 Spacer(),
-
 
                 const SizedBox(width: 10),
                 InkWell(
@@ -97,8 +98,9 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
 
             // Set status
 
-
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
 
             //--- show start date and end date
             SizedBox(
@@ -122,7 +124,6 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
                             ),
                             Text(
                               "${KDateAndTime().getDay(startDate ?? "")} ${KDateAndTime().getMonthYear(startDate ?? "")}",
-
                               style: const TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontFamily: 'Poppins',
@@ -131,7 +132,6 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
                             )
                           ],
                         ),
-
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -150,10 +150,10 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
                                 padding: const EdgeInsets.only(
                                     left: 8, right: 8, top: 3, bottom: 3),
                                 child: Text(
-                                    dayCount == null || double.tryParse(dayCount!) == null
+                                    dayCount == null ||
+                                            double.tryParse(dayCount!) == null
                                         ? "0"
                                         : "${double.parse(dayCount!).toInt()} Day",
-
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w400,
                                         fontFamily: 'Poppins',
@@ -193,9 +193,8 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
             const SizedBox(height: 15),
 
             Text(des ?? "", style: KFonts.thin),
-
           ],
-        ),
+        )),
       ),
     );
   }
@@ -204,13 +203,12 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
     return status == "Pending"
         ? KColors.orangeColor
         : status == "Approved"
-        ? KColors.greenColor
-        : KColors.appPrimaryRed;
+            ? KColors.greenColor
+            : KColors.appPrimaryRed;
   }
 
   /// ---  show icon behalf of status
   String getIconForStatus(String? status) {
-
     switch (status) {
       case 'Pending':
         return KAssets.wfhPendingIcon;
@@ -222,9 +220,9 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
         return KAssets.wfhPendingIcon; // fallback icon
     }
   }
+
   /// ---  show comp off icon behalf of status
   String getIconForCompOff(String? status) {
-
     switch (status) {
       case 'Pending':
         return KAssets.compOffPending;
@@ -256,9 +254,14 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
   }
 
   String getIconAccordingToMyScreen(String? leaveType, String? status) {
-    if (leaveType == 'SL' || leaveType == 'CL' || leaveType == 'EL' || leaveType == 'LWP') {
+    if (leaveType == 'SL' ||
+        leaveType == 'CL' ||
+        leaveType == 'EL' ||
+        leaveType == 'LWP') {
       return getIconForType(leaveType);
-    } else if (status == "Pending" || status == "Approved" || status == "Rejected") {
+    } else if (status == "Pending" ||
+        status == "Approved" ||
+        status == "Rejected") {
       if (leaveType == "Comp Off") {
         return getIconForCompOff(status);
       } else {
@@ -268,5 +271,4 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
     // If none of the above conditions match, return a default icon or handle null
     return ""; // or throw, or a default icon path
   }
-
 }

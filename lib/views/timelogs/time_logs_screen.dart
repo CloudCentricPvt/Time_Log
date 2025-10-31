@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:time_log/utils/constants/k_asstes.dart';
 import 'package:time_log/utils/constants/k_loader.dart';
@@ -13,12 +14,13 @@ import '../../utils/constants/k_date_and_time.dart';
 import '../../utils/constants/k_drawer_menu.dart';
 import '../../utils/constants/k_fonts.dart';
 import '../../utils/constants/k_nav_header.dart';
+import '../../utils/constants/k_storage_key.dart';
 import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_custom_card.dart';
 
 class TimeLogsScreen extends StatefulWidget {
   final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
-  const TimeLogsScreen({super.key,this.isBottomNavVisible});
+  const TimeLogsScreen({super.key, this.isBottomNavVisible});
 
   @override
   State<TimeLogsScreen> createState() => TimeLogsScreenState();
@@ -34,6 +36,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
   int rejectedCount = 0;
   dynamic totalWorkingHrs = 0;
   bool isLoading = false;
+  final storage = GetStorage();
 
   String selectedProject = "Select Project";
   String selectedTask = "Select Task";
@@ -173,7 +176,10 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
         // Show Bell Icon
         showProfileIcon: false, // Hide Profile Icon
       ),
-      drawer: CustomDrawerMenu(context: context,isBottomNavVisible: widget.isBottomNavVisible,),
+      drawer: CustomDrawerMenu(
+        context: context,
+        isBottomNavVisible: widget.isBottomNavVisible,
+      ),
 
       onDrawerChanged: (isOpened) {
         // 👇 hide when drawer opens, show when closes
@@ -209,10 +215,8 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                   CustomCard(
                                     textColor: KColors.appColorWhite,
                                     myColor: KColors.appPrimary,
-                                    containerTextDigit:
-                                        (totalWorkingHrs is double)
-                                            ? totalWorkingHrs.toInt().toString()
-                                            : totalWorkingHrs.toString(),
+                                    //containerTextDigit: (totalWorkingHrs is double) ? totalWorkingHrs.toInt().toString() : totalWorkingHrs.toString(),
+                                    containerTextDigit: (_formatWorkingHours(totalWorkingHrs.toString()) ?? ''),
                                     containerTextOne: "Total working",
                                     containerTextTwo: "hours this month",
                                   ),
@@ -963,8 +967,11 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
         pendingCount = response.data?.pendingCount ?? 0;
         rejectedCount = response.data?.rejectedCount ?? 0;
         totalWorkingHrs = response.data?.totalMonthlyHours ?? 0;
-
         isLoading = false;
+        print("#Whrs:$totalWorkingHrs");
+
+        storage.write(KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs.toString() ?? '');
+
       });
     } else {
       setState(() {
@@ -989,10 +996,10 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
       padding: const EdgeInsets.only(bottom: 0),
       child: isLoading
           ? SizedBox(
-          height: isTablet
-              ? MediaQuery.of(context).size.height * 0.6  // for tablet
-              : MediaQuery.of(context).size.height * 0.5, // for mobile
-          child: Center(child: KLoader()))
+              height: isTablet
+                  ? MediaQuery.of(context).size.height * 0.6 // for tablet
+                  : MediaQuery.of(context).size.height * 0.5, // for mobile
+              child: Center(child: KLoader()))
           : timeLogs.isEmpty
               ? SizedBox(
                   height: MediaQuery.of(context).size.height * 0.5,
@@ -1038,8 +1045,9 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                       },
                       child: SizedBox(
                         height: MediaQuery.of(context).size.width > 600
-                          ? MediaQuery.of(context).size.height * 0.11 // Tablet height
-                          : null, // Let it wrap content on phones
+                            ? MediaQuery.of(context).size.height *
+                                0.11 // Tablet height
+                            : null, // Let it wrap content on phones
                         width: 374,
                         child: Card(
                           color: Colors.white,
@@ -1070,7 +1078,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                       flex: 6,
                                       child: Column(
                                         crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             project.projectName ?? "No Project",
@@ -1085,18 +1093,18 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                               decoration: BoxDecoration(
                                                 color: statusColor,
                                                 borderRadius:
-                                                BorderRadius.circular(2),
+                                                    BorderRadius.circular(2),
                                               ),
                                               child: Padding(
                                                 padding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 1),
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 1),
                                                 child: Text(
                                                   project.taskName ?? "Null",
                                                   maxLines: 1,
                                                   style:
-                                                  KFonts.normalWithWithText,
+                                                      KFonts.normalWithWithText,
                                                 ),
                                               ),
                                             ),
@@ -1119,39 +1127,34 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                         flex: 3,
                                         child: Column(
                                           mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                              MainAxisAlignment.center,
                                           children: [
-                                              Text(
-                                                KDateAndTime().getDay(
-                                                    project.formattedDate ??
-                                                        ""),
-                                                style: TextStyle(
-                                                  color: statusColor,
-                                                  fontFamily: 'Poppins',
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16,
-                                                ),
+                                            Text(
+                                              KDateAndTime().getDay(
+                                                  project.formattedDate ?? ""),
+                                              style: TextStyle(
+                                                color: statusColor,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16,
                                               ),
-                                              Text(
-                                                KDateAndTime().getMonthYear(
-                                                    project.formattedDate ??
-                                                        ""),
-                                                style:
-                                                KFonts.normalBoldWithGray,
-                                              ),
-                                            ],
-
+                                            ),
+                                            Text(
+                                              KDateAndTime().getMonthYear(
+                                                  project.formattedDate ?? ""),
+                                              style: KFonts.normalBoldWithGray,
+                                            ),
+                                          ],
                                         )),
-
                                   ],
                                 ),
                                 Row(
                                   children: [
                                     Expanded(
-                                        flex: 6,
+                                      flex: 6,
                                       child: Column(
                                         crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             project.description ??
@@ -1173,34 +1176,28 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                               color: Color(0xFFEDEDED),
                                             ),
                                           ],
-                                        )
-                                    ),
+                                        )),
                                     Expanded(
                                         flex: 3,
                                         child: Column(
-
-                                         children: [
-                                              Text(
-                                                project.minutes == 0
-                                                    ? "${project.hours}"
-                                                    : "${project.hours}:${project.minutes}",
-                                                style: TextStyle(
-                                                  color: statusColor,
-                                                  fontFamily: 'Poppins',
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16,
-                                                ),
+                                          children: [
+                                            Text(
+                                              project.minutes == 0
+                                                  ? "${project.hours}"
+                                                  : "${project.hours}:${project.minutes}",
+                                              style: TextStyle(
+                                                color: statusColor,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16,
                                               ),
-                                              Text(
-                                                'Hours',
-                                                style:
-                                                KFonts.normalBoldWithGray,
-                                              ),
-                                            ],
-
-                                        )
-                                    ),
-
+                                            ),
+                                            Text(
+                                              'Hours',
+                                              style: KFonts.normalBoldWithGray,
+                                            ),
+                                          ],
+                                        )),
                                   ],
                                 ),
                               ],
@@ -1208,11 +1205,22 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                           ),
                         ),
                       ),
-
                     );
                   },
                 ),
     );
+  }
+
+  String _formatWorkingHours(String value) {
+    if (value.contains(".")) {
+      var parts = value.split(".");
+      if (parts[1] == "0" || parts[1] == "00") {
+        return parts[0]; // Just hours
+      } else {
+        return "${parts[0]}:${parts[1].padRight(2, '0')}"; // Hours:Minutes
+      }
+    }
+    return value; // No decimal, show as is
   }
 }
 
@@ -1319,7 +1327,8 @@ class DetailDialog extends StatelessWidget {
                         onTap: () async {
                           Navigator.pop(context); // Close dialog first
 
-                          await Future.delayed(Duration.zero); // Wait for the next frame to push new screen
+                          await Future.delayed(Duration
+                              .zero); // Wait for the next frame to push new screen
 
                           final result = await Navigator.pushNamed(
                             context,
@@ -1397,37 +1406,32 @@ class DetailDialog extends StatelessWidget {
               children: [
                 Expanded(
                   child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.75,
-                    child:Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-
-                        Text(
-                          "Description: ",
-                          style: KFonts.normalBold,
-                        ),
-                        Text(
-                          des ?? "",
-                          style: KFonts.thin,
-                        ),
-
-                        SizedBox(height: 5,),
-
-                        Text(
-                          "Remarks: ",
-                          style: KFonts.normalBold,
-                        ),
-                        Text(
-                          remarks ?? "",
-                          style: KFonts.thin,
-                        )
-
-                      ],
-                    )
-
-                  ),
+                      width: MediaQuery.of(context).size.width * 0.75,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Description: ",
+                            style: KFonts.normalBold,
+                          ),
+                          Text(
+                            des ?? "",
+                            style: KFonts.thin,
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            "Remarks: ",
+                            style: KFonts.normalBold,
+                          ),
+                          Text(
+                            remarks ?? "",
+                            style: KFonts.thin,
+                          )
+                        ],
+                      )),
                 ),
-
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.25,
                   child: Column(
