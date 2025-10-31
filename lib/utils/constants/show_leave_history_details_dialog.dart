@@ -206,7 +206,6 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
             ? KColors.greenColor
             : KColors.appPrimaryRed;
   }
-
   /// ---  show icon behalf of status
   String getIconForStatus(String? status) {
     switch (status) {
