@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
           SizedBox(
             height: 350,
             child: Image.asset(
-              KAssets.login_image,
+              KAssets.login_image,fit: BoxFit.fill,
             ),
           ),
 
