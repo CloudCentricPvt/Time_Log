@@ -76,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 /// design part of inside card.....
                 child: Padding(
                   padding:
+
                       EdgeInsets.only(top: 51, left: 21, right: 21, bottom: 21),
                   child: SingleChildScrollView(
                     child: Column(
