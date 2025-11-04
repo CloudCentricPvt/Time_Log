@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:time_log/views/all_privacy/help_and_support.dart';
@@ -30,9 +31,10 @@ import 'package:time_log/views/timelogs/time_logs_screen.dart';
 import 'package:time_log/views/upcoming/upcoming_events.dart';
 
 Future<void> main() async {
- WidgetsFlutterBinding.ensureInitialized();
- await Permission.microphone.request();
+  WidgetsFlutterBinding.ensureInitialized();
+  await Permission.microphone.request();
   await GetStorage.init();
+  await dotenv.load(fileName: ".env");
 
   final storage = GetStorage();
   final isActive = storage.read('Is_Active') ?? false;
@@ -43,10 +45,8 @@ Future<void> main() async {
     ),
   );
 
-  runApp( MyApp());
-
+  runApp(MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -64,8 +64,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(),
-        '/login_screen' : (context) => const LoginScreen(),
-        '/home_screen' : (context) => const HomeScreen(),
+        '/login_screen': (context) => const LoginScreen(),
+        '/home_screen': (context) => const HomeScreen(),
         '/check_in_check_out_screen': (context) => const CheckInCheckOut(),
         '/time_logs_screen': (context) => const TimeLogsScreen(),
         '/create_time_logs_screen': (context) => const CreateTimeLog(),
@@ -76,7 +76,8 @@ class MyApp extends StatelessWidget {
         '/change_password_screen': (context) => const ChangePassword(),
         '/leave_policy_screen': (context) => const LeavesPolicyScreen(),
         '/privacy_policy_screen': (context) => const PrivacyPoliciesScreen(),
-        '/terms_and_condition_screen': (context) => const TermsAndConditionScreen(),
+        '/terms_and_condition_screen': (context) =>
+            const TermsAndConditionScreen(),
         '/posh_policy_screen': (context) => const PoshPolicy(),
         '/help_and_support_screen': (context) => const HelpAndSupport(),
         '/holiday_list_screen': (context) => const HolidayList(),
@@ -89,10 +90,7 @@ class MyApp extends StatelessWidget {
         '/balance_leave_screen': (context) => const BalanceLeaveScreen(),
         '/notification_screen': (context) => const NotificationScreen(),
         '/upcoming_events_screen': (context) => const UpcomingEvents(),
-
       },
     );
   }
-
 }
-

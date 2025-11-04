@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthService {
   //static const String tokenUrl = "https://test.salesforce.com/services/oauth2/token";
@@ -11,12 +12,20 @@ class AuthService {
   //static const String password = "Cloud@20251";//"Cloud@20251";
 
   ///--- For Production
-  static const String tokenUrl = "https://login.salesforce.com/services/oauth2/token?";
+
+  /*static const String tokenUrl = "https://login.salesforce.com/services/oauth2/token?";
   static const String baseURL = "https://cloudcentric--qb.sandbox.my.salesforce.com/services/apexrest/ValidateCredentials";
   static const String clientId = "3MVG9KsVczVNcM8xCaQDTOaK2R5FYZpC6bCyAL0ax_cof78bqfyjTFFX2GKUS2BsgIwm0w0fYHVH5BPAec_95";
   static const String clientSecret = "9ED2715A61E7E6B0706C847CAEF785DC4FFD1232F354A5288149C3BEEA9B3FA1";
   static const String username = "integrationuser@cccinfotech.com";
-  static const String password = "Integration@2025";//"Cloud@20251";
+  static const String password = "Integration@2025";//"Cloud@20251";*/
+
+  static String get tokenUrl => dotenv.env['SALESFORCE_TOKEN_URL']!;
+  static String get baseURL => dotenv.env['SALESFORCE_BASE_URL']!;
+  static String get clientId => dotenv.env['SALESFORCE_CLIENT_ID']!;
+  static String get clientSecret => dotenv.env['SALESFORCE_CLIENT_SECRET']!;
+  static String get username => dotenv.env['SALESFORCE_USERNAME']!;
+  static String get password => dotenv.env['SALESFORCE_PASSWORD']!;
 
   final  storageService = GetStorage();
 
