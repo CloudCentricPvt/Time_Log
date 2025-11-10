@@ -46,27 +46,29 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>(); // Form key for validation
 
   int? _differenceInDays;
+  late double dayCount;
 
   Future<void> _selectStartDate() async {
-
     String? selectedStartDate = await KDateDialog.pastOneMonthDate(context: context);
+
     if (selectedStartDate != null) {
       setState(() {
         _startDate = selectedStartDate;
-        _calculateDateDifference();
       });
+
+      _calculateDateDifference();
     }
   }
 
   Future<void> _selectEndDate() async {
-    String? selectedEndDate =
-        await KDateDialog.pastOneMonthDate(context: context);
+    String? selectedEndDate = await KDateDialog.pastOneMonthDate(context: context);
+
     if (selectedEndDate != null) {
       setState(() {
         _endDate = selectedEndDate;
-        _calculateDateDifference(); // Calculate difference when end date is selected
       });
-      // Call after state is updated
+
+      // ✅ Call AFTER setState — when _endDate has been updated
       _calculateDateDifference();
     }
   }
@@ -84,9 +86,11 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
 
         if (startDate.isAfter(endDate)) {
           print("Start date is after end date");
+          setState(() {
+            _differenceInDays = 0;
+          });
           return;
         }
-
         setState(() {
           _differenceInDays = endDate.difference(startDate).inDays + 1;
         });
@@ -274,28 +278,39 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Card(
-                            color: KColors.appColorWhite,
-                            shadowColor: KColors.cardShadowColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                              // Rounded corners
-                              side: const BorderSide(
-                                  color: KColors.colorGray,
-                                  width: 1), // Stroke border
+                          color: KColors.appColorWhite,
+                          shadowColor: KColors.cardShadowColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                            side: const BorderSide(
+                              color: KColors.colorGray,
+                              width: 1,
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 8, right: 8, top: 3, bottom: 3),
-                              child: Text(
-                                  _differenceInDays != null
-                                      ? "$_differenceInDays Day"
-                                      : "0 Day",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'Poppins',
-                                      fontSize: 14,
-                                      color: KColors.appPrimaryRed)),
-                            ))
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 8, top: 3, bottom: 3),
+                            child: Text(
+                              (() {
+                                dayCount = (_differenceInDays ?? 0).toDouble();
+
+                                if (_controller.selectedLeaveOption == "Half Day") {
+                                  dayCount -= 0.5; // subtract half day
+                                }
+
+                                // Ensure it doesn’t go negative
+                                if (dayCount < 0) dayCount = 0;
+
+                                return "${dayCount.toStringAsFixed(dayCount % 1 == 0 ? 0 : 1)} Day";
+                              })(),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontFamily: 'Poppins',
+                                fontSize: 14,
+                                color: KColors.appPrimaryRed,
+                              ),
+                            ),
+                          ),
+                        )
                       ],
                     ),
                     GestureDetector(
@@ -367,12 +382,13 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
                       onChanged: (value) {
                         setState(() {
                           _controller.selectedLeaveOption = value;
+                          print(_controller.selectedLeaveOption);
+                          print(value);
                         });
                       },
                     ),
                   ],
                 ),
-
                 /// --- Description Ui field
                 KSizedBox.h20,
                 KTextInputFormField(
@@ -383,7 +399,7 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
                   useMaxLength: true,
                   isRequired: true,
                   maxLines: 10,
-                  maxLength: 32768,
+                  maxLength: 500,
                 ),
 
                 /// --- text voice reorganisation
@@ -417,7 +433,16 @@ class _ApplyLeaveState extends State<ApplyLeave> with SingleTickerProviderStateM
                 backgroundColor: Colors.red,
               ),
             );
-          } else {
+          }else if(_differenceInDays==0){
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Check Your Date Range'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          else {
             setState(() {
               _isLoading = true;
             });

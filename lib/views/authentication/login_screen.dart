@@ -49,13 +49,17 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Column(
         children: [
           ///image column.....
-          SizedBox(
-            height: 350,
-            child: Image.asset(
-              KAssets.login_image,
+          Padding(
+            padding: const EdgeInsets.only(top: 60), // adjust as needed
+            child: SizedBox(
+              height: 350,
+              width: double.infinity,
+              child: Image.asset(
+                KAssets.login_image,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-
           /// card  .....
           Expanded(
             child: SizedBox(

@@ -42,10 +42,6 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      /*const CircleAvatar(
-                        radius: 30,
-                        backgroundImage: AssetImage('assets/images/profile_img.jpeg'),
-                      ),*/
                       CircleAvatar(
                         radius: 30,
                         backgroundColor: KColors.grayLight,
@@ -56,29 +52,45 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            storage.read(KStorageKey.userName ?? ''),
-                            style: TextStyle(
+
+                      /// 👇 This ensures text wraps properly within available width
+                      Expanded(
+                        flex: 7, // optional: you can control how much space it gets
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              storage.read(KStorageKey.userName ?? '') ?? '',
+                              style: TextStyle(
                                 color: KColors.appBlackColor,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                letterSpacing: 1
+                                letterSpacing: 1,
+                              ),
+                              overflow: TextOverflow.ellipsis, // ✅ Prevent overflow
+                              maxLines: 1, // ✅ Keep to single line
                             ),
-                          ),
-                           /*Text(
-                              storage.read(KStorageKey.designation ?? '')+" | "+storage.read(KStorageKey.employeeCode ?? ''),
-                            style: TextStyle(color: KColors.appPrimary, fontSize: 14,),
-                          ),*/
-                          Text(
-                            _wrapText(storage.read(KStorageKey.designation ?? '')+" | "+storage.read(KStorageKey.employeeCode ?? '')),
-                            style: TextStyle(color: KColors.appPrimary, fontSize: 14),
-                          )
-                        ],
+                            Text(
+                              _wrapText(
+                                "${storage.read(KStorageKey.designation ?? '')}",
+                              ),
+                              style: TextStyle(color: KColors.appPrimary, fontSize: 12),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                            Text(
+                              _wrapText(
+                                "${storage.read(KStorageKey.employeeCode ?? '')}",
+                              ),
+                              style: TextStyle(color: KColors.appPrimary, fontSize: 11),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ],
+                        ),
                       ),
-                      const Spacer(),
+
+                      /// 👇 Keep the cross icon fixed
                       GestureDetector(
                         child: SizedBox(
                           width: 40,
@@ -90,7 +102,8 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                         },
                       ),
                     ],
-                  ),
+                  )
+,
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

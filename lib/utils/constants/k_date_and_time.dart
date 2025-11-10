@@ -69,7 +69,19 @@ class KDateAndTime {
       DateTime checkInTime = format.parse(checkIn.trim());
       DateTime now = DateTime.now();
 
-      Duration difference = now.difference(checkInTime); // now - checkIn
+      // Check if the date matches today's date
+      bool isSameDate = checkInTime.year == now.year &&
+          checkInTime.month == now.month &&
+          checkInTime.day == now.day;
+
+      if (!isSameDate) {
+        // Not the same date → return current time
+        final currentTime = DateFormat("hh:mm:ss a").format(now);
+        print("Different date, showing current time: $currentTime");
+        return currentTime;
+      }
+
+      Duration difference = now.difference(checkInTime);
 
       if (difference.isNegative) {
         // If checkIn is in the future
@@ -114,10 +126,13 @@ class KDateAndTime {
     }
   }
 
-  String getCurrentTime() {
-    final now = DateTime.now();
+  Stream<String> getCurrentTime() async* {
     final formatter = DateFormat('HH:mm:ss');
-    return formatter.format(now);
+    while (true) {
+      final now = DateTime.now();
+      yield formatter.format(now);
+      await Future.delayed(const Duration(seconds: 1));
+    }
   }
 
   String getMonthName(String formattedDate) {
@@ -148,10 +163,10 @@ class KDateAndTime {
     try {
       input = input.trim();
       DateTime dateTime = DateFormat("yyyy-MM-dd, hh:mm:ss a").parseStrict(input);
-      return DateFormat("MMM d. yyyy | hh:mm:ss a").format(dateTime);
+      return DateFormat("MMM d, yyyy | hh:mm:ss a").format(dateTime);
     } catch (e) {
       print("Date format error: $e");
-      return input; // fallback
+      return input;
     }
   }
 
@@ -161,7 +176,3 @@ class KDateAndTime {
   }
 
 }
-
-
-
-

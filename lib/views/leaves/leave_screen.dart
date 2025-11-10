@@ -736,39 +736,51 @@ class LeaveScreenState extends State<LeaveScreen> {
     );
   }*/
   Widget _upcomingYourLeaves() {
-    return Visibility(
-      visible: leaveList.isNotEmpty,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Your Upcoming Leaves",
-            style: TextStyle(
-              fontFamily: "Poppins",
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-              color: KColors.textHeadingColor,
-            ),
+    if (leaveList.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 10),
+        child: Text(
+          "No upcoming leaves",
+          style: TextStyle(
+            fontFamily: "Poppins",
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            color: KColors.textHeadingColor,
           ),
-          KSizedBox.h10,
-          SizedBox(
-            height: 115,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: leaveList.length,
-              itemBuilder: (context, index) {
-                final leave = leaveList[index];
-                return UpcomingLeavesCard(
-                  month: leave.month,
-                  date: leave.startDate.day.toString(),
-                  type: leave.type,
-                  cardColor: getLeaveColor(leave.type),
-                );
-              },
-            ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Your Upcoming Leaves",
+          style: TextStyle(
+            fontFamily: "Poppins",
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            color: KColors.textHeadingColor,
           ),
-        ],
-      ),
+        ),
+        KSizedBox.h10,
+        SizedBox(
+          height: 115,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: leaveList.length,
+            itemBuilder: (context, index) {
+              final leave = leaveList[index];
+              return UpcomingLeavesCard(
+                month: leave.month,
+                date: leave.startDate.day.toString(),
+                type: leave.type,
+                cardColor: getLeaveColor(leave.type),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -983,10 +995,11 @@ class KFeatureCard extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               title,
-              textAlign: TextAlign.center, // Center text
+              textAlign: TextAlign.center,
+              maxLines: 1,// Center text
               style: const TextStyle(
                 fontFamily: 'Poppins',
-                fontSize: 12,
+                fontSize: 10,
                 fontWeight: FontWeight.w500,
               ),
             ),

@@ -71,9 +71,10 @@ class KCircularProgressBar {
             textAlign: TextAlign.center,
             style: bottomLabelStyle ??
                 TextStyle(
-                  fontSize: bottomLabelTextSize ?? 14,
+                  fontFamily: 'Poppins',
+                  fontSize: bottomLabelTextSize ?? 10,
                   color: bottomLabelColor ?? Colors.black,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
           ),
         ],

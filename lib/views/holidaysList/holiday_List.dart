@@ -133,193 +133,195 @@ class _HolidayListState extends State<HolidayList> {
   }
 
   Widget _showOfficialHolidaysInListView() {
-    return Stack(
+    return Column(
+
       children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(
+              'Note',
+              style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Poppins',
+                  color: Colors.pink),
+            ),
+            Text.rich(
+              TextSpan(
+                text:
+                'Apart from Holidays, Company provides the RH (Restricted Holiday) of Employee\'s ',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Poppins',
+                  color: Colors.black,
+                ),
+                children: [
+                  TextSpan(
+                    text: 'Marriage Anniversary',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  TextSpan(
+                    text: ' and ',
+                  ),
+                  TextSpan(
+                    text: 'Birthday',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  TextSpan(
+                    text: '.',
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
         _isLoading
             ? KLoader()
-            : ListView.builder(
-                scrollDirection: Axis.vertical,
-                itemCount: officialHolidays.length,
-                itemBuilder: (context, index) {
-                  final item = officialHolidays[index];
-                  return officialHolidays.isEmpty
-                      ? const Center(child: Text("No data found!"))
-                      : Column(
-                          children: [
-                            Row(
+            : Expanded(child: ListView.builder(
+          scrollDirection: Axis.vertical,
+          itemCount: officialHolidays.length,
+          itemBuilder: (context, index) {
+            final item = officialHolidays[index];
+            return officialHolidays.isEmpty
+                ? const Center(child: Text("No data found!"))
+                : Column(
+              children: [
+                Row(
+                  children: [
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: 90,
+                          child: Card(
+                            elevation: 2,
+                            color: KColors.appColorWhite,
+                            shadowColor: KColors.cardShadowColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                              BorderRadius.circular(5.0),
+                            ),
+                            child: Column(
                               children: [
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 90,
-                                      child: Card(
-                                        elevation: 2,
-                                        color: KColors.appColorWhite,
-                                        shadowColor: KColors.cardShadowColor,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5.0),
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            const SizedBox(height: 2),
-                                            Text(
-                                              KDateAndTime().getMonthName(
-                                                      item.formattedDate) ??
-                                                  '',
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                fontFamily: 'Poppins',
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 50,
-                                              width: 50,
-                                              child: Card(
-                                                color: getCardColor(index),
-                                                // Apply dynamic color
-                                                shadowColor:
-                                                    KColors.cardShadowColor,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          2.0),
-                                                ),
-                                                child: Center(
-                                                  child: Text(
-                                                    KDateAndTime()
-                                                            .getDateNumber(item
-                                                                .formattedDate) ??
-                                                        '',
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors
-                                                          .white, // Ensure text is visible
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                const SizedBox(height: 2),
+                                Text(
+                                  KDateAndTime().getMonthName(
+                                      item.formattedDate) ??
+                                      '',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'Poppins',
+                                  ),
                                 ),
-                                KSizedBox.w14,
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.holidayTitle ?? '',
-                                      style: const TextStyle(
-                                        color: KColors.textHeadingColor,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14,
-                                        fontFamily: 'Poppins',
-                                      ),
+                                SizedBox(
+                                  height: 50,
+                                  width: 50,
+                                  child: Card(
+                                    color: getCardColor(index),
+                                    // Apply dynamic color
+                                    shadowColor:
+                                    KColors.cardShadowColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                      BorderRadius.circular(
+                                          2.0),
                                     ),
-                                    Card(
-                                      color: getCardColor(
-                                          index), // Apply dynamic color
-                                      shadowColor: KColors.cardShadowColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(2.0),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 10, right: 10),
-                                        child: Text(
-                                          KDateAndTime().getDayName(
-                                                  item.formattedDate) ??
-                                              '',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 12,
-                                            fontFamily: 'Poppins',
-                                          ),
+                                    child: Center(
+                                      child: Text(
+                                        KDateAndTime()
+                                            .getDateNumber(item
+                                            .formattedDate) ??
+                                            '',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight:
+                                          FontWeight.bold,
+                                          color: Colors
+                                              .white, // Ensure text is visible
                                         ),
                                       ),
                                     ),
-                                  ],
+                                  ),
                                 ),
+                                const SizedBox(height: 5),
                               ],
                             ),
-                            const Divider(
-                              color: KColors.grayLight,
-                              thickness: 1,
-                            ),
-                          ],
-                        );
-                },
-              ),
-        Positioned(
-          bottom: 10,
-          left: 16,
-          right: 16,
-          child: Card(
-            elevation: 0,
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Note',
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Poppins',
-                          color: Colors.pink),
-                    ),
-                    Text.rich(
-                      TextSpan(
-                        text:
-                            'Apart from Holidays, Company provides the RH (Restricted Holiday) of Employee\'s ',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Poppins',
-                          color: Colors.black,
+                          ),
                         ),
-                        children: [
-                          TextSpan(
-                            text: 'Marriage Anniversary',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                      ],
+                    ),
+                    KSizedBox.w14,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.holidayTitle ?? '',
+                          style: const TextStyle(
+                            color: KColors.textHeadingColor,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                        Card(
+                          color: getCardColor(
+                              index), // Apply dynamic color
+                          shadowColor: KColors.cardShadowColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                            BorderRadius.circular(2.0),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 10, right: 10),
+                            child: Text(
+                              KDateAndTime().getDayName(
+                                  item.formattedDate) ??
+                                  '',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                              ),
                             ),
                           ),
-                          TextSpan(
-                            text: ' and ',
-                          ),
-                          TextSpan(
-                            text: 'Birthday',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                          TextSpan(
-                            text: '.',
-                          ),
-                        ],
-                      ),
-                    )
+                        ),
+                      ],
+                    ),
                   ],
-                )),
-          ),
-        ),
+                ),
+                const Divider(
+                  color: KColors.grayLight,
+                  thickness: 1,
+                ),
+              ],
+            );
+          },
+        )),
+        // Positioned(
+        //   bottom: 10,
+        //   left: 16,
+        //   right: 16,
+        //   child: Card(
+        //     elevation: 0,
+        //     color: Colors.white,
+        //     shape: RoundedRectangleBorder(
+        //       borderRadius: BorderRadius.circular(10),
+        //     ),
+        //     child: Padding(
+        //         padding: const EdgeInsets.all(12.0),
+        //         child: ),
+        //   ),
+        // ),
       ],
     );
   }

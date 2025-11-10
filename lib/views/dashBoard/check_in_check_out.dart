@@ -20,6 +20,7 @@ import '../../utils/constants/k_drawer_menu.dart';
 import '../../utils/constants/k_colors.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../utils/constants/k_fonts.dart';
+import 'package:intl/intl.dart';
 import '../../utils/constants/k_loader.dart';
 import '../../utils/constants/k_nav_header.dart';
 import '../../utils/constants/k_working_hrs_graph.dart';
@@ -28,7 +29,7 @@ import '../../utils/popups/k_material_dialog.dart';
 class CheckInCheckOut extends StatefulWidget {
   final ValueNotifier<bool>? isBottomNavVisible;
 
-  const CheckInCheckOut({super.key,this.isBottomNavVisible});
+  const CheckInCheckOut({super.key, this.isBottomNavVisible});
 
   @override
   State<CheckInCheckOut> createState() => CheckInCheckOutState();
@@ -51,14 +52,11 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   String leaveTaken = '';
   String totalWorkingHrs = '';
 
-
-
   @override
   void initState() {
     super.initState();
     _getUserLocation();
     fetchData();
-
   }
 
   void _checkInternetConnection() async {
@@ -86,13 +84,10 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     _fetchCheckInOutDetails();
     _fetchLeaveList();
     _fetchDashboardDetails();
-
   }
 
   void fetchData() {
-
     _checkInternetConnection();
-
   }
 
   Future<void> _refreshData() async {
@@ -103,7 +98,6 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
       _fetchCheckInOutDetails();
       _fetchLeaveList();
       _fetchDashboardDetails();
-
     });
   }
 
@@ -113,15 +107,18 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     return Scaffold(
       appBar: KCustomDrawer.customDrawer(
         context: context,
-        title: (storage.read(KStorageKey.userName ?? '') ?? '').split(' ').first,
+        title:
+            (storage.read(KStorageKey.userName ?? '') ?? '').split(' ').first,
         hello: true,
         subtitle: "Welcome to Ressourcia",
         showBellIcon: true,
         // Show Bell Icon
         showProfileIcon: true, // Hide Profile Icon
       ),
-      drawer: CustomDrawerMenu(context: context,isBottomNavVisible: widget.isBottomNavVisible,),
-
+      drawer: CustomDrawerMenu(
+        context: context,
+        isBottomNavVisible: widget.isBottomNavVisible,
+      ),
       onDrawerChanged: (isOpened) {
         // 👇 hide when drawer opens, show when closes
         widget.isBottomNavVisible?.value = !isOpened;
@@ -220,7 +217,10 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                             height: 160,
                                             child: _buildAnnualLeaveChart()),*/
                                         SizedBox(
-                                          height: MediaQuery.of(context).size.height * 0.25, // 35% of screen height
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.25, // 35% of screen height
                                           child: _buildAnnualLeaveChart(),
                                         ),
                                         const SizedBox(height: 20),
@@ -237,14 +237,17 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                             "text": "Working Hours"
                                           },
                                           {
-                                            "color": Colors.orange,
+                                            "color": Colors.yellow,
                                             "text": "Self Study Hours"
                                           },
                                         ]),
                                         const SizedBox(height: 10),
                                         SizedBox(
-                                          height: MediaQuery.of(context).size.height * 0.25,
-                                          child: _buildWorkingHoursChart()),
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.25,
+                                            child: _buildWorkingHoursChart()),
                                       ],
                                     ),
                                   ),
@@ -334,16 +337,39 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
 
   ///--- Start Check In
   Widget _startCheckIn() {
-    //print((allCheckInOut[0].checkInCheckOut ?? true),);
     print("CHECK");
+
+    bool shouldShowCard = true;
+
+    // Check if there’s an existing check-in record
+    if (allCheckInOut != null && allCheckInOut.isNotEmpty) {
+      var latestCheck = allCheckInOut[0];
+
+      // Assuming latestCheck.checkInTime holds your check-in datetime string
+      String checkIn = latestCheck.checkInTime ?? "";
+
+      if (checkIn.isNotEmpty) {
+        try {
+          final format = new DateFormat("yyyy-MM-dd, hh:mm:ss a");
+          DateTime checkInTime = format.parse(checkIn.trim());
+          DateTime now = DateTime.now();
+
+          bool isSameDate = checkInTime.year == now.year &&
+              checkInTime.month == now.month &&
+              checkInTime.day == now.day;
+
+          // Hide the card if already checked in today
+          shouldShowCard = !(latestCheck.checkInCheckOut ?? true) || !isSameDate;
+        } catch (e) {
+          print("Date parsing error in _startCheckIn: $e");
+        }
+      }
+    }
+
     return Column(
       children: [
         Visibility(
-          //visible: allCheckInOut.isNotEmpty && !(allCheckInOut[0].checkInCheckOut ?? true),
-          visible: allCheckInOut == null || allCheckInOut.isEmpty
-              ? true
-              : !(allCheckInOut[0].checkInCheckOut ?? true),
-
+          visible: shouldShowCard,
           child: Padding(
             padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
             child: SizedBox(
@@ -354,44 +380,40 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SizedBox(
-                      height: 20,
-                    ),
+                    const SizedBox(height: 20),
                     const Text(
                       "Your Shift is open",
                       style: TextStyle(fontSize: 14),
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    const SizedBox(height: 10),
                     SizedBox(
                       width: 64,
                       height: 64,
                       child: SvgPicture.asset('assets/icons/watch_icon.svg'),
                     ),
-                    const SizedBox(
-                      height: 10,
+                    const SizedBox(height: 10),
+                    StreamBuilder<String>(
+                      stream: KDateAndTime().getCurrentTime(),
+                      builder: (context, snapshot) {
+                        return Text(
+                          snapshot.data ?? '',
+                          style: const TextStyle(
+                            fontSize: 36,
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.w500,
+                          ),
+                        );
+                      },
                     ),
-                    Text(
-                      KDateAndTime().getCurrentTime(),
-                      //allCheckInOut[0].checkInCheckOut == false ? '0:01:00': "00:00:00",
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    const SizedBox(height: 10),
                     Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20, right: 20, bottom: 20),
+                      padding:
+                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
                       child: TextFormField(
                         controller: _controller.descriptionController,
-                        maxLines: 10, // Max height = 10 lines
-                        minLines: 1,  // Optional: initial height of 1 line
-                        maxLength: 32768, // Character limit
+                        maxLines: 10,
+                        minLines: 1,
+                        maxLength: 500,
                         decoration: InputDecoration(
                           alignLabelWithHint: true,
                           border: OutlineInputBorder(
@@ -402,67 +424,63 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                             borderRadius: BorderRadius.circular(5.0),
                             borderSide: const BorderSide(
                               color: Colors.grey,
-                              // Border color
-                              width: 1.0, // Stroke width (1dp)
+                              width: 1.0,
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5.0),
                             borderSide: const BorderSide(
                               color: Colors.blue,
-                              // Border color when focused
-                              width: 1.0, // Focused stroke width
+                              width: 1.0,
                             ),
                           ),
                         ),
                         style: const TextStyle(
-                            fontFamily: "Poppins",
-                            fontWeight: FontWeight.w400,
-                            color: KColors.textColor),
+                          fontFamily: "Poppins",
+                          fontWeight: FontWeight.w400,
+                          color: KColors.textColor,
+                        ),
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20, right: 20, bottom: 20),
+                      padding:
+                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
                       child: _isLoading
-                          ? const KLoader() // or any custom loader
+                          ? const KLoader()
                           : CustomElevatedButtonCheckInOut(
-                              text: "START CHECK-IN",
-                              onPressed: () async {
-                                setState(() {
-                                  _isLoading = true;
-                                });
+                        text: "START CHECK-IN",
+                        onPressed: () async {
+                          setState(() {
+                            _isLoading = true;
+                          });
 
-                                await _controller.checkIn(
-                                  context,
-                                  _controller.descriptionController.text,
-                                  lat,
-                                  long,
-                                );
-                                _controller.descriptionController.clear();
-                                _fetchCheckInOutDetails();
+                          await _controller.checkIn(
+                            context,
+                            _controller.descriptionController.text,
+                            lat,
+                            long,
+                          );
+                          _controller.descriptionController.clear();
+                          _fetchCheckInOutDetails();
 
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                              },
-                            ),
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        },
+                      ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20, right: 20, bottom: 20),
+                      padding:
+                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
                             width: 22,
                             height: 22,
-                            child:
-                                SvgPicture.asset('assets/icons/timer_icon.svg'),
+                            child: SvgPicture.asset('assets/icons/timer_icon.svg'),
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          const SizedBox(width: 10),
                           const Text(
                             "10:00 AM to 07:00 PM (Day)",
                             style: TextStyle(
@@ -486,11 +504,35 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
 
   ///--- Start Check out
   Widget _startCheckOut() {
+    bool shouldShowCheckOut = false;
+    if (allCheckInOut.isNotEmpty) {
+      var latestCheck = allCheckInOut[0];
+
+      bool isCheckedIn = latestCheck.checkInCheckOut ?? false;
+      String checkIn = latestCheck.checkInTime ?? "";
+
+      if (checkIn.isNotEmpty && isCheckedIn) {
+        try {
+          final format = DateFormat("yyyy-MM-dd, hh:mm:ss a"); // match your actual format
+          DateTime checkInTime = format.parse(checkIn.trim());
+          DateTime now = DateTime.now();
+
+          bool isSameDate = checkInTime.year == now.year &&
+              checkInTime.month == now.month &&
+              checkInTime.day == now.day;
+
+          // ✅ Show Check-Out only if user is checked in AND it's the same date
+          shouldShowCheckOut = isCheckedIn && isSameDate;
+        } catch (e) {
+          print("Date parsing error in _startCheckOut: $e");
+        }
+      }
+    }
+
     return Column(
       children: [
         Visibility(
-          visible: allCheckInOut.isNotEmpty &&
-              (allCheckInOut[0].checkInCheckOut ?? false),
+          visible: shouldShowCheckOut,
           child: Padding(
             padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
             child: SizedBox(
@@ -501,45 +543,41 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SizedBox(
-                      height: 20,
-                    ),
+                    const SizedBox(height: 20),
                     const Text(
                       "Your Work for",
                       style: TextStyle(fontSize: 14),
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    const SizedBox(height: 10),
                     SizedBox(
                       width: 64,
                       height: 64,
                       child: SvgPicture.asset('assets/icons/watch_icon.svg'),
                     ),
-                    const SizedBox(
-                      height: 10,
+                    const SizedBox(height: 10),
+                    StreamBuilder<int>(
+                      stream: Stream.periodic(const Duration(seconds: 1), (count) => count),
+                      builder: (context, snapshot) {
+                        return Text(
+                          allCheckInOut.isEmpty
+                              ? ''
+                              : KDateAndTime().getTimeDifferenceFromNow(allCheckInOut[0].checkInTime),
+                          style: const TextStyle(
+                            fontSize: 36,
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.w500,
+                          ),
+                        );
+                      },
                     ),
-                    Text(
-                      allCheckInOut.isEmpty
-                          ? ''
-                          : KDateAndTime().getTimeDifferenceFromNow(
-                              allCheckInOut[0].checkInTime),
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    const SizedBox(height: 10),
                     Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20, right: 20, bottom: 20),
+                      padding:
+                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
                       child: TextFormField(
-                        maxLines: 10, // Max height = 10 lines
-                        minLines: 1,  // Optional: initial height of 1 line
-                        maxLength: 32768, // Character limit
+                        maxLines: 10,
+                        minLines: 1,
+                        maxLength: 250,
                         controller: _controller.descriptionController,
                         decoration: InputDecoration(
                           alignLabelWithHint: true,
@@ -551,68 +589,64 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                             borderRadius: BorderRadius.circular(5.0),
                             borderSide: const BorderSide(
                               color: Colors.grey,
-                              // Border color
-                              width: 1.0, // Stroke width (1dp)
+                              width: 1.0,
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5.0),
                             borderSide: const BorderSide(
                               color: Colors.blue,
-                              // Border color when focused
-                              width: 1.0, // Focused stroke width
+                              width: 1.0,
                             ),
                           ),
                         ),
                         style: const TextStyle(
-                            fontFamily: "Poppins",
-                            fontWeight: FontWeight.w400,
-                            color: KColors.textColor),
+                          fontFamily: "Poppins",
+                          fontWeight: FontWeight.w400,
+                          color: KColors.textColor,
+                        ),
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20, right: 20, bottom: 20),
+                      padding:
+                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
                       child: _isLoading
                           ? const KLoader()
                           : CustomElevatedButtonCheckInOut(
-                              text: "CHECK OUT",
-                              onPressed: () async {
-                                setState(() {
-                                  _isLoading = true;
-                                });
+                        text: "CHECK OUT",
+                        onPressed: () async {
+                          setState(() {
+                            _isLoading = true;
+                          });
 
-                                await _controller.checkOut(
-                                  context,
-                                  _controller.descriptionController.text,
-                                  lat,
-                                  long,
-                                );
-                                _controller.descriptionController.clear();
+                          await _controller.checkOut(
+                            context,
+                            _controller.descriptionController.text,
+                            lat,
+                            long,
+                          );
+                          _controller.descriptionController.clear();
+                          _fetchCheckInOutDetails();
+                          _fetchDashboardDetails();
 
-                                /// --- Refresh the checkInOut details, call this method
-                                _fetchCheckInOutDetails();
-
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                              }),
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        },
+                      ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20, right: 20, bottom: 20),
+                      padding:
+                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
                             width: 22,
                             height: 22,
-                            child:
-                                SvgPicture.asset('assets/icons/timer_icon.svg'),
+                            child: SvgPicture.asset('assets/icons/timer_icon.svg'),
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          const SizedBox(width: 10),
                           const Text(
                             "10:00 AM to 07:00 PM (Day)",
                             style: TextStyle(
@@ -658,17 +692,19 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                   padding: const EdgeInsets.only(
                       top: 10, left: 20, right: 20, bottom: 10),
                   child: InkWell(
-                    onTap: (){
-                      final description = allCheckInOut.isNotEmpty ? allCheckInOut[0].checkIndescription ?? '' : '';
+                    onTap: () {
+                      final description = allCheckInOut.isNotEmpty
+                          ? allCheckInOut[0].checkIndescription ?? ''
+                          : '';
 
-                      if(description.length>400){
+                      if (description.length > 400) {
                         showDialog(
                           context: context,
                           builder: (context) => CheckInOutDetailsInDialog(
-                              des: allCheckInOut[0].checkIndescription,
-                              location:  allCheckInOut[0].checkInLocation,
-                              date: allCheckInOut[0].checkInTime,
-                              type: "Check-In",
+                            des: allCheckInOut[0].checkIndescription,
+                            location: allCheckInOut[0].checkInLocation,
+                            date: allCheckInOut[0].checkInTime,
+                            type: "Check-In",
                           ),
                         );
                       }
@@ -730,8 +766,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                             SizedBox(
                               width: 12,
                               height: 12,
-                              child:
-                                  SvgPicture.asset('assets/icons/timer_icon.svg'),
+                              child: SvgPicture.asset(
+                                  'assets/icons/timer_icon.svg'),
                             ),
                             const SizedBox(
                               width: 8,
@@ -790,17 +826,19 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                   padding: const EdgeInsets.only(
                       top: 10, left: 20, right: 20, bottom: 10),
                   child: InkWell(
-
-                    onTap: (){
-                      final description = allCheckInOut.isNotEmpty ? allCheckInOut[0].checkOutdescription ?? '' : '';
-                      if(description.length>400){
+                    onTap: () {
+                      final description = allCheckInOut.isNotEmpty
+                          ? allCheckInOut[0].checkOutdescription ?? ''
+                          : '';
+                      if (description.length > 400) {
                         showDialog(
                           context: context,
                           builder: (context) => CheckInOutDetailsInDialog(
-                              des: allCheckInOut[0].checkOutdescription ,
-                              location:  allCheckInOut[0].checkOutLocation,
-                              date:  allCheckInOut[0].checkOutTime.toString() ?? '',
-                              type: "Check-Out",
+                            des: allCheckInOut[0].checkOutdescription,
+                            location: allCheckInOut[0].checkOutLocation,
+                            date:
+                                allCheckInOut[0].checkOutTime.toString() ?? '',
+                            type: "Check-Out",
                           ),
                         );
                       }
@@ -863,8 +901,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                             SizedBox(
                               width: 12,
                               height: 12,
-                              child:
-                                  SvgPicture.asset('assets/icons/timer_icon.svg'),
+                              child: SvgPicture.asset(
+                                  'assets/icons/timer_icon.svg'),
                             ),
                             const SizedBox(
                               width: 8,
@@ -910,7 +948,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     setState(() {
       if (res is CheckInOutResponse) {
         allCheckInOut = res.checkInOutDetails;
-        storage.write(KStorageKey.attendeeId, allCheckInOut[0].checkInCheckOutId);
+        storage.write(
+            KStorageKey.attendeeId, allCheckInOut[0].checkInCheckOutId);
         print('##CHECK_OUT:${allCheckInOut[0].checkInCheckOut}');
         print('##AttendeeID:${storage.read(KStorageKey.attendeeId)}');
       } else {
@@ -953,7 +992,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
         eventsList = response.data.events;
         upcomingHolidays = response.data.holidays;
         //storage.write(KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs ?? '');
-        storage.write(KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs.toString() ?? '');
+        storage.write(KStorageKey.tWorkingHrsInTHisMonth,
+            totalWorkingHrs.toString() ?? '');
         storage.write(KStorageKey.leaveTakenInThisMonth, leaveTaken ?? '');
 
         print("#Whrs:$totalWorkingHrs");
@@ -962,7 +1002,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   }
 
   /// --- When location permission will Deny, after that open this dialog, user can click open Setting and allow permission manually.
-  normalConfirmationDialog(String confirmation, String? title, String? buttonText) {
+  normalConfirmationDialog(
+      String confirmation, String? title, String? buttonText) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -1167,10 +1208,14 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                   const SizedBox(
                     height: 10,
                   ),
-                  Text(_formatWorkingHours(totalWorkingHrs+" hrs".toString()) ?? '',style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                  ),),
+                  Text(
+                    _formatWorkingHours(totalWorkingHrs + " hrs".toString()) ??
+                        '',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   /*Text(
                     totalWorkingHrs+" hrs" ?? '0',
                     style: const TextStyle(
@@ -1195,7 +1240,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
               ),
             )),
         InkWell(
-          onTap: (){
+          onTap: () {
             Navigator.pushNamed(context, '/leave_history_screen');
           },
           child: SizedBox(
@@ -1212,7 +1257,12 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                     SizedBox(
                       height: 10,
                     ),
-                    Text(leaveTaken ?? '0', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,),
+                    Text(
+                      leaveTaken ?? '0',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Padding(
                       padding: EdgeInsets.all(8.0),
@@ -1232,7 +1282,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
               )),
         ),
         InkWell(
-          onTap:(){
+          onTap: () {
             Navigator.pushNamed(context, '/time_logs_screen');
           },
           child: SizedBox(
@@ -1504,7 +1554,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
       /*storage.write(KStorageKey.employeeAnniversary, (dataList.isNotEmpty ? employeeData!.employeeAnniversaryDate : '') ?? '');*/
       storage.write(
         KStorageKey.employeeAnniversary,
-        employeeData?.employeeAnniversaryDate ?? '', // write empty string if null
+        employeeData?.employeeAnniversaryDate ??
+            '', // write empty string if null
       );
 
       storage.write(KStorageKey.employeeAddress,
@@ -1530,7 +1581,6 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     }
     return value; // No decimal, show as is
   }
-
 }
 
 /// --- design upcoming leave with card back ground.
@@ -1610,7 +1660,6 @@ class UpcomingLeavesCard extends StatelessWidget {
   }
 }
 
-
 /// ---- Open dialog for show details
 class CheckInOutDetailsInDialog extends StatelessWidget {
   final String? location;
@@ -1618,15 +1667,8 @@ class CheckInOutDetailsInDialog extends StatelessWidget {
   final String? date;
   final String? type;
 
-
   const CheckInOutDetailsInDialog(
-      {
-        super.key,
-        this.location,
-        this.des,
-        this.date,
-        this.type
-      });
+      {super.key, this.location, this.des, this.date, this.type});
 
   @override
   Widget build(BuildContext context) {
@@ -1671,7 +1713,7 @@ class CheckInOutDetailsInDialog extends StatelessWidget {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                           des ?? '',
+                            des ?? '',
                             style: TextStyle(
                                 color: KColors.textColor,
                                 fontSize: 12,
@@ -1709,17 +1751,17 @@ class CheckInOutDetailsInDialog extends StatelessWidget {
                               SizedBox(
                                 width: 12,
                                 height: 12,
-                                child:
-                                SvgPicture.asset('assets/icons/timer_icon.svg'),
+                                child: SvgPicture.asset(
+                                    'assets/icons/timer_icon.svg'),
                               ),
                               const SizedBox(
                                 width: 8,
                               ),
                               Expanded(
                                 child: Text(
-                                    KDateAndTime()
-                                        .formatCustomDateMonthYearWithTime(
-                                         date ?? ''),
+                                  KDateAndTime()
+                                      .formatCustomDateMonthYearWithTime(
+                                          date ?? ''),
                                   style: TextStyle(
                                       color: KColors.textColor,
                                       fontSize: 12,
@@ -1734,17 +1776,27 @@ class CheckInOutDetailsInDialog extends StatelessWidget {
                     ),
                   )),
             ),
-            SizedBox(height: 8,),
+            SizedBox(
+              height: 8,
+            ),
             Padding(
-              padding: const EdgeInsets.only(top: 10,right: 16,left: 16,bottom: 16),
+              padding: const EdgeInsets.only(
+                  top: 10, right: 16, left: 16, bottom: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   InkWell(
-                    onTap: (){
+                    onTap: () {
                       Navigator.of(context).pop(); // This will close the dialog
                     },
-                    child: Text("Close",style: TextStyle(color: KColors.appPrimaryRed,fontWeight: FontWeight.bold,fontSize: 14,),),
+                    child: Text(
+                      "Close",
+                      style: TextStyle(
+                        color: KColors.appPrimaryRed,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                   )
                 ],
               ),
@@ -1759,9 +1811,7 @@ class CheckInOutDetailsInDialog extends StatelessWidget {
     return status == "Pending"
         ? KColors.orangeColor
         : status == "Approved"
-        ? KColors.greenColor
-        : KColors.appPrimaryRed;
+            ? KColors.greenColor
+            : KColors.appPrimaryRed;
   }
 }
-
-
