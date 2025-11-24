@@ -229,6 +229,7 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                           _buildMenuItem(context,'assets/icons/time_log_icon1.svg', 'Time Logs', '/dashboard_screen',1),
                           _buildMenuItem(context,'assets/icons/leaves_etails_apply.svg', 'Leaves Details & Apply', '/dashboard_screen',2),
                           _buildAnotherMenu('assets/icons/upcoming_events.svg', 'Upcoming Events', '/upcoming_events_screen'),
+                          _buildAnotherMenu('assets/icons/payroll.svg', 'Payroll', '/payroll'),
                           _buildAnotherMenu('assets/icons/help_support.svg', 'Help & Support', '/help_and_support_screen')
                         ],
                       ),
@@ -351,7 +352,7 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
               ),
               const SizedBox(width: 10),
               Text(
-                  title, style:  TextStyle(fontSize: 15,color: isDashboard ? Colors.blue : Colors.black),),
+                  title, style:  TextStyle(fontSize: 15,fontFamily: "Poppins",color: isDashboard ? Colors.blue : Colors.black),),
               const Spacer(),
               SizedBox(
                 width: 10,

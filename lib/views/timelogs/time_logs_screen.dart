@@ -19,7 +19,7 @@ import '../../utils/popups/k_material_dialog.dart';
 import '../../utils/reusable_widgit/k_custom_card.dart';
 
 class TimeLogsScreen extends StatefulWidget {
-  final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
+  final ValueNotifier<bool>? isBottomNavVisible;
   const TimeLogsScreen({super.key, this.isBottomNavVisible});
 
   @override
@@ -216,7 +216,9 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                     textColor: KColors.appColorWhite,
                                     myColor: KColors.appPrimary,
                                     //containerTextDigit: (totalWorkingHrs is double) ? totalWorkingHrs.toInt().toString() : totalWorkingHrs.toString(),
-                                    containerTextDigit: (_formatWorkingHours(totalWorkingHrs.toString()) ?? ''),
+                                    containerTextDigit: (_formatWorkingHours(
+                                            totalWorkingHrs.toString()) ??
+                                        ''),
                                     containerTextOne: "Total working",
                                     containerTextTwo: "hours this month",
                                   ),
@@ -970,8 +972,8 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
         isLoading = false;
         print("#Whrs:$totalWorkingHrs");
 
-        storage.write(KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs.toString() ?? '');
-
+        storage.write(KStorageKey.tWorkingHrsInTHisMonth,
+            totalWorkingHrs.toString() ?? '');
       });
     } else {
       setState(() {
@@ -1003,7 +1005,12 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
           : timeLogs.isEmpty
               ? SizedBox(
                   height: MediaQuery.of(context).size.height * 0.5,
-                  child: Center(child: Text("No Data Found!")),
+                  child: Center(
+                      child: Text(
+                    "No Data Found!",
+                    style: TextStyle(
+                        fontFamily: "Poppins", fontWeight: FontWeight.w400),
+                  )),
                 )
               : ListView.builder(
                   shrinkWrap: true,

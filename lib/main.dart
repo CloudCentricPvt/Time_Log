@@ -21,6 +21,7 @@ import 'package:time_log/views/leaves/leave_history.dart';
 import 'package:time_log/views/leaves/leave_screen.dart';
 import 'package:time_log/views/leaves/work_from_home_history.dart';
 import 'package:time_log/views/notification/notification_screen.dart';
+import 'package:time_log/views/payroll/payroll.dart';
 import 'package:time_log/views/profile/edit_profile.dart';
 import 'package:time_log/views/profile/profile_screen.dart';
 import 'package:time_log/views/leaves/request_work_from_home.dart';
@@ -76,6 +77,7 @@ class MyApp extends StatelessWidget {
         '/change_password_screen': (context) => const ChangePassword(),
         '/leave_policy_screen': (context) => const LeavesPolicyScreen(),
         '/privacy_policy_screen': (context) => const PrivacyPoliciesScreen(),
+        '/payroll': (context) => const Payroll(),
         '/terms_and_condition_screen': (context) =>
             const TermsAndConditionScreen(),
         '/posh_policy_screen': (context) => const PoshPolicy(),

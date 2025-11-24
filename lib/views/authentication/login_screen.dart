@@ -46,79 +46,74 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: KColors.appPrimary,
-      body: Column(
-        children: [
-          ///image column.....
-          Padding(
-            padding: const EdgeInsets.only(top: 60), // adjust as needed
-            child: SizedBox(
-              height: 350,
-              width: double.infinity,
-              child: Image.asset(
-                KAssets.login_image,
-                fit: BoxFit.cover,
-              ),
-            ),
+      resizeToAvoidBottomInset: false, // prevent flutter default resize
+      body: SafeArea(
+        child: AnimatedPadding(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          /// card  .....
-          Expanded(
-            child: SizedBox(
-              width: double.infinity,
-              child: Card(
-                margin: EdgeInsets.zero,
-                // REMOVE extra space outside the card
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(50),
-                    topRight: Radius.circular(50),
-                  ),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 300,
+                width: double.infinity,
+                child: Image.asset(
+                  KAssets.login_image,
+                  fit: BoxFit.cover,
                 ),
-                elevation: 0,
-                color: Colors.white,
+              ),
 
-                /// design part of inside card.....
-                child: Padding(
-                  padding:
-                      EdgeInsets.only(top: 51, left: 21, right: 21, bottom: 21),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(50),
+                      topRight: Radius.circular(50),
+                    ),
+                  ),
+
+                  // outer scroll to avoid overflow
                   child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Welcome Back",
-                          style: TextStyle(
-                            color: Color(0XFF38C4FF),
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w400,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,   // important
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text("Welcome Back",
+                            style: TextStyle(
+                              color: KColors.appPrimary,
+                              fontFamily: 'Poppins',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const Text(
-                          "Account Login",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontFamily: 'Poppins',
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
+                          const SizedBox(height: 10),
+                          const Text("Account Login",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                          const SizedBox(height: 20),
 
-                        /// Login Box....
-                        userLoginForm(),
-                        onClickLoginButton()
-                      ],
+                          userLoginForm(),
+                          const SizedBox(height: 20),
+                          onClickLoginButton(),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -127,56 +122,81 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget userLoginForm() {
     return Column(
       children: [
-        TextFormField(
-          focusNode: _focusNode,
-          controller: _controller.userNameController,
-          decoration: InputDecoration(
-            suffixIcon: IconButton(
-              onPressed: () {
-                setState(() {
-                  _isHighlightedMessage = !_isHighlightedMessage;
-                });
-              },
-              icon: _isHighlightedMessage
-                  ? SvgPicture.asset(KAssets.highlightedIconMessage)
-                  : SvgPicture.asset(KAssets.emailIcon),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-            ),
-            contentPadding:
-                const EdgeInsets.only(left: 20, top: 10, bottom: 10, right: 10),
-            labelText: 'Enter Email',
+        SizedBox(
+          height: 50,
+          child: TextFormField(
+            focusNode: _focusNode,
+            controller: _controller.userNameController,
+            decoration: InputDecoration(
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _isHighlightedMessage = !_isHighlightedMessage;
+                    });
+                  },
+                  icon: _isHighlightedMessage
+                      ? SvgPicture.asset(KAssets.highlightedIconMessage)
+                      : SvgPicture.asset(KAssets.emailIcon),
+                ),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide:
+                        BorderSide(width: 1, color: KColors.appSecondaryGrey)),
+                contentPadding: const EdgeInsets.only(
+                    left: 20, top: 10, bottom: 10, right: 10),
+                labelText: 'Enter Email',
+                labelStyle: TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal),
+                hintText: "Enter Email",
+                hintStyle: TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal)),
           ),
         ),
         const SizedBox(
           height: 20,
         ),
-        TextFormField(
-          focusNode: _passwordFocusNode,
-          controller: _controller.passwordPassController,
-          obscureText: _isPasswordObscure,
-          // Toggle password visibility
-          decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              contentPadding: const EdgeInsets.only(
-                  left: 20, top: 10, bottom: 10, right: 10),
-              labelText: 'Enter Password',
-              suffixIcon: IconButton(
-                onPressed: () {
-                  setState(() {
-                    _isHighlightedPassword = !_isHighlightedPassword;
-                    _isPasswordObscure = !_isPasswordObscure;
-                  });
-                },
-                icon: _isHighlightedPassword
-                    ? SvgPicture.asset(KAssets.highlightedIconPassword)
-                    : SvgPicture.asset(KAssets.eyeIcon),
-              )),
+        SizedBox(
+          height: 50,
+          child: TextFormField(
+            focusNode: _passwordFocusNode,
+            controller: _controller.passwordPassController,
+            obscureText: _isPasswordObscure,
+            // Toggle password visibility
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide:
+                        BorderSide(width: 1, color: KColors.appSecondaryGrey)),
+                contentPadding: const EdgeInsets.only(
+                    left: 20, top: 10, bottom: 10, right: 10),
+                labelText: 'Enter Password',
+                labelStyle: TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal),
+                hintText: "Enter Password",
+                hintStyle: TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _isHighlightedPassword = !_isHighlightedPassword;
+                      _isPasswordObscure = !_isPasswordObscure;
+                    });
+                  },
+                  icon: _isHighlightedPassword
+                      ? SvgPicture.asset(KAssets.highlightedIconPassword)
+                      : SvgPicture.asset(KAssets.eyeIcon),
+                )),
 
-          style: const TextStyle(),
+            style: const TextStyle(),
+          ),
         ),
         const SizedBox(
           height: 20,
@@ -188,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Text(
                 "Forgot Password?",
                 style: TextStyle(
-                  color: Colors.blue,
+                  color: KColors.appPrimary,
                   fontSize: 14,
                   fontFamily: 'Poppins',
                 ),
@@ -229,8 +249,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   ///--- Login button UI and click for action perform
   Widget onClickLoginButton() {
-    return
-      ElevatedButton(
+    return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: KColors.appPrimary,
         shape: const RoundedRectangleBorder(
@@ -268,9 +287,10 @@ class _LoginScreenState extends State<LoginScreen> {
           : const Text(
               "LOGIN NOW",
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-              ),
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.w500),
             ),
     );
   }

@@ -53,25 +53,19 @@ android {
 
     signingConfigs {
         release {
-            if (keystoreProperties['storeFile']) {
-                keyAlias = keystoreProperties['keyAlias']
-                keyPassword = keystoreProperties['keyPassword']
-                storeFile = file(keystoreProperties['storeFile'])
-                storePassword = keystoreProperties['storePassword']
-            } else {
-                // 🔥 fallback to debug config if key.properties missing
-                storeFile = null
-            }
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
         }
     }
 
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             shrinkResources false
-
-            // use release signing if available, otherwise debug
-            signingConfig keystoreProperties['storeFile'] ? signingConfigs.release : signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -89,4 +83,3 @@ android {
 flutter {
     source = "../.."
 }
-

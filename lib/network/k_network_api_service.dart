@@ -171,15 +171,15 @@ class KNetworkApiServices extends KBaseApiServices {
           context,
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+             // Navigator.pop(context);
+              Get.back();
               Navigator.pushReplacementNamed(context, '/login_screen');
               localStorage.remove("Auth_Token");
               localStorage.remove(KStorageKey.isActive);
-
             },
             child: Text(
               "OK",
-              style: TextStyle(color: KColors.appPrimaryRed),
+              style: TextStyle(color: KColors.appPrimaryRed,fontFamily: "Poppins"),
             ),
           ),
           "Session Expired",
