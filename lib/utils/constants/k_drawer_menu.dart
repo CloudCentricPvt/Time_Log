@@ -37,261 +37,262 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
             padding: const EdgeInsets.only(top: 2),
             child: Padding(
               padding: const EdgeInsets.only(top: 10, left: 14, right: 14),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundColor: KColors.grayLight,
-                        child: Icon(
-                          Icons.person,
-                          size: 30,
-                          color: KColors.colorGray,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-
-                      /// 👇 This ensures text wraps properly within available width
-                      Expanded(
-                        flex: 7, // optional: you can control how much space it gets
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              storage.read(KStorageKey.userName ?? '') ?? '',
-                              style: TextStyle(
-                                color: KColors.appBlackColor,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1,
-                              ),
-                              overflow: TextOverflow.ellipsis, // ✅ Prevent overflow
-                              maxLines: 1, // ✅ Keep to single line
-                            ),
-                            Text(
-                              _wrapText(
-                                "${storage.read(KStorageKey.designation ?? '')}",
-                              ),
-                              style: TextStyle(color: KColors.appPrimary, fontSize: 12),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                            Text(
-                              _wrapText(
-                                "${storage.read(KStorageKey.employeeCode ?? '')}",
-                              ),
-                              style: TextStyle(color: KColors.appPrimary, fontSize: 11),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      /// 👇 Keep the cross icon fixed
-                      GestureDetector(
-                        child: SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: SvgPicture.asset('assets/icons/menu_cross.svg'),
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  )
-,
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                       Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.all(4.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-
-                              //Text(storage.read(KStorageKey.tWorkingHrsInTHisMonth)?? '', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              Text(_formatWorkingHours(storage.read(KStorageKey.tWorkingHrsInTHisMonth) ?? ''), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
-                              Text("Total working hours in month", style: TextStyle(color: KColors.textColorGray, fontSize: 12)),
-                            ],
-                          ),
-                        ),
-                      ),
-                       Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.all(4.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(storage.read(KStorageKey.leaveTakenInThisMonth)?? '', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              Text("Leave taken in month", style: TextStyle(color: KColors.textColorGray, fontSize: 12)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Spacer(),
-                                  InkWell(
-                                    child: Container(
-                                      width: 32,
-                                      height: 32,
-                                      decoration: BoxDecoration(
-                                          color: KColors.appColorWhite,
-                                          borderRadius: BorderRadius.circular(4)),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(6.0),
-                                        child: SizedBox(
-                                          width: 22,
-                                          height: 22,
-                                          child: SvgPicture.asset('assets/icons/open_profile.svg'),
-                                        ),
-                                      ),
-                                    ),
-                                    /*onTap: () {
-                                      Navigator.pop(context);
-                                      Navigator.pushNamed(context, '/profile_screen');
-                                    },*/
-
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        Future.delayed(const Duration(milliseconds: 100), () {
-                                          Navigator.pushReplacementNamed(
-                                            context,
-                                            '/home_screen',
-                                            arguments: 3,  // 👉 Pass index 3 here
-                                          );
-                                        });
-                                      }
-                                  ),
-                                  const Spacer(),
-                                  InkWell(
-                                    child: Container(
-                                      width: 32,
-                                      height: 32,
-                                      decoration: BoxDecoration(
-                                          color: KColors.appColorWhite,
-                                          borderRadius: BorderRadius.circular(4)),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(6.0),
-                                        child: SizedBox(
-                                          width: 22,
-                                          height: 22,
-                                          child: SvgPicture.asset('assets/icons/edit_profile.svg'),
-                                        ),
-                                      ),
-                                    ),
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                      Navigator.pushNamed(context, '/edit_profile_screen');
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    height: 12,
-                    width: double.infinity,
-                    child: Card(
-                      color: KColors.appPrimary,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50)),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: KColors.appColorWhite,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                      child: Column(
-                        children: [
-                          _buildMenuItem(context,'assets/icons/dash_board.svg', 'Dashboard', '/dashboard_screen',0),
-                          _buildMenuItem(context,'assets/icons/time_log_icon1.svg', 'Time Logs', '/dashboard_screen',1),
-                          _buildMenuItem(context,'assets/icons/leaves_etails_apply.svg', 'Leaves Details & Apply', '/dashboard_screen',2),
-                          _buildAnotherMenu('assets/icons/upcoming_events.svg', 'Upcoming Events', '/upcoming_events_screen'),
-                          _buildAnotherMenu('assets/icons/payroll.svg', 'Payroll', '/payroll'),
-                          _buildAnotherMenu('assets/icons/help_support.svg', 'Help & Support', '/help_and_support_screen')
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Company Policies"),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: KColors.appColorWhite,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                      child: Column(
-                        children: [
-                          _buildPolicyItem('assets/icons/privacy_policy.svg', 'Leave Policy', '/leave_policy_screen'),
-                          _buildPolicyItem('assets/icons/privacy_policy.svg', 'Privacy Policies', '/privacy_policy_screen'),
-                          _buildPolicyItem('assets/icons/terms_conditions.svg', 'Terms & Conditions', '/terms_and_condition_screen'),
-                          _buildPolicyItem('assets/icons/terms_conditions.svg', 'Posh Policy', '/posh_policy_screen'),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: Row(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text("App Version - v1.0.0"),
-                        GestureDetector(
-                          child: Row(
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundColor: KColors.grayLight,
+                          child: Icon(
+                            Icons.person,
+                            size: 30,
+                            color: KColors.colorGray,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                
+                        /// 👇 This ensures text wraps properly within available width
+                        Expanded(
+                          flex: 7, // optional: you can control how much space it gets
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: SvgPicture.asset('assets/icons/logout.svg'),
+                              Text(
+                                storage.read(KStorageKey.userName ?? '') ?? '',
+                                style: TextStyle(
+                                  color: KColors.appBlackColor,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
+                                ),
+                                overflow: TextOverflow.ellipsis, // ✅ Prevent overflow
+                                maxLines: 1, // ✅ Keep to single line
                               ),
-                              const SizedBox(width: 5),
-                              const Text(
-                                "Logout",
-                                style: TextStyle(color: KColors.appPrimaryRed, fontWeight: FontWeight.bold),
+                              Text(
+                                _wrapText(
+                                  "${storage.read(KStorageKey.designation ?? '')}",
+                                ),
+                                style: TextStyle(color: KColors.appPrimary, fontSize: 12),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                              Text(
+                                _wrapText(
+                                  "${storage.read(KStorageKey.employeeCode ?? '')}",
+                                ),
+                                style: TextStyle(color: KColors.appPrimary, fontSize: 11),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                             ],
                           ),
+                        ),
+                
+                        /// 👇 Keep the cross icon fixed
+                        GestureDetector(
+                          child: SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: SvgPicture.asset('assets/icons/menu_cross.svg'),
+                          ),
                           onTap: () {
-                            LogoutDialog.showAlertDialog(context, onConfirm: () {
-                              storage.remove('Is_Active');
-                              storage.remove(KStorageKey.attendeeId);
-                              Navigator.pushReplacementNamed(context, '/login_screen');
-                            });
+                            Navigator.pop(context);
                           },
                         ),
                       ],
+                    )
+                ,
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                         Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.all(4.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                
+                                //Text(storage.read(KStorageKey.tWorkingHrsInTHisMonth)?? '', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                Text(_formatWorkingHours(storage.read(KStorageKey.tWorkingHrsInTHisMonth) ?? ''), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
+                                Text("Total working hours in month", style: TextStyle(color: KColors.textColorGray, fontSize: 12)),
+                              ],
+                            ),
+                          ),
+                        ),
+                         Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.all(4.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(storage.read(KStorageKey.leaveTakenInThisMonth)?? '', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                Text("Leave taken in month", style: TextStyle(color: KColors.textColorGray, fontSize: 12)),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    InkWell(
+                                      child: Container(
+                                        width: 32,
+                                        height: 32,
+                                        decoration: BoxDecoration(
+                                            color: KColors.appColorWhite,
+                                            borderRadius: BorderRadius.circular(4)),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(6.0),
+                                          child: SizedBox(
+                                            width: 22,
+                                            height: 22,
+                                            child: SvgPicture.asset('assets/icons/open_profile.svg'),
+                                          ),
+                                        ),
+                                      ),
+                                      /*onTap: () {
+                                        Navigator.pop(context);
+                                        Navigator.pushNamed(context, '/profile_screen');
+                                      },*/
+                
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          Future.delayed(const Duration(milliseconds: 100), () {
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              '/home_screen',
+                                              arguments: 3,  // 👉 Pass index 3 here
+                                            );
+                                          });
+                                        }
+                                    ),
+                                    const Spacer(),
+                                    InkWell(
+                                      child: Container(
+                                        width: 32,
+                                        height: 32,
+                                        decoration: BoxDecoration(
+                                            color: KColors.appColorWhite,
+                                            borderRadius: BorderRadius.circular(4)),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(6.0),
+                                          child: SizedBox(
+                                            width: 22,
+                                            height: 22,
+                                            child: SvgPicture.asset('assets/icons/edit_profile.svg'),
+                                          ),
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        Navigator.pushNamed(context, '/edit_profile_screen');
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: 12,
+                      width: double.infinity,
+                      child: Card(
+                        color: KColors.appPrimary,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50)),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: KColors.appColorWhite,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                        child: Column(
+                          children: [
+                            _buildMenuItem(context,'assets/icons/dash_board.svg', 'Dashboard', '/dashboard_screen',0),
+                            _buildMenuItem(context,'assets/icons/time_log_icon1.svg', 'Time Logs', '/dashboard_screen',1),
+                            _buildMenuItem(context,'assets/icons/leaves_etails_apply.svg', 'Leaves Details & Apply', '/dashboard_screen',2),
+                            _buildAnotherMenu('assets/icons/upcoming_events.svg', 'Upcoming Events', '/upcoming_events_screen'),
+                            _buildAnotherMenu('assets/icons/payroll.svg', 'Payroll', '/payroll'),
+                            _buildAnotherMenu('assets/icons/help_support.svg', 'Help & Support', '/help_and_support_screen')
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text("Company Policies"),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: KColors.appColorWhite,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                        child: Column(
+                          children: [
+                            _buildPolicyItem('assets/icons/privacy_policy.svg', 'Leave Policy', '/leave_policy_screen'),
+                            _buildPolicyItem('assets/icons/privacy_policy.svg', 'Privacy Policies', '/privacy_policy_screen'),
+                            _buildPolicyItem('assets/icons/terms_conditions.svg', 'Terms & Conditions', '/terms_and_condition_screen'),
+                            _buildPolicyItem('assets/icons/terms_conditions.svg', 'Posh Policy', '/posh_policy_screen'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 100,),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text("App Version - v1.0.0"),
+                          GestureDetector(
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: SvgPicture.asset('assets/icons/logout.svg'),
+                                ),
+                                const SizedBox(width: 5),
+                                const Text(
+                                  "Logout",
+                                  style: TextStyle(color: KColors.appPrimaryRed, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            onTap: () {
+                              LogoutDialog.showAlertDialog(context, onConfirm: () {
+                                storage.remove('Is_Active');
+                                storage.remove(KStorageKey.attendeeId);
+                                Navigator.pushReplacementNamed(context, '/login_screen');
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

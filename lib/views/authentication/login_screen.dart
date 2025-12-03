@@ -46,74 +46,78 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: KColors.appPrimary,
-      resizeToAvoidBottomInset: false, // prevent flutter default resize
-      body: SafeArea(
-        child: AnimatedPadding(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Column(
+      body: Stack(
+        children: [
+          Column(
             children: [
-              SizedBox(
-                height: 300,
-                width: double.infinity,
-                child: Image.asset(
-                  KAssets.login_image,
-                  fit: BoxFit.cover,
+              Expanded(
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.45,
+                  width: double.infinity,
+                  child: Image.asset(
+                    KAssets.login_image,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-
               Expanded(
                 child: Container(
+                  height: MediaQuery.of(context).size.height * 0.55,
                   width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(50),
-                      topRight: Radius.circular(50),
-                    ),
-                  ),
-
-                  // outer scroll to avoid overflow
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,   // important
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Welcome Back",
-                            style: TextStyle(
-                              color: KColors.appPrimary,
-                              fontFamily: 'Poppins',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          const Text("Account Login",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-
-                          userLoginForm(),
-                          const SizedBox(height: 20),
-                          onClickLoginButton(),
-                        ],
-                      ),
-                    ),
-                  ),
                 ),
               ),
             ],
           ),
-        ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(50),
+                  topRight: Radius.circular(50),
+                ),
+              ),
+
+              // outer scroll to avoid overflow
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,   // important
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Welcome Back",
+                        style: TextStyle(
+                          color: KColors.appPrimary,
+                          fontFamily: 'Poppins',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text("Account Login",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      userLoginForm(),
+                      const SizedBox(height: 20),
+                      onClickLoginButton(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

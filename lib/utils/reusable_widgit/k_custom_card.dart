@@ -25,7 +25,7 @@ class CustomCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
-        height: 94,
+        height: 100,
         width:cardWidth,
         decoration: BoxDecoration(
           color: myColor,
@@ -41,6 +41,7 @@ class CustomCard extends StatelessWidget {
                 containerTextDigit,
                 style: TextStyle(
                   color: textColor,
+                  fontSize: 13,
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.w700,
                 ),

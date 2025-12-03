@@ -75,15 +75,18 @@ class KCustomDrawer {
                         ],
                       ),
                     )
-                  : Text(
-                      title,
-                      style: TextStyle(
-                          color: titleColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: "Poppins",
-                          letterSpacing: 0.5),
-                    ),
+                  : Expanded(
+                flex: 6,
+                    child: Text(
+                        title,
+                        style: TextStyle(
+                            color: titleColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: "Poppins",
+                            letterSpacing: 0.5),
+                      ),
+                  ),
             ],
           ),
           SizedBox(

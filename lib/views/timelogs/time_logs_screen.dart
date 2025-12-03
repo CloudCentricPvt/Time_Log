@@ -199,7 +199,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                   alignment: Alignment.topCenter, // Align content to the top
                   child: Padding(
                     padding: const EdgeInsets.only(
-                        left: 8, right: 8, top: 0, bottom: 8),
+                        left: 0, right: 0, top: 0, bottom: 8),
                     child: Column(
                       children: [
                         // Your content here
@@ -212,34 +212,43 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  CustomCard(
-                                    textColor: KColors.appColorWhite,
-                                    myColor: KColors.appPrimary,
-                                    //containerTextDigit: (totalWorkingHrs is double) ? totalWorkingHrs.toInt().toString() : totalWorkingHrs.toString(),
-                                    containerTextDigit: (_formatWorkingHours(
-                                            totalWorkingHrs.toString()) ??
-                                        ''),
-                                    containerTextOne: "Total working",
-                                    containerTextTwo: "hours this month",
+                                  Expanded(
+                                    flex: 30,
+                                    child: CustomCard(
+                                      textColor: KColors.appColorWhite,
+                                      myColor: KColors.appPrimary,
+                                      //containerTextDigit: (totalWorkingHrs is double) ? totalWorkingHrs.toInt().toString() : totalWorkingHrs.toString(),
+                                      containerTextDigit: (_formatWorkingHours(
+                                              totalWorkingHrs.toString()) ??
+                                          ''),
+                                      containerTextOne: "Total working",
+                                      containerTextTwo: "hours this month",
+                                    ),
                                   ),
 
                                   /// Second card.....
-                                  CustomCard(
-                                    textColor: KColors.appColorWhite,
-                                    myColor: KColors.orangeColor,
-                                    containerTextDigit: pendingCount.toString(),
-                                    containerTextOne: "Pending Time ",
-                                    containerTextTwo: "Logs",
+                                  Expanded(
+                                    flex: 30,
+                                    child: CustomCard(
+                                      textColor: KColors.appColorWhite,
+                                      myColor: KColors.orangeColor,
+                                      containerTextDigit: pendingCount.toString(),
+                                      containerTextOne: "Pending Time ",
+                                      containerTextTwo: "Logs",
+                                    ),
                                   ),
 
                                   /// third card.....
-                                  CustomCard(
-                                    textColor: KColors.appColorWhite,
-                                    myColor: KColors.appPrimaryRed,
-                                    containerTextDigit:
-                                        rejectedCount.toString(),
-                                    containerTextOne: "Rejected Time",
-                                    containerTextTwo: "Logs",
+                                  Expanded(
+                                    flex: 30,
+                                    child: CustomCard(
+                                      textColor: KColors.appColorWhite,
+                                      myColor: KColors.appPrimaryRed,
+                                      containerTextDigit:
+                                          rejectedCount.toString(),
+                                      containerTextOne: "Rejected Time",
+                                      containerTextTwo: "Logs",
+                                    ),
                                   ),
                                 ],
                               ),

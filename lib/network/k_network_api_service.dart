@@ -171,11 +171,10 @@ class KNetworkApiServices extends KBaseApiServices {
           context,
           TextButton(
             onPressed: () {
-             // Navigator.pop(context);
-              Get.back();
-              Navigator.pushReplacementNamed(context, '/login_screen');
+              Navigator.pop(context);
               localStorage.remove("Auth_Token");
               localStorage.remove(KStorageKey.isActive);
+              Get.offAllNamed('/login_screen');
             },
             child: Text(
               "OK",
