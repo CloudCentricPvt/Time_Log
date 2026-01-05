@@ -6,6 +6,7 @@ import 'package:time_log/utils/constants/k_storage_key.dart';
 
 import '../network/auth_service.dart';
 import '../network/k_network_api_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../utils/constants/api_container.dart';
 
 class LoginController {
@@ -58,10 +59,10 @@ class LoginController {
     print("PAYLOAD: $loginPayload");
     print("URL: $KApiEndPoints.login");
 
-
     try {
       var response = await networkApiServices.postRequest(loginPayload, KApiEndPoints.login,context);
           print("RESPONSE: $response");
+      final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
       if (response != null) {
         // Check for success
@@ -75,6 +76,8 @@ class LoginController {
           String annualLeaveId = user?['annualLeaveId'].toString() ?? '';
           String designation = user?['Designation'].toString() ?? '';
           String empCode = user?['employeeCode'].toString() ?? '';
+          await secureStorage.write(key: 'email', value: username);
+          await secureStorage.write(key: 'password', value: password);
 
           storage.write('User_Id', userID);
           storage.write('EMP_ID', employeeID);
@@ -84,7 +87,6 @@ class LoginController {
           storage.write(KStorageKey.designation, designation);
           storage.write(KStorageKey.employeeCode, empCode);
           storage.write(KStorageKey.annualLeaveId, annualLeaveId);
-
 
           showSuccessMessage(context, response['message']?.toString() ?? 'No message');
           Navigator.pushReplacementNamed(context, '/home_screen');

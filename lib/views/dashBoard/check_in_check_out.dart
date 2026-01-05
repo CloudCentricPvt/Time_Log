@@ -55,21 +55,21 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   @override
   void initState() {
     super.initState();
-    _getUserLocation();
-    fetchData();
+    _isLoading=false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _getUserLocation();
+      fetchData();
+    });
   }
 
   void _checkInternetConnection() async {
     bool connected = await _checkInternet.isConnected();
+
     if (!connected) {
-      // Show no internet dialog or handle no connectivity case
       KMaterialDialogs.noInternetFound(
         context,
         IconsButton(
-          onPressed: () {
-            Navigator.pop(context);
-            // Maybe retry or do something else
-          },
+          onPressed: () => Navigator.pop(context),
           text: 'Okay',
           color: Colors.red,
           textStyle: const TextStyle(color: Colors.white),
@@ -78,12 +78,26 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
         "No Internet Connection",
         "Please check your internet connection and try again.",
       );
-      return; // Stop further API calls
+      return;
     }
-    _fetchProfileDetailsData();
-    _fetchCheckInOutDetails();
-    _fetchLeaveList();
-    _fetchDashboardDetails();
+
+    _loadDashboardData();
+  }
+
+  Future<void> _loadDashboardData() async {
+    setState(() => _isLoading = true);
+
+    await Future.wait([
+      _fetchProfileDetailsData(),
+      _fetchCheckInOutDetails(),
+      _fetchLeaveList(),
+      _fetchDashboardDetails(),
+
+    ]);
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   void fetchData() {
@@ -91,14 +105,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   }
 
   Future<void> _refreshData() async {
-    // Your logic to refresh data
-    //await Future.delayed(Duration(seconds: 1)); // Simulate API call or database load
-    setState(() {
-      _fetchProfileDetailsData();
-      _fetchCheckInOutDetails();
-      _fetchLeaveList();
-      _fetchDashboardDetails();
-    });
+    await _loadDashboardData();
   }
 
   @override
@@ -127,140 +134,134 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
           ? KLoader()
           : RefreshIndicator(
               onRefresh: _refreshData,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Column(
-                      children: [
-                        Stack(
+              child: ListView(
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        color: KColors.appPrimary,
+                        width: double.infinity,
+                        height: 65,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20),
+                        child: Column(
                           children: [
-                            Container(
-                              color: KColors.appPrimary,
-                              width: double.infinity,
-                              height: 65,
+                            /// --- show total working hrs, leave taken this month, pending time log
+                            _showWorkingHrsAnd(),
+
+                            ///--- Start check in UI
+                            _startCheckIn(),
+
+                            ///--- Check out UI
+                            _startCheckOut(),
+
+                            ///--- Your are check out for today UI
+                            _checkOutForToadyCard(),
+
+                            const SizedBox(
+                              height: 10,
                             ),
+
+                            ///--- Upcoming Leave UI
+                            _upcomingLeave(),
+
+                            const SizedBox(
+                              height: 10,
+                            ),
+
+                            /// --- show upcoming events
+                            _showUpcomingEvents(),
+
+                            /// --- upcoming holidays Test title.
+                            const SizedBox(
+                              height: 10,
+                            ),
+
+                            _upcomingHolidays(),
+
+                            ///--- flow chart
                             Padding(
-                              padding: const EdgeInsets.only(top: 20),
+                              padding: const EdgeInsets.only(
+                                  left: 20, right: 20, bottom: 20),
                               child: Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.start,
                                 children: [
-                                  /// --- show total working hrs, leave taken this month, pending time log
-                                  _showWorkingHrsAnd(),
-
-                                  ///--- Start check in UI
-                                  _startCheckIn(),
-
-                                  ///--- Check out UI
-                                  _startCheckOut(),
-
-                                  ///--- Your are check out for today UI
-                                  _checkOutForToadyCard(),
-
                                   const SizedBox(
                                     height: 10,
                                   ),
-
-                                  ///--- Upcoming Leave UI
-                                  _upcomingLeave(),
-
+                                  const Text(
+                                    "Annual Leave Details",
+                                    style: KFonts.normalBold,
+                                  ),
                                   const SizedBox(
                                     height: 10,
                                   ),
-
-                                  /// --- show upcoming events
-                                  _showUpcomingEvents(),
-
-                                  /// --- upcoming holidays Test title.
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-
-                                  _upcomingHolidays(),
-
-                                  ///--- flow chart
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 20, right: 20, bottom: 20),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        const Text(
-                                          "Annual Leave Details",
-                                          style: KFonts.normalBold,
-                                        ),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        buildLegend([
-                                          {
-                                            "color": Colors.blue,
-                                            "text": "Monthly Leave"
-                                          },
-                                          {
-                                            "color": Colors.yellow,
-                                            "text": "Annual Leave"
-                                          },
-                                          {
-                                            "color": Colors.red,
-                                            "text": "Comp Off Request"
-                                          },
-                                          {
-                                            "color": Colors.green,
-                                            "text": "WFH Request"
-                                          },
-                                        ]),
-                                        const SizedBox(height: 10),
-                                        /*SizedBox(
+                                  buildLegend([
+                                    {
+                                      "color": Colors.blue,
+                                      "text": "Monthly Leave"
+                                    },
+                                    {
+                                      "color": Colors.yellow,
+                                      "text": "Annual Leave"
+                                    },
+                                    {
+                                      "color": Colors.red,
+                                      "text": "Comp Off Request"
+                                    },
+                                    {
+                                      "color": Colors.green,
+                                      "text": "WFH Request"
+                                    },
+                                  ]),
+                                  const SizedBox(height: 10),
+                                  /*SizedBox(
                                             height: 160,
                                             child: _buildAnnualLeaveChart()),*/
-                                        SizedBox(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.25, // 35% of screen height
-                                          child: _buildAnnualLeaveChart(),
-                                        ),
-                                        const SizedBox(height: 20),
-                                        const Text(
-                                          "Working Hours Details",
-                                          style: KFonts.normalBold,
-                                        ),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        buildLegend([
-                                          {
-                                            "color": Colors.blue,
-                                            "text": "Working Hours"
-                                          },
-                                          {
-                                            "color": Colors.yellow,
-                                            "text": "Self Study Hours"
-                                          },
-                                        ]),
-                                        const SizedBox(height: 10),
-                                        SizedBox(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.25,
-                                            child: _buildWorkingHoursChart()),
-                                      ],
-                                    ),
+                                  SizedBox(
+                                    height: MediaQuery.of(context)
+                                        .size
+                                        .height *
+                                        0.25, // 35% of screen height
+                                    child: _buildAnnualLeaveChart(),
                                   ),
+                                  const SizedBox(height: 20),
+                                  const Text(
+                                    "Working Hours Details",
+                                    style: KFonts.normalBold,
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  buildLegend([
+                                    {
+                                      "color": Colors.blue,
+                                      "text": "Working Hours"
+                                    },
+                                    {
+                                      "color": Colors.yellow,
+                                      "text": "Self Study Hours"
+                                    },
+                                  ]),
+                                  const SizedBox(height: 10),
+                                  SizedBox(
+                                      height: MediaQuery.of(context)
+                                          .size
+                                          .height *
+                                          0.25,
+                                      child: _buildWorkingHoursChart()),
                                 ],
                               ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+                      ),
+                    ],
+                  ),
+                ],
+              )
             ),
     );
   }
@@ -359,7 +360,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
               checkInTime.day == now.day;
 
           // Hide the card if already checked in today
-          shouldShowCard = !(latestCheck.checkInCheckOut ?? true) || !isSameDate;
+          shouldShowCard =
+              !(latestCheck.checkInCheckOut ?? true) || !isSameDate;
         } catch (e) {
           print("Date parsing error in _startCheckIn: $e");
         }
@@ -407,8 +409,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                     ),
                     const SizedBox(height: 10),
                     Padding(
-                      padding:
-                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                      padding: const EdgeInsets.only(
+                          left: 20, right: 20, bottom: 20),
                       child: TextFormField(
                         controller: _controller.descriptionController,
                         maxLines: 10,
@@ -443,42 +445,45 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                       ),
                     ),
                     Padding(
-                      padding:
-                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                      padding: const EdgeInsets.only(
+                          left: 20, right: 20, bottom: 20),
                       child: _isLoading
                           ? const KLoader()
                           : CustomElevatedButtonCheckInOut(
-                        text: "START CHECK-IN",
-                        onPressed: () async {
-                          setState(() {
-                            _isLoading = true;
-                          });
+                              text: "START CHECK-IN",
+                              onPressed: () async {
+                                setState(() {
+                                  // _isLoading = true;
+                                });
 
-                          await _controller.checkIn(
-                            context,
-                            _controller.descriptionController.text,
-                            lat,
-                            long,
-                          );
-                          _controller.descriptionController.clear();
-                          _fetchCheckInOutDetails();
+                                await _controller.checkIn(
+                                  context,
+                                  _controller.descriptionController.text,
+                                  lat,
+                                  long,
+                                );
+                                final now = DateTime.now();
+                                storage.write('lastCheckInDate', now.toIso8601String());
+                                _controller.descriptionController.clear();
+                                _fetchCheckInOutDetails();
 
-                          setState(() {
-                            _isLoading = false;
-                          });
-                        },
-                      ),
+                                setState(() {
+                                  //_isLoading = false;
+                                });
+                              },
+                            ),
                     ),
                     Padding(
-                      padding:
-                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                      padding: const EdgeInsets.only(
+                          left: 20, right: 20, bottom: 20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
                             width: 22,
                             height: 22,
-                            child: SvgPicture.asset('assets/icons/timer_icon.svg'),
+                            child:
+                                SvgPicture.asset('assets/icons/timer_icon.svg'),
                           ),
                           const SizedBox(width: 10),
                           const Text(
@@ -513,7 +518,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
 
       if (checkIn.isNotEmpty && isCheckedIn) {
         try {
-          final format = DateFormat("yyyy-MM-dd, hh:mm:ss a"); // match your actual format
+          final format =
+              DateFormat("yyyy-MM-dd, hh:mm:ss a"); // match your actual format
           DateTime checkInTime = format.parse(checkIn.trim());
           DateTime now = DateTime.now();
 
@@ -556,12 +562,14 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                     ),
                     const SizedBox(height: 10),
                     StreamBuilder<int>(
-                      stream: Stream.periodic(const Duration(seconds: 1), (count) => count),
+                      stream: Stream.periodic(
+                          const Duration(seconds: 1), (count) => count),
                       builder: (context, snapshot) {
                         return Text(
                           allCheckInOut.isEmpty
                               ? ''
-                              : KDateAndTime().getTimeDifferenceFromNow(allCheckInOut[0].checkInTime),
+                              : KDateAndTime().getTimeDifferenceFromNow(
+                                  allCheckInOut[0].checkInTime),
                           style: const TextStyle(
                             fontSize: 36,
                             fontFamily: "Poppins",
@@ -572,8 +580,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                     ),
                     const SizedBox(height: 10),
                     Padding(
-                      padding:
-                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                      padding: const EdgeInsets.only(
+                          left: 20, right: 20, bottom: 20),
                       child: TextFormField(
                         maxLines: 10,
                         minLines: 1,
@@ -608,43 +616,44 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                       ),
                     ),
                     Padding(
-                      padding:
-                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                      padding: const EdgeInsets.only(
+                          left: 20, right: 20, bottom: 20),
                       child: _isLoading
                           ? const KLoader()
                           : CustomElevatedButtonCheckInOut(
-                        text: "CHECK OUT",
-                        onPressed: () async {
-                          setState(() {
-                            _isLoading = true;
-                          });
+                              text: "CHECK OUT",
+                              onPressed: () async {
+                                setState(() {
+                                  //_isLoading = true;
+                                });
 
-                          await _controller.checkOut(
-                            context,
-                            _controller.descriptionController.text,
-                            lat,
-                            long,
-                          );
-                          _controller.descriptionController.clear();
-                          _fetchCheckInOutDetails();
-                          _fetchDashboardDetails();
+                                await _controller.checkOut(
+                                  context,
+                                  _controller.descriptionController.text,
+                                  lat,
+                                  long,
+                                );
+                                _controller.descriptionController.clear();
+                                _fetchCheckInOutDetails();
+                                _fetchDashboardDetails();
 
-                          setState(() {
-                            _isLoading = false;
-                          });
-                        },
-                      ),
+                                setState(() {
+                                  //_isLoading = false;
+                                });
+                              },
+                            ),
                     ),
                     Padding(
-                      padding:
-                      const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                      padding: const EdgeInsets.only(
+                          left: 20, right: 20, bottom: 20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
                             width: 22,
                             height: 22,
-                            child: SvgPicture.asset('assets/icons/timer_icon.svg'),
+                            child:
+                                SvgPicture.asset('assets/icons/timer_icon.svg'),
                           ),
                           const SizedBox(width: 10),
                           const Text(
@@ -939,11 +948,9 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
 
   ///-- fetch check in out details
   Future<void> _fetchCheckInOutDetails() async {
-    setState(() {
-      _isLoading = true;
-    });
 
     final res = await getCheckInOutDetails(context);
+    if (!mounted) return;
 
     setState(() {
       if (res is CheckInOutResponse) {
@@ -955,7 +962,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
       } else {
         allCheckInOut = [];
       }
-      _isLoading = false;
+      //_isLoading = false;
     });
   }
 
@@ -966,11 +973,11 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     if (response is UpcomingLeavesResponse) {
       setState(() {
         leaveList = response.data;
-        _isLoading = false;
+        //_isLoading = false;
       });
     } else {
       setState(() {
-        _isLoading = false;
+        //_isLoading = false;
       });
     }
   }
@@ -1459,10 +1466,28 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     );
   }
 
+  bool shouldShowCard() {
+    final lastCheckInStr = storage.read('lastCheckInDate') ?? '';
+    if (lastCheckInStr.isEmpty) return true; // No check-in yet
+
+    try {
+      final lastCheckIn = DateTime.parse(lastCheckInStr);
+      final now = DateTime.now();
+
+      // Hide card if last check-in is today
+      return !(lastCheckIn.year == now.year &&
+          lastCheckIn.month == now.month &&
+          lastCheckIn.day == now.day);
+    } catch (e) {
+      print("Error parsing lastCheckInDate: $e");
+      return true;
+    }
+  }
+
   Widget _checkOutForToadyCard() {
     return Visibility(
       visible:
-          allCheckInOut.isNotEmpty && allCheckInOut[0].checkInTime.isNotEmpty,
+      shouldShowCard(),
       child: Padding(
         padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
         child: SizedBox(
@@ -1528,45 +1553,28 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   }
 
   /// --  create method for getting the Employee and manager details.
-  void _fetchProfileDetailsData() async {
+  Future<void> _fetchProfileDetailsData() async {
     final response = await getProfileDetails(context);
 
     if (response is ProfileDetailsResponse) {
       final dataList = response.data.lstemployeeDetails;
 
-      if (dataList.isEmpty) {
-        print("No employee details found");
-        return;
-      }
+      if (dataList.isEmpty) return;
 
       employeeData = dataList[0];
-      storage.write(KStorageKey.employeeName,
-          (dataList.isNotEmpty ? employeeData!.employeeName : '') ?? '');
 
-      storage.write(KStorageKey.employeeGender,
-          (dataList.isNotEmpty ? employeeData!.employeeGender : '') ?? '');
-      storage.write(KStorageKey.employeeMobile,
-          (dataList.isNotEmpty ? employeeData!.employeePhone : '') ?? '');
-      storage.write(KStorageKey.employeeEmail,
-          (dataList.isNotEmpty ? employeeData!.employeeEmail : '') ?? '');
-      storage.write(KStorageKey.employeeDOB,
-          (dataList.isNotEmpty ? employeeData!.employeeDob : '') ?? '');
-      /*storage.write(KStorageKey.employeeAnniversary, (dataList.isNotEmpty ? employeeData!.employeeAnniversaryDate : '') ?? '');*/
+      storage.write(KStorageKey.employeeName, employeeData?.employeeName ?? '');
+      storage.write(KStorageKey.employeeGender, employeeData?.employeeGender ?? '');
+      storage.write(KStorageKey.employeeMobile, employeeData?.employeePhone ?? '');
+      storage.write(KStorageKey.employeeEmail, employeeData?.employeeEmail ?? '');
+      storage.write(KStorageKey.employeeDOB, employeeData?.employeeDob ?? '');
       storage.write(
         KStorageKey.employeeAnniversary,
-        employeeData?.employeeAnniversaryDate ??
-            '', // write empty string if null
+        employeeData?.employeeAnniversaryDate ?? '',
       );
-
-      storage.write(KStorageKey.employeeAddress,
-          (dataList.isNotEmpty ? employeeData!.employeeAddress : '') ?? '');
-      print('EMP_Name1:${storage.read(KStorageKey.employeeName)}');
-
-      setState(() {
-        _isLoading = false;
-      });
+      storage.write(KStorageKey.employeeAddress, employeeData?.employeeAddress ?? '');
     } else {
-      print("Unexpected response type or failed to parse response");
+      debugPrint("Unexpected response type");
     }
   }
 
@@ -1805,13 +1813,5 @@ class CheckInOutDetailsInDialog extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Color getStatusColor1(String? status) {
-    return status == "Pending"
-        ? KColors.orangeColor
-        : status == "Approved"
-            ? KColors.greenColor
-            : KColors.appPrimaryRed;
   }
 }

@@ -169,7 +169,7 @@ class LeaveScreenState extends State<LeaveScreen> {
           // NOTE: your old model had leaveBalance, usedLeave
           // You can calculate leaveBalance = totalLeave - usedLeave if needed.
           final usedLeave = double.tryParse(data.totalAvailedLeave) ?? 0.0;
-          final leaveBalance = totalLeave - usedLeave;
+          final leaveBalance = casualLeaveBal+sickLeaveBal+compOffLeaveBal+elLeaveBal;
 
           setState(() {
             totalLeaveBal = (totalLeave % 1 == 0)
@@ -230,89 +230,6 @@ class LeaveScreenState extends State<LeaveScreen> {
     }
   }
 
-
-
-  /*Future<void> fetchAnnualLeaveDetails() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final response = await getAnnualLeaveDetails(context);
-
-      if (response is AnnualLeaveDetailsResponse) {
-        final data = response.data;
-
-        // Extract the leave details
-        final leaveBalance = data.leaveBalance;
-        final totalLeave = data.totalLeave;
-        final usedLeave = data.usedLeave;
-        final casualLeaveBal = data.casualLeaveBal;
-        final sickLeaveBal = data.sickLeaveBal;
-        final compOffLeaveBal = data.compOffLeaveBal;
-        final elLeaveBal = data.elLeaveBal;
-        final calendarYear = data.calendarYear;
-
-        /// --- access total leave
-        final totalCL = data.totalCasualLeave;
-        final totalSL = data.totalSickLeave;
-        final totalCompOff = data.totalCompOffLeave;
-        final totalEL = data.totalElLeave;
-
-        setState(() {
-          totalLeaveBal = (totalLeave % 1 == 0)
-              ? totalLeave.toInt().toString()
-              : totalLeave.toString();
-          leaveBal = (leaveBalance % 1 == 0)
-              ? leaveBalance.toInt().toString()
-              : leaveBalance.toString();
-          casualLeave = (casualLeaveBal % 1 == 0)
-              ? casualLeaveBal.toInt().toString()
-              : casualLeaveBal.toString();
-          usedLeave1 = usedLeave.toInt();
-          sickLeave = (sickLeaveBal % 1 == 0)
-              ? sickLeaveBal.toInt().toString()
-              : sickLeaveBal.toString();
-          earnLeave = (elLeaveBal % 1 == 0)
-              ? elLeaveBal.toInt().toString()
-              : elLeaveBal.toString();
-          compOff = (compOffLeaveBal % 1 == 0)
-              ? compOffLeaveBal.toInt().toString()
-              : compOffLeaveBal.toString();
-
-          /// ---- find out total assign leave
-          tCL = (totalCL % 1 == 0)
-              ? totalCL.toInt().toString()
-              : totalCL.toString();
-          tSL = (totalSL % 1 == 0)
-              ? totalSL.toInt().toString()
-              : totalSL.toString();
-          tEL = (totalEL % 1 == 0)
-              ? totalEL.toInt().toString()
-              : totalEL.toString();
-          tCompOff = (totalCompOff % 1 == 0)
-              ? totalCompOff.toInt().toString()
-              : totalCompOff.toString();
-
-          _isLoading = false;
-        });
-
-        calculatePercentage();
-
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-        print("Error: Response is not of type AnnualLeaveDetailsResponse.");
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      print("Error in fetchAnnualLeaveDetails: $e");
-    }
-  }*/
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -366,7 +283,7 @@ class LeaveScreenState extends State<LeaveScreen> {
                           value: leaveBal ?? '',
                           valueTextSize: 28,
                           label: 'Leave balance',
-                          radius: isTablet ? 80.0 : 60.0, // ✅ Correct dynamic sizing
+                          radius: isTablet ? 80.0 : 60.0,
                         ),
                       ),
                       Row(

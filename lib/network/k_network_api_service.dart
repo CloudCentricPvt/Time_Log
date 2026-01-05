@@ -18,6 +18,7 @@ class KNetworkApiServices extends KBaseApiServices {
 
   final localStorage = GetStorage();
   bool _isNoInternetDialogShowing = false;
+  bool isSessionExpiredHandled = false;
 
   @override
   Future<dynamic> getRequest(String url, BuildContext context) async {
@@ -57,7 +58,6 @@ class KNetworkApiServices extends KBaseApiServices {
 
     return responseJson;
   }
-
 
   @override
   Future<dynamic> postRequest(var data, String url, BuildContext context) async {
@@ -131,11 +131,11 @@ class KNetworkApiServices extends KBaseApiServices {
     final headers = {
       'Authorization': 'Bearer $auth',
     };
-    log("User_Id: $userId");
-    log("Auth_Token: $auth");
-    log("API_URL : $url");
-    log("Payload : $data");
-    log("Header : $headers");
+    // log("User_Id: $userId");
+    // log("Auth_Token: $auth");
+    // log("API_URL : $url");
+    // log("Payload : $data");
+    // log("Header : $headers");
     Map<String, dynamic> responseJson;
     try {
       final response = await https
@@ -164,30 +164,32 @@ class KNetworkApiServices extends KBaseApiServices {
         return responseJson;
 
       case 401:
-        print("401 is called");
-        dynamic responseJson = jsonDecode(response.body);
-        return
-        KMaterialDialogs.sessionTimeOut(
-          context,
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              localStorage.remove("Auth_Token");
-              localStorage.remove(KStorageKey.isActive);
-              Get.offAllNamed('/login_screen');
-            },
-            child: Text(
-              "OK",
-              style: TextStyle(color: KColors.appPrimaryRed,fontFamily: "Poppins"),
-            ),
-          ),
-          "Session Expired",
-          "Your session has expired. Please login again.",
-        );
-
-        log("GetAPIStatusCode:401 : ${response.statusCode}");
-        throw KSnackBarEvents.errorSnackBar(
-            title: "Opps", message: "Invalid request");
+        if (!isSessionExpiredHandled) {
+          isSessionExpiredHandled = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            KMaterialDialogs.sessionTimeOut(
+              context,
+              TextButton(
+                onPressed: () {
+                  isSessionExpiredHandled = false;
+                  localStorage.remove("Auth_Token");
+                  Navigator.pop(context);
+                  Future.microtask(() {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/login_screen',
+                          (route) => false,
+                    );
+                  });
+                },
+                child: Text("OK", style: TextStyle(color: Colors.red)),
+              ),
+              "Session Expired",
+              "Your session has expired. Please login again.",
+            );
+          });
+        }
+        break;
       case 400:
         dynamic responseJson = jsonDecode(response.body);
         return responseJson;

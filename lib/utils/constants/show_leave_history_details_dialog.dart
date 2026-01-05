@@ -78,7 +78,6 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
                   ),
                 ),
                 Spacer(),
-
                 const SizedBox(width: 10),
                 InkWell(
                   onTap: () => Navigator.pop(context, true),
@@ -191,8 +190,14 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
             ),
 
             const SizedBox(height: 15),
+            Text(
+              (des ?? '')
+                  .replaceAll(RegExp(r'<[^>]*>'), '')
+                  .trim(),
+              style: KFonts.thin,
+            )
 
-            Text(des ?? "", style: KFonts.thin),
+            //Text(des ?? "", style: KFonts.thin),
           ],
         )),
       ),

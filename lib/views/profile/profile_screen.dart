@@ -111,7 +111,7 @@ class ProfileScreenState extends State<ProfileScreen> {
           : RefreshIndicator(
               onRefresh: _refreshData,
               child: SingleChildScrollView(
-                physics: AlwaysScrollableScrollPhysics(), // <- Required!
+                physics: AlwaysScrollableScrollPhysics(),
                 child: Padding(
                   padding:
                       const EdgeInsets.only(left: 16, right: 16, bottom: 20),
@@ -543,10 +543,6 @@ class ProfileScreenState extends State<ProfileScreen> {
               '');
       storage.write(KStorageKey.employeeAddress,
           (dataList.isNotEmpty ? employeeData!.employeeAddress : '') ?? '');
-
-
-
-      print("#NNNNNN:${KStorageKey.employeeName}");
 
       setState(() {
         _isLoading = false;

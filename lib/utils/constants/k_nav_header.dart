@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../popups/k_material_dialog.dart';
 import 'k_colors.dart';
 
 class KCustomDrawer {
@@ -117,7 +118,18 @@ class KCustomDrawer {
             child: IconButton(
               icon: const Icon(Icons.notifications_none, color: Colors.grey),
               onPressed: () {
-                Navigator.pushNamed(context, '/notification_screen');
+              //  Navigator.pushNamed(context, '/notification_screen');
+                KMaterialDialogs.sessionTimeOut(
+                  context,
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("OK", style: TextStyle(color: Colors.red)),
+                  ),
+                  "Alert!!",
+                  "Right Now Notification Part is in Pending.",
+                );
               },
             ),
           ),
@@ -137,11 +149,11 @@ class KCustomDrawer {
               ),*/
               child: CircleAvatar(
                 radius: 30,
-                backgroundColor: KColors.grayLight,
+                backgroundColor: KColors.appColorWhite,
                 child: Icon(
                   Icons.person,
                   size: 30,
-                  color: KColors.colorGray,
+                  color: Colors.grey,
                 ),
               ),
               onTap: () {

@@ -8,7 +8,7 @@ import 'k_logout_dialog.dart';
 
 class CustomDrawerMenu extends StatefulWidget {
   final BuildContext context;
-  final ValueNotifier<bool>? isBottomNavVisible; // 👈 Add this
+  final ValueNotifier<bool>? isBottomNavVisible;
   const CustomDrawerMenu({super.key, required this.context,this.isBottomNavVisible,});
 
   @override
@@ -284,7 +284,12 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                               LogoutDialog.showAlertDialog(context, onConfirm: () {
                                 storage.remove('Is_Active');
                                 storage.remove(KStorageKey.attendeeId);
-                                Navigator.pushReplacementNamed(context, '/login_screen');
+                                print(storage.read('Is_Active'));
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  '/login_screen',
+                                      (route) => false,
+                                );
                               });
                             },
                           ),

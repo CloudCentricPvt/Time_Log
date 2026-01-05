@@ -187,89 +187,85 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
       },
       body: RefreshIndicator(
         onRefresh: _refreshData,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding:
-                const EdgeInsets.only(top: 10, left: 8, right: 8, bottom: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ///Time log cards.....
-                Align(
-                  alignment: Alignment.topCenter, // Align content to the top
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 0, right: 0, top: 0, bottom: 8),
-                    child: Column(
-                      children: [
-                        // Your content here
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8, right: 8),
-                          child: Column(
+        child: Padding(
+          padding:
+          const EdgeInsets.only(top: 10, left: 8, right: 8, bottom: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ///Time log cards.....
+              Padding(
+                padding: const EdgeInsets.only(
+                    left: 0, right: 0, top: 0, bottom: 8),
+                child: Column(
+                  children: [
+                    // Your content here
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8, right: 8),
+                      child: Column(
+                        children: [
+                          /// alignment of three card of hours and leave and pending leave......
+                          Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceEvenly,
                             children: [
-                              /// alignment of three card of hours and leave and pending leave......
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Expanded(
-                                    flex: 30,
-                                    child: CustomCard(
-                                      textColor: KColors.appColorWhite,
-                                      myColor: KColors.appPrimary,
-                                      //containerTextDigit: (totalWorkingHrs is double) ? totalWorkingHrs.toInt().toString() : totalWorkingHrs.toString(),
-                                      containerTextDigit: (_formatWorkingHours(
-                                              totalWorkingHrs.toString()) ??
-                                          ''),
-                                      containerTextOne: "Total working",
-                                      containerTextTwo: "hours this month",
-                                    ),
-                                  ),
-
-                                  /// Second card.....
-                                  Expanded(
-                                    flex: 30,
-                                    child: CustomCard(
-                                      textColor: KColors.appColorWhite,
-                                      myColor: KColors.orangeColor,
-                                      containerTextDigit: pendingCount.toString(),
-                                      containerTextOne: "Pending Time ",
-                                      containerTextTwo: "Logs",
-                                    ),
-                                  ),
-
-                                  /// third card.....
-                                  Expanded(
-                                    flex: 30,
-                                    child: CustomCard(
-                                      textColor: KColors.appColorWhite,
-                                      myColor: KColors.appPrimaryRed,
-                                      containerTextDigit:
-                                          rejectedCount.toString(),
-                                      containerTextOne: "Rejected Time",
-                                      containerTextTwo: "Logs",
-                                    ),
-                                  ),
-                                ],
+                              Expanded(
+                                flex: 30,
+                                child: CustomCard(
+                                  textColor: KColors.appColorWhite,
+                                  myColor: KColors.appPrimary,
+                                  //containerTextDigit: (totalWorkingHrs is double) ? totalWorkingHrs.toInt().toString() : totalWorkingHrs.toString(),
+                                  containerTextDigit: (_formatWorkingHours(
+                                      totalWorkingHrs.toString()) ??
+                                      ''),
+                                  containerTextOne: "Total working",
+                                  containerTextTwo: "hours this month",
+                                ),
                               ),
 
-                              ///  Time Log listview Filter....
-                              _listViewFilter(),
-                              SizedBox(
-                                height: 10,
+                              /// Second card.....
+                              Expanded(
+                                flex: 30,
+                                child: CustomCard(
+                                  textColor: KColors.appColorWhite,
+                                  myColor: KColors.orangeColor,
+                                  containerTextDigit: pendingCount.toString(),
+                                  containerTextOne: "Pending Time ",
+                                  containerTextTwo: "Logs",
+                                ),
                               ),
 
-                              /// --- show all the Filled time log.
-                              _filledTimeLogAndShowInList(),
+                              /// third card.....
+                              Expanded(
+                                flex: 30,
+                                child: CustomCard(
+                                  textColor: KColors.appColorWhite,
+                                  myColor: KColors.appPrimaryRed,
+                                  containerTextDigit:
+                                  rejectedCount.toString(),
+                                  containerTextOne: "Rejected Time",
+                                  containerTextTwo: "Logs",
+                                ),
+                              ),
                             ],
                           ),
-                        )
-                      ],
+
+                          ///  Time Log listview Filter....
+                          _listViewFilter(),
+                          SizedBox(
+                            height: 10,
+                          ),
+
+
+                        ],
+                      ),
                     ),
-                  ),
-                )
-              ],
-            ),
+                  ],
+                ),
+              ),
+              /// --- show all the Filled time log.
+              Expanded(child: _filledTimeLogAndShowInList()),
+            ],
           ),
         ),
       ),
@@ -1023,9 +1019,8 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                 )
               : ListView.builder(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
                   padding: EdgeInsets.zero,
-                  itemCount: getFilteredProjects().length,
+                  itemCount: 100,
                   itemBuilder: (BuildContext context, int index) {
                     final filteredProjects = getFilteredProjects();
                     final project = filteredProjects[index];
@@ -1098,7 +1093,6 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                         children: [
                                           Text(
                                             project.projectName ?? "No Project",
-                                            maxLines: 1,
                                             style: KFonts.normalBold,
                                           ),
                                           SizedBox(height: 5),
@@ -1342,7 +1336,6 @@ class DetailDialog extends StatelessWidget {
                         ),
                         onTap: () async {
                           Navigator.pop(context); // Close dialog first
-
                           await Future.delayed(Duration
                               .zero); // Wait for the next frame to push new screen
 
@@ -1395,14 +1388,20 @@ class DetailDialog extends StatelessWidget {
                   "Project: ",
                   style: KFonts.normalBold,
                 ),
-                Text(
-                  project ?? "",
-                  style: KFonts.normal,
-                ),
+                Expanded(
+                  child: Text(
+                    project ?? "",
+                    style: KFonts.normal,
+                    maxLines: 2,
+                    softWrap: true,
+                  ),
+                )
               ],
             ),
             const SizedBox(height: 8),
             Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Task: ",

@@ -56,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 fontWeight:FontWeight.w400
             ),
           ),
-          SizedBox(height: 10,)
+          const SizedBox(height: 10,)
 
         ],
       ),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:time_log/controllers/login_controller.dart';
 import 'package:time_log/utils/constants/k_asstes.dart';
 import 'package:time_log/utils/popups/k_material_dialog.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../utils/constants/k_colors.dart';
 
@@ -18,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final LoginController _controller = LoginController();
   final FocusNode _focusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
+  final _secureStorage = const FlutterSecureStorage();
 
   bool _isPasswordObscure = true;
   bool _isLoading = false;
@@ -28,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    _loadSavedCredentials();
     _controller.userNameController.addListener(_validateForm);
     _controller.passwordPassController.addListener(_validateForm);
     _focusNode.addListener(() {
@@ -40,6 +42,19 @@ class _LoginScreenState extends State<LoginScreen> {
         _isHighlightedPassword = _passwordFocusNode.hasFocus;
       });
     });
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final email = await _secureStorage.read(key: 'email');
+    final password = await _secureStorage.read(key: 'password');
+
+    if (email != null) {
+      _controller.userNameController.text = email;
+    }
+
+    if (password != null) {
+      _controller.passwordPassController.text = password;
+    }
   }
 
   @override
