@@ -118,7 +118,7 @@ class _HolidayListState extends State<HolidayList> {
           statusBarIconBrightness: Brightness.dark,
         ),
         title: KCustomAppBar(
-          screenTitle: 'Holiday List 2025',
+          screenTitle: 'Holiday List ',
           showHistory: false,
         ),
       ),
@@ -184,7 +184,10 @@ class _HolidayListState extends State<HolidayList> {
           ],
         ),
         _isLoading
-            ? KLoader()
+            ? Padding(
+              padding: const EdgeInsets.only(top: 50),
+              child: Center(child: KLoader(),),
+            )
             : Expanded(child: ListView.builder(
           scrollDirection: Axis.vertical,
           itemCount: officialHolidays.length,

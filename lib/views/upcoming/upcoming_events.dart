@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:time_log/utils/constants/k_date_and_time.dart';
 import 'package:time_log/utils/constants/k_fonts.dart';
@@ -173,13 +174,18 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
     final response = await getDashboard(context);
     if (response is DashboardResponse) {
       setState(() {
+        final formatter = DateFormat('dd-MM-yyyy');
+
         eventsList = response.data.events;
+        eventsList.sort((a, b) {
+          DateTime dateA = formatter.parse(a.eventDate);
+          DateTime dateB = formatter.parse(b.eventDate);
+          return dateA.compareTo(dateB);
+        });
         print('#Events List1:$eventsList');
         todayEvents = response.data.todayEvents;
         expandedCards = List.generate(todayEvents.length, (index) => false);
         _isLoading = false;
-        print('#Events List2');
-        print('#Today events:$todayEvents');
       });
     }
   }
@@ -311,7 +317,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 10),
+                    SizedBox(width: 5),
                     Expanded(
                       flex: 6,
                       child: Column(
@@ -321,7 +327,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                           Text(item.personName ?? '',
                               style: KFonts.normalHeading),
                           SizedBox(height: 5),
-                          Text(item.eventName ?? '', style: KFonts.thin),
+                          Text(formatEventDate(item.eventDate)+" , "+item.eventName ?? '', style: KFonts.thin),
                         ],
                       ),
                     ),
@@ -344,7 +350,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                                   fontFamily: 'Poppins',
                                 ),
                               ),
-                              Text('Days'),
+                              Text('Days',style: TextStyle(fontFamily: 'Poppins'),),
                             ],
                           ),
                         ],
@@ -359,6 +365,12 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
       ),
     );
   }
+
+  String formatEventDate(String date) {
+    final DateTime parsedDate = DateTime.parse(date);
+    return DateFormat('d MMMM yyyy').format(parsedDate);
+  }
+
 }
 
 class UpcomingEventsList extends StatefulWidget {

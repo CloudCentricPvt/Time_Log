@@ -51,11 +51,12 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   String pendingCount = '';
   String leaveTaken = '';
   String totalWorkingHrs = '';
+  final formatter = DateFormat('dd-MM-yyyy');
 
   @override
   void initState() {
     super.initState();
-    _isLoading=false;
+    _isLoading = false;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _getUserLocation();
       fetchData();
@@ -92,7 +93,6 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
       _fetchCheckInOutDetails(),
       _fetchLeaveList(),
       _fetchDashboardDetails(),
-
     ]);
 
     if (mounted) {
@@ -185,8 +185,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                               padding: const EdgeInsets.only(
                                   left: 20, right: 20, bottom: 20),
                               child: Column(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const SizedBox(
                                     height: 10,
@@ -221,9 +220,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                             height: 160,
                                             child: _buildAnnualLeaveChart()),*/
                                   SizedBox(
-                                    height: MediaQuery.of(context)
-                                        .size
-                                        .height *
+                                    height: MediaQuery.of(context).size.height *
                                         0.25, // 35% of screen height
                                     child: _buildAnnualLeaveChart(),
                                   ),
@@ -247,10 +244,9 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                   ]),
                                   const SizedBox(height: 10),
                                   SizedBox(
-                                      height: MediaQuery.of(context)
-                                          .size
-                                          .height *
-                                          0.25,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.25,
                                       child: _buildWorkingHoursChart()),
                                 ],
                               ),
@@ -261,8 +257,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                     ],
                   ),
                 ],
-              )
-            ),
+              )),
     );
   }
 
@@ -463,7 +458,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                   long,
                                 );
                                 final now = DateTime.now();
-                                storage.write('lastCheckInDate', now.toIso8601String());
+                                storage.write(
+                                    'lastCheckInDate', now.toIso8601String());
                                 _controller.descriptionController.clear();
                                 _fetchCheckInOutDetails();
 
@@ -946,9 +942,26 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     );
   }
 
+  //check for today check in
+  bool isTodayCheckIn(String? dateTimeStr) {
+    if (dateTimeStr == null || dateTimeStr.isEmpty) return false;
+
+    try {
+      final format = DateFormat("yyyy-MM-dd, hh:mm:ss a");
+      final dateTime = format.parse(dateTimeStr.trim());
+      final now = DateTime.now();
+
+      return dateTime.year == now.year &&
+          dateTime.month == now.month &&
+          dateTime.day == now.day;
+    } catch (e) {
+      debugPrint("Date parse error: $e");
+      return false;
+    }
+  }
+
   ///-- fetch check in out details
   Future<void> _fetchCheckInOutDetails() async {
-
     final res = await getCheckInOutDetails(context);
     if (!mounted) return;
 
@@ -996,13 +1009,23 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
         totalWorkingHrs = response.data.totalWorkingHrs;
         leaveTaken = response.data.totalLeavesTaken;
         pendingCount = response.data.pendingTimeLogEntryCount;
-        eventsList = response.data.events;
-        upcomingHolidays = response.data.holidays;
+        eventsList = response.data.events ?? [];
+        upcomingHolidays = response.data.holidays??[];
         //storage.write(KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs ?? '');
         storage.write(KStorageKey.tWorkingHrsInTHisMonth,
             totalWorkingHrs.toString() ?? '');
         storage.write(KStorageKey.leaveTakenInThisMonth, leaveTaken ?? '');
-
+        if (eventsList.isNotEmpty) {
+          eventsList.sort((a, b) {
+            try {
+              return formatter
+                  .parse(a.eventDate)
+                  .compareTo(formatter.parse(b.eventDate));
+            } catch (_) {
+              return 0;
+            }
+          });
+        }
         print("#Whrs:$totalWorkingHrs");
       });
     }
@@ -1145,7 +1168,11 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                   SizedBox(
                                     height: 5,
                                   ),
-                                  Text(item.eventName ?? '',
+                                  Text(
+                                      formatEventDate(item.eventDate) +
+                                              " , " +
+                                              item.eventName ??
+                                          '',
                                       style: KFonts.thin),
                                 ],
                               ),
@@ -1194,6 +1221,11 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     );
   }
 
+  String formatEventDate(String date) {
+    final DateTime parsedDate = DateTime.parse(date);
+    return DateFormat('d MMMM yyyy').format(parsedDate);
+  }
+
   /// --- show total working hrs,leave taken this month and pending time log
   Widget _showWorkingHrsAnd() {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -1215,12 +1247,16 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                   const SizedBox(
                     height: 10,
                   ),
-                  Text(
-                    _formatWorkingHours(totalWorkingHrs + " hrs".toString()) ??
-                        '',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
+                  Flexible(
+                    child: Text(
+                      _formatWorkingHours(
+                              totalWorkingHrs + " hrs".toString()) ??
+                          '',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
                     ),
                   ),
                   /*Text(
@@ -1466,28 +1502,11 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     );
   }
 
-  bool shouldShowCard() {
-    final lastCheckInStr = storage.read('lastCheckInDate') ?? '';
-    if (lastCheckInStr.isEmpty) return true; // No check-in yet
-
-    try {
-      final lastCheckIn = DateTime.parse(lastCheckInStr);
-      final now = DateTime.now();
-
-      // Hide card if last check-in is today
-      return !(lastCheckIn.year == now.year &&
-          lastCheckIn.month == now.month &&
-          lastCheckIn.day == now.day);
-    } catch (e) {
-      print("Error parsing lastCheckInDate: $e");
-      return true;
-    }
-  }
-
+  //Check-out And Check- In Time
   Widget _checkOutForToadyCard() {
     return Visibility(
-      visible:
-      shouldShowCard(),
+      visible: allCheckInOut.isNotEmpty &&
+          isTodayCheckIn(allCheckInOut[0].checkInTime),
       child: Padding(
         padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
         child: SizedBox(
@@ -1564,15 +1583,19 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
       employeeData = dataList[0];
 
       storage.write(KStorageKey.employeeName, employeeData?.employeeName ?? '');
-      storage.write(KStorageKey.employeeGender, employeeData?.employeeGender ?? '');
-      storage.write(KStorageKey.employeeMobile, employeeData?.employeePhone ?? '');
-      storage.write(KStorageKey.employeeEmail, employeeData?.employeeEmail ?? '');
+      storage.write(
+          KStorageKey.employeeGender, employeeData?.employeeGender ?? '');
+      storage.write(
+          KStorageKey.employeeMobile, employeeData?.employeePhone ?? '');
+      storage.write(
+          KStorageKey.employeeEmail, employeeData?.employeeEmail ?? '');
       storage.write(KStorageKey.employeeDOB, employeeData?.employeeDob ?? '');
       storage.write(
         KStorageKey.employeeAnniversary,
         employeeData?.employeeAnniversaryDate ?? '',
       );
-      storage.write(KStorageKey.employeeAddress, employeeData?.employeeAddress ?? '');
+      storage.write(
+          KStorageKey.employeeAddress, employeeData?.employeeAddress ?? '');
     } else {
       debugPrint("Unexpected response type");
     }

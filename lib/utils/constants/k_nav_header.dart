@@ -127,7 +127,7 @@ class KCustomDrawer {
                     },
                     child: Text("OK", style: TextStyle(color: Colors.red)),
                   ),
-                  "Alert!!",
+                  "Coming Soon",
                   "Right Now Notification Part is in Pending.",
                 );
               },

@@ -283,8 +283,6 @@ class _LeaveHistoryState extends State<LeaveHistory> {
     }
   }
 
-
-
   /// --- Show Leave History data in ListView
   Widget _showLeaveHistoryDataInList(AppliedLeaveHistory leave) {
     return Padding(

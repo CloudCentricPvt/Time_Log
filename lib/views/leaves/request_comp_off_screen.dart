@@ -307,7 +307,7 @@ class _CompOffScreenState extends State<RequestCompOFF> with SingleTickerProvide
                     useMaxLines: true,
                     useMaxLength: true,
                     maxLines: 10,
-                    maxLength: 32768,
+                    maxLength: 1000,
                     /*onChange: (value) {
                       _controller.descriptionController.text = value!;
                       return null;

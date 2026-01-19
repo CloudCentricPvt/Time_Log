@@ -35,25 +35,33 @@ class KCircularProgressBar {
                 mainAxisSize: MainAxisSize.min, // 🟢 Prevent extra vertical space
                 crossAxisAlignment: CrossAxisAlignment.center, // 🟢 Center horizontally
                 children: [
-                  Text(
-                    value,
-                    style: valueStyle ??
-                        TextStyle(
-                          fontSize: valueTextSize ?? 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                  if (label != null)
-                    Text(
-                      label,
-                      style: labelStyle ??
-                          TextStyle(
-                            fontSize: labelTextSize ?? 16,
-                            color: Colors.black54,
-                          ),
-                      textAlign: TextAlign.center,
-                    ),
+                 Padding(
+                   padding: const EdgeInsets.all(8.0),
+                   child: Column(
+                     children: [
+                       Text(
+                         value,
+                         style: valueStyle ??
+                             TextStyle(
+                               fontSize: valueTextSize ?? 22,
+                               fontWeight: FontWeight.bold,
+                             ),
+                         textAlign: TextAlign.center,
+                       ),
+                       if (label != null)
+                         Text(
+                           label,
+                           style: labelStyle ??
+                               TextStyle(
+                                 fontFamily: 'Poppins',
+                                 fontSize: labelTextSize ?? 14,
+                                 color: Colors.black54,
+                               ),
+                           textAlign: TextAlign.center,
+                         ),
+                     ],
+                   ),
+                 )
                 ],
               ),
             ),
