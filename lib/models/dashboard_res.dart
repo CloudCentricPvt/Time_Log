@@ -22,8 +22,6 @@ Future<dynamic> getDashboard(BuildContext context) async {
   final storage = GetStorage();
   var empID = storage.read("EMP_ID");
 
-
-  var response = await apiNetwork.getRequest("${KApiEndPoints.getDashboardDetails}?employeeId=$empID", context);
   print("GET_URL_Dashboard: ${KApiEndPoints.getDashboardDetails}?=$empID");
   try {
     var response = await apiNetwork.getRequest("${KApiEndPoints.getDashboardDetails}?employeeId=$empID", context);

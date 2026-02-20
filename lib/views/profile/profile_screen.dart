@@ -94,7 +94,7 @@ class ProfileScreenState extends State<ProfileScreen> {
         context: context,
         title: "Profile",
         titleColor: KColors.appBlackColor,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: KColors.lightGray,
         showBellIcon: true,
         // Show Bell Icon
         showProfileIcon: false, // Hide Profile Icon
@@ -200,54 +200,57 @@ class ProfileScreenState extends State<ProfileScreen> {
                               }
                             },
                           ),
-                          Visibility(
-                            visible: false,
-                            child: InkWell(
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 12),
-                                height: 32,
-                                decoration: BoxDecoration(
-                                    color: KColors.appColorWhite,
-                                    borderRadius: BorderRadius.circular(4)),
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: SvgPicture.asset(
-                                          'assets/icons/change_pass.svg'),
-                                    ),
-                                    const SizedBox(
-                                      width: 6,
-                                    ),
-                                    const Text("Change Pass",
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            color: KColors.textColorGray))
-                                  ],
-                                ),
-                              ),
-                              onTap: () {
-                                KMaterialDialogs.noInternetFound(
-                                  context,
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text(
-                                      "OK",
-                                      style:
-                                          TextStyle(color: KColors.appPrimary),
-                                    ),
-                                  ),
-                                  "Alert!",
-                                  "Please contact your reporting manager.",
-                                );
-                                return;
-                              },
-                            ),
-                          ),
+                          // Visibility(
+                          //   visible: false,
+                          //   maintainSize: false,
+                          //   maintainAnimation: false,
+                          //   maintainState: false,
+                          //   child: InkWell(
+                          //     child: Container(
+                          //       padding:
+                          //           const EdgeInsets.symmetric(horizontal: 12),
+                          //       height: 32,
+                          //       decoration: BoxDecoration(
+                          //           color: KColors.appColorWhite,
+                          //           borderRadius: BorderRadius.circular(4)),
+                          //       child: Row(
+                          //         children: [
+                          //           SizedBox(
+                          //             width: 22,
+                          //             height: 22,
+                          //             child: SvgPicture.asset(
+                          //                 'assets/icons/change_pass.svg'),
+                          //           ),
+                          //           const SizedBox(
+                          //             width: 6,
+                          //           ),
+                          //           const Text("Change Pass",
+                          //               style: TextStyle(
+                          //                   fontSize: 15,
+                          //                   color: KColors.textColorGray))
+                          //         ],
+                          //       ),
+                          //     ),
+                          //     onTap: () {
+                          //       KMaterialDialogs.noInternetFound(
+                          //         context,
+                          //         TextButton(
+                          //           onPressed: () {
+                          //             Navigator.pop(context);
+                          //           },
+                          //           child: const Text(
+                          //             "OK",
+                          //             style:
+                          //                 TextStyle(color: KColors.appPrimary),
+                          //           ),
+                          //         ),
+                          //         "Alert!",
+                          //         "Please contact your reporting manager.",
+                          //       );
+                          //       return;
+                          //     },
+                          //   ),
+                          // ),
                         ],
                       ),
 

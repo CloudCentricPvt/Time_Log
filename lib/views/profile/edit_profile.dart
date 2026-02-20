@@ -170,7 +170,8 @@ class _EditProfileState extends State<EditProfile> {
                       _editProfileController.anniversaryController.text = value!;
                       return null;
                     },*/
-                    readOnly: false,
+                    disableBgColor: true,
+                    readOnly: true,
                     prefixIcon:  null,
                     suffixIcon: IconButton(onPressed: () async {
 
@@ -210,6 +211,25 @@ class _EditProfileState extends State<EditProfile> {
               height: 45,
               text: 'UPDATE PROFILE',
               onPressed: () async {
+
+                if (_editProfileController.phoneController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Phone number is required"),
+                    ),
+                  );
+                  return;
+                }
+
+                if (_editProfileController.mailingAddressController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Mailing Address is required"),
+                    ),
+                  );
+                  return;
+                }
+
                 setState(() {
                   _isLoading = true;
                 });
@@ -232,15 +252,11 @@ class _EditProfileState extends State<EditProfile> {
     _editProfileController.phoneController.text = storage.read(KStorageKey.employeeMobile)?? '';
     _editProfileController.emailController.text = storage.read(KStorageKey.employeeEmail)?? '';
     _editProfileController.dobController.text = KDateAndTime().useFormatDateInMyApp(storage.read(KStorageKey.employeeDOB)?? '');
-    //_editProfileController.anniversaryController.text = KDateAndTime().useFormatDateInMyApp(storage.read(KStorageKey.employeeAnniversary ?? '')?? 'N/A');
+    // _editProfileController.anniversaryController.text = KDateAndTime().useFormatDateInMyApp(storage.read(KStorageKey.employeeAnniversary ?? '')?? 'N/A');
+    // debugPrint("DATE ${KDateAndTime().useFormatDateInMyApp(storage.read(KStorageKey.employeeAnniversary ?? '')?? '')}");
     final anniversary = storage.read(KStorageKey.employeeAnniversary);
-    if (anniversary != null && anniversary.toString().isNotEmpty) {
-      _editProfileController.anniversaryController.text =
-          KDateAndTime().useFormatDateInMyApp(anniversary);
-    } else {
-      _editProfileController.anniversaryController.text = '';
-    }
-
+    _editProfileController.anniversaryController.text =
+        KDateAndTime().useFormatDate(anniversary);
     _editProfileController.mailingAddressController.text = storage.read(KStorageKey.employeeAddress)?? 'N/A';
 
   }

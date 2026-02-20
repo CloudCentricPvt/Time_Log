@@ -60,151 +60,43 @@ class _CustomMonthlyChartState extends State<KAnnualLeaveGraph> {
         "No Internet Connection",
         "Please check your internet connection and try again.",
       );
-      return; // Stop further API calls
+      return;
     }
-    _fetchMonthlyLeaveDataForShowingGraph();
-    _fetchAnnualLeaveDataForShowingGraph();
-    _fetchCompOffLeaveForShowingGraph();
-    _fetchWFHLeaveForShowingGraph();
-
+    _fetchAllLeaveGraphData();
   }
-  /// --- this method used for fetch monthly leave from SF.
-  Future<void> _fetchMonthlyLeaveDataForShowingGraph() async {
+
+  Future<void> _fetchAllLeaveGraphData() async {
     final response = await getAnnualLeaveDetailsForGraph(context);
 
-    if (response is AnnualLeaveGraphResponse) {
-      // Create a list with 12 months initialized to 0.0
-      List<double> monthHourMap = List.filled(12, 0.0);
+    if (response is! AnnualLeaveGraphResponse) return;
 
-      // Loop through each working hour detail from the API
-      for (var detail in response.annualDataForGraph) {
-        // Find the index of the month (e.g., January = 0)
-        int index = fullMonthNames.indexOf(detail.strMonthName);
+    List<double> monthly = List.filled(12, 0.0);
+    List<double> annual = List.filled(12, 0.0);
+    List<double> compOff = List.filled(12, 0.0);
+    List<double> wfh = List.filled(12, 0.0);
 
-        // If the month name is valid
-        if (index != -1) {
-          // Get the hour count or use 0 if it's null
-          double monthlyLeave = detail.intLeaveCount ?? 0;
-          // Limit the hour count to a maximum of 250
-          double cappedHours = monthlyLeave > 40 ? 40.0 : monthlyLeave.toDouble();
+    for (var detail in response.annualDataForGraph) {
+      int index = fullMonthNames.indexOf(detail.strMonthName);
+      if (index == -1) continue;
 
-          // Store the value in the correct month index
-          monthHourMap[index] = cappedHours;
-        }
-      }
-
-      // Update the chart data with the new values
-      setState(() {
-        monthlyLeave = response.annualDataForGraph;
-        monthlyTakenLeave = List.generate(12, (index) => FlSpot(index.toDouble(), monthHourMap[index]),
-        );
-      });
+      monthly[index] = (detail.intLeaveCount ?? 0).clamp(0, 40).toDouble();
+      annual[index] = (detail.intCumulativeLeaveCount ?? 0).clamp(0, 40).toDouble();
+      compOff[index] = (detail.intCompOffCount ?? 0).clamp(0, 40).toDouble();
+      wfh[index] = (detail.intWfhCount ?? 0).clamp(0, 40).toDouble();
     }
+
+    setState(() {
+      monthlyTakenLeave =
+          List.generate(12, (i) => FlSpot(i.toDouble(), monthly[i]));
+      annuallyTakenLeave =
+          List.generate(12, (i) => FlSpot(i.toDouble(), annual[i]));
+      compOffTakenLeave =
+          List.generate(12, (i) => FlSpot(i.toDouble(), compOff[i]));
+      wfhTakenLeave =
+          List.generate(12, (i) => FlSpot(i.toDouble(), wfh[i]));
+    });
   }
 
-  /// --- this method used for fetch Annual leave from SF.
-  Future<void> _fetchAnnualLeaveDataForShowingGraph() async {
-    final response = await getAnnualLeaveDetailsForGraph(context);
-
-    if (response is AnnualLeaveGraphResponse) {
-      // Create a list with 12 months initialized to 0.0
-      List<double> monthHourMap = List.filled(12, 0.0);
-
-      // Loop through each working hour detail from the API
-      for (var detail in response.annualDataForGraph) {
-        // Find the index of the month (e.g., January = 0)
-        int index = fullMonthNames.indexOf(detail.strMonthName);
-
-        // If the month name is valid
-        if (index != -1) {
-          // Get the hour count or use 0 if it's null
-          double annualLeave = detail.intCumulativeLeaveCount ?? 0;
-          // Limit the hour count to a maximum of 250
-          double cappedHours = annualLeave > 40 ? 40.0 : annualLeave.toDouble();
-
-          // Store the value in the correct month index
-          monthHourMap[index] = cappedHours;
-        }
-      }
-
-      // Update the chart data with the new values
-      setState(() {
-        annualLeave = response.annualDataForGraph;
-        annuallyTakenLeave = List.generate(12, (index) => FlSpot(index.toDouble(), monthHourMap[index]),
-        );
-      });
-    }
-  }
-
-  /// --- this method used for fetch Comp Off leave from SF.
-  Future<void> _fetchCompOffLeaveForShowingGraph() async {
-    final response = await getAnnualLeaveDetailsForGraph(context);
-
-    if (response is AnnualLeaveGraphResponse) {
-      // Create a list with 12 months initialized to 0.0
-      List<double> monthHourMap = List.filled(12, 0.0);
-
-      // Loop through each working hour detail from the API
-      for (var detail in response.annualDataForGraph) {
-        // Find the index of the month (e.g., January = 0)
-        int index = fullMonthNames.indexOf(detail.strMonthName);
-
-        // If the month name is valid.
-        if (index != -1) {
-          // Get the hour count or use 0 if it's null
-          double compOff = detail.intCompOffCount ?? 0;
-          // Limit the hour count to a maximum of 250
-          double cappedHours = compOff > 40 ? 40.0 : compOff.toDouble();
-
-          // Store the value in the correct month index
-          monthHourMap[index] = cappedHours;
-        }
-      }
-
-      // Update the chart data with the new values
-      setState(() {
-        compOffRequest = response.annualDataForGraph;
-        compOffTakenLeave= List.generate(12, (index) => FlSpot(index.toDouble(), monthHourMap[index]),
-        );
-      });
-    }
-  }
-
-  /// --- this method used for fetch WFH leave from SF.
-  Future<void> _fetchWFHLeaveForShowingGraph() async {
-    final response = await getAnnualLeaveDetailsForGraph(context);
-
-    if (response is AnnualLeaveGraphResponse) {
-      // Create a list with 12 months initialized to 0.0
-      List<double> monthHourMap = List.filled(12, 0.0);
-
-      // Loop through each working hour detail from the API
-      for (var detail in response.annualDataForGraph) {
-        // Find the index of the month (e.g., January = 0)
-        int index = fullMonthNames.indexOf(detail.strMonthName);
-
-        // If the month name is valid
-        if (index != -1) {
-          // Get the hour count or use 0 if it's null
-          double compOff = detail.intWfhCount ?? 0;
-          // Limit the hour count to a maximum of 250
-          double cappedHours = compOff > 40 ? 40.0 : compOff.toDouble();
-
-          // Store the value in the correct month index
-          monthHourMap[index] = cappedHours;
-        }
-      }
-
-      // Update the chart data with the new values
-      setState(() {
-        wfhRequest = response.annualDataForGraph;
-        wfhTakenLeave= List.generate(12, (index) => FlSpot(index.toDouble(), monthHourMap[index]),
-        );
-      });
-    }
-  }
-
-  // Show labels only for selected months
   final Set<int> visibleMonthIndexes = {0, 2, 4, 6, 8, 10};
 
   @override

@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class KDateAndTime {
 
@@ -22,6 +24,43 @@ class KDateAndTime {
     }
   }
 
+  String getTimeDifferenceFromZone(String checkIn) {
+    if (checkIn.trim().isEmpty) return "00:00:00";
+
+    try {
+      final format = DateFormat("yyyy-MM-dd, hh:mm:ss a");
+
+      final kolkata = tz.getLocation('Asia/Kolkata');
+      final now = tz.TZDateTime.now(kolkata);
+
+      // Parse as local first
+      DateTime localCheckIn = format.parse(checkIn.trim());
+
+      // Convert parsed time to IST
+      final checkInTime = tz.TZDateTime.from(localCheckIn, kolkata);
+
+      bool isSameDate = checkInTime.year == now.year &&
+          checkInTime.month == now.month &&
+          checkInTime.day == now.day;
+
+      if (!isSameDate) {
+        return DateFormat("hh:mm:ss a").format(now);
+      }
+
+      Duration diff = now.difference(checkInTime);
+      if (diff.isNegative) return "00:00:00";
+
+      String two(int n) => n.toString().padLeft(2, '0');
+      return "${two(diff.inHours)}:"
+          "${two(diff.inMinutes.remainder(60))}:"
+          "${two(diff.inSeconds.remainder(60))}";
+    } catch (e) {
+      debugPrint("Parsing error: $e");
+      return "00:00:00";
+    }
+  }
+
+
   String getMonthYear(String dateString) {
     try {
       DateTime date = DateFormat("yyyy-MM-dd").parse(dateString); // MM for month
@@ -39,6 +78,28 @@ class KDateAndTime {
     String formattedTime = DateFormat('HH:mm:ss').format(updatedTime);
     return formattedTime;
   }
+
+  String? convertToStandardDateFormatYYYY_MM_DDTwo(String? date) {
+    if (date == null || date.trim().isEmpty) {
+      return null;
+    }
+
+    try {
+      // expecting dd-MM-yyyy
+      final parts = date.split('-');
+      if (parts.length != 3) return null;
+
+      final day = parts[0].padLeft(2, '0');
+      final month = parts[1].padLeft(2, '0');
+      final year = parts[2];
+
+      return "$year-$month-$day"; // yyyy-MM-dd
+    } catch (e) {
+      debugPrint("❌ Invalid anniversary date: $date");
+      return null;
+    }
+  }
+
 
   String convertToStandardDateFormatYYYY_MM_DD(String input) {
     try {
@@ -174,5 +235,22 @@ class KDateAndTime {
     DateTime parsedDate = DateTime.parse(inputDate);
     return DateFormat('dd MMM, yyyy').format(parsedDate);
   }
+
+  String useFormatDate(String? date) {
+    if (date == null || date.isEmpty || date == 'N/A') {
+      return '';
+    }
+
+    try {
+      final parsedDate = DateTime.parse(date);
+      return "${parsedDate.day.toString().padLeft(2, '0')}-"
+          "${parsedDate.month.toString().padLeft(2, '0')}-"
+          "${parsedDate.year}";
+    } catch (e) {
+      debugPrint("Invalid date format: $date");
+      return '';
+    }
+  }
+
 
 }

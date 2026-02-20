@@ -16,7 +16,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    ndkVersion = "28.0.12433566"   // r28
+    ndkVersion "28.2.13676358"
 
     namespace = "com.cccinfotech.ressourcia"
     compileSdk = 36

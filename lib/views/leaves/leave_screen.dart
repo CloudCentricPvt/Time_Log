@@ -282,7 +282,7 @@ class LeaveScreenState extends State<LeaveScreen> {
                           percent: leaveP,
                           value: leaveBal ?? '',
                           valueTextSize: 28,
-                          label: 'Leave balance',
+                          label: 'Leave Balance',
                           radius: isTablet ? 80.0 : 60.0,
                         ),
                       ),

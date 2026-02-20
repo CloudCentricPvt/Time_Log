@@ -278,7 +278,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
         }, // Edit icon to indicate edit functionality
         backgroundColor: KColors.appPrimary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        child: const Icon(Icons.add), // Change color if needed
+        child: const Icon(Icons.add,color: KColors.appColorWhite,), // Change color if needed
       ),
     );
   }
@@ -292,7 +292,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(filters.length, (index) {
                 bool isSelected = selectedIndex == index;
                 return Padding(
@@ -999,6 +999,12 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
   Widget _filledTimeLogAndShowInList() {
     final isTablet = MediaQuery.of(context).size.width > 600;
 
+    final filteredProjects = getFilteredProjects();
+
+    // ✅ Limit to max 100 items
+    final int displayCount =
+    filteredProjects.length > 100 ? 100 : filteredProjects.length;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 0),
       child: isLoading
@@ -1007,7 +1013,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                   ? MediaQuery.of(context).size.height * 0.6 // for tablet
                   : MediaQuery.of(context).size.height * 0.5, // for mobile
               child: Center(child: KLoader()))
-          : timeLogs.isEmpty
+          : filteredProjects.isEmpty
               ? SizedBox(
                   height: MediaQuery.of(context).size.height * 0.5,
                   child: Center(
@@ -1018,11 +1024,9 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                   )),
                 )
               : ListView.builder(
-                  shrinkWrap: true,
                   padding: EdgeInsets.zero,
-                  itemCount: 100,
+                  itemCount: filteredProjects.length,
                   itemBuilder: (BuildContext context, int index) {
-                    final filteredProjects = getFilteredProjects();
                     final project = filteredProjects[index];
 
                     Color statusColor = project.status == "Pending"

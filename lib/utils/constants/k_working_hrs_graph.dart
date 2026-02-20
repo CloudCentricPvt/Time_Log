@@ -94,20 +94,15 @@ class _CustomMonthlyChartState extends State<KWorkingHrsGraph> {
     }
   }
 
-
-
   // Show labels only for these months (odd indexes)
   final Set<int> visibleMonthIndexes = {0, 2, 4, 6, 8, 10};
-
-
-
 
   final List<FlSpot> selfStudyHours = [
     FlSpot(0, 0),
     FlSpot(1, 0),
-    FlSpot(2, 50),
+    FlSpot(2, 0),
     FlSpot(3, 0),
-    FlSpot(4, 120),
+    FlSpot(4, 0),
     FlSpot(5, 0),
     FlSpot(6, 0),
     FlSpot(7, 0),
@@ -121,8 +116,8 @@ class _CustomMonthlyChartState extends State<KWorkingHrsGraph> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final chartHeight = screenWidth > 600
-        ? MediaQuery.of(context).size.height * 0.40  // For tablets
-        : MediaQuery.of(context).size.height * 0.28; // For mobile
+        ? MediaQuery.of(context).size.height * 0.40
+        : MediaQuery.of(context).size.height * 0.28;
 
     return SizedBox(
       height: chartHeight,
@@ -157,7 +152,7 @@ class _CustomMonthlyChartState extends State<KWorkingHrsGraph> {
                       LineChartBarData(
                         spots: selfStudyHours,
                         isCurved: false,
-                        color: Colors.orange,
+                        color: Colors.yellow,
                         barWidth: 2,
                         dotData: FlDotData(show: true),
                       ),

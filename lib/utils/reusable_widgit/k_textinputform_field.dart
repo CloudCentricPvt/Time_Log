@@ -72,8 +72,8 @@ class KTextInputFormField extends StatelessWidget {
         ),
         initialValue: initValue,
         controller: controller,
-        keyboardType: TextInputType.multiline, // Enable multi-line keyboard
-        textInputAction: TextInputAction.newline, // Show Enter key
+      keyboardType: useMaxLines ? TextInputType.multiline : keyboardType,
+      textInputAction: useMaxLines ? TextInputAction.newline : TextInputAction.done, // Show Enter key
         obscureText: (obscureText ?? false) && (maxLines == 1),
         minLines: useMaxLines ? minLines : 1, // Enable auto wrap
         maxLines: useMaxLines ? maxLines : 1, // Enable auto wrap

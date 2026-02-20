@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_settings/app_settings.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +11,7 @@ import 'package:time_log/models/upcoming_holidays_res.dart';
 import 'package:time_log/utils/constants/k_date_and_time.dart';
 import 'package:time_log/utils/constants/k_storage_key.dart';
 import 'package:time_log/utils/reusable_widgit/k_elevated_button.dart';
+import 'package:time_log/views/chatbot/screen/chat_screen.dart';
 import '../../models/chech_in_out_details_res.dart';
 import '../../models/dashboard_res.dart';
 import '../../models/profile_details_res.dart';
@@ -51,11 +54,13 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   String pendingCount = '';
   String leaveTaken = '';
   String totalWorkingHrs = '';
+  StreamSubscription<LocationData>? _locationSubscription;
+  final formatter = DateFormat('dd-MM-yyyy');
 
   @override
   void initState() {
     super.initState();
-    _isLoading=false;
+    _isLoading = false;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _getUserLocation();
       fetchData();
@@ -92,7 +97,6 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
       _fetchCheckInOutDetails(),
       _fetchLeaveList(),
       _fetchDashboardDetails(),
-
     ]);
 
     if (mounted) {
@@ -110,7 +114,6 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: KCustomDrawer.customDrawer(
         context: context,
@@ -119,8 +122,33 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
         hello: true,
         subtitle: "Welcome to Ressourcia",
         showBellIcon: true,
-        // Show Bell Icon
-        showProfileIcon: true, // Hide Profile Icon
+        showProfileIcon: true,
+      ),
+      floatingActionButton: GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            useSafeArea: true,
+            builder: (context) {
+              return const ChatScreen();
+            },
+          );
+        },
+        child: Container(
+          height: 60,
+          width: 60,
+          decoration: BoxDecoration(
+              color: KColors.appPrimary,
+              border: Border.all(width: 1, color: KColors.appColorWhite),
+              borderRadius: BorderRadius.circular(50)),
+          child: Center(
+            child: Icon(
+              Icons.chat_bubble_sharp,
+              color: KColors.appColorWhite,
+            ),
+          ),
+        ),
       ),
       drawer: CustomDrawerMenu(
         context: context,
@@ -185,8 +213,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                               padding: const EdgeInsets.only(
                                   left: 20, right: 20, bottom: 20),
                               child: Column(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const SizedBox(
                                     height: 10,
@@ -221,9 +248,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                             height: 160,
                                             child: _buildAnnualLeaveChart()),*/
                                   SizedBox(
-                                    height: MediaQuery.of(context)
-                                        .size
-                                        .height *
+                                    height: MediaQuery.of(context).size.height *
                                         0.25, // 35% of screen height
                                     child: _buildAnnualLeaveChart(),
                                   ),
@@ -239,6 +264,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                     {
                                       "color": Colors.blue,
                                       "text": "Working Hours"
+
                                     },
                                     {
                                       "color": Colors.yellow,
@@ -247,10 +273,9 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                   ]),
                                   const SizedBox(height: 10),
                                   SizedBox(
-                                      height: MediaQuery.of(context)
-                                          .size
-                                          .height *
-                                          0.25,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.25,
                                       child: _buildWorkingHoursChart()),
                                 ],
                               ),
@@ -261,8 +286,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                     ],
                   ),
                 ],
-              )
-            ),
+              )),
     );
   }
 
@@ -303,37 +327,33 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   /// --- get current location
   void _getUserLocation() async {
     Location location = Location();
-    bool _serviceEnable;
-    PermissionStatus _permissionGranted;
-    _serviceEnable = await location.serviceEnabled();
-    if (!_serviceEnable) {
-      _serviceEnable = await location.requestService();
-      if (!_serviceEnable) {
-        normalConfirmationDialog(
-            'Location is Disable App want to access  your location',
-            'Please Enable your Location',
-            'Enable Location');
-        return;
-      }
+    bool serviceEnable = await location.serviceEnabled();
+    if (!serviceEnable) {
+      serviceEnable = await location.requestService();
+      if (!serviceEnable) return;
     }
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
 
-      if (_permissionGranted != PermissionStatus.granted) {
-        normalConfirmationDialog(
-            'Denied the location permission, please go to setting and give access',
-            'Location permission denied',
-            'Open Setting');
-        return;
-      }
+    PermissionStatus permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) return;
     }
-    location.onLocationChanged.listen((LocationData CurrentLocation) async {
-      setState(() {
-        lat = CurrentLocation.latitude!;
-        long = CurrentLocation.longitude!;
-      });
-    });
+
+    _locationSubscription =
+        location.onLocationChanged.listen((LocationData currentLocation) {
+          if (!mounted) return; // ✅ important
+
+          setState(() {
+            lat = currentLocation.latitude!;
+            long = currentLocation.longitude!;
+          });
+        });
+  }
+
+  @override
+  void dispose() {
+    _locationSubscription?.cancel();
+    super.dispose();
   }
 
   ///--- Start Check In
@@ -463,7 +483,8 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                   long,
                                 );
                                 final now = DateTime.now();
-                                storage.write('lastCheckInDate', now.toIso8601String());
+                                storage.write(
+                                    'lastCheckInDate', now.toIso8601String());
                                 _controller.descriptionController.clear();
                                 _fetchCheckInOutDetails();
 
@@ -946,9 +967,26 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     );
   }
 
+  //check for today check in
+  bool isTodayCheckIn(String? dateTimeStr) {
+    if (dateTimeStr == null || dateTimeStr.isEmpty) return false;
+
+    try {
+      final format = DateFormat("yyyy-MM-dd, hh:mm:ss a");
+      final dateTime = format.parse(dateTimeStr.trim());
+      final now = DateTime.now();
+
+      return dateTime.year == now.year &&
+          dateTime.month == now.month &&
+          dateTime.day == now.day;
+    } catch (e) {
+      debugPrint("Date parse error: $e");
+      return false;
+    }
+  }
+
   ///-- fetch check in out details
   Future<void> _fetchCheckInOutDetails() async {
-
     final res = await getCheckInOutDetails(context);
     if (!mounted) return;
 
@@ -996,13 +1034,23 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
         totalWorkingHrs = response.data.totalWorkingHrs;
         leaveTaken = response.data.totalLeavesTaken;
         pendingCount = response.data.pendingTimeLogEntryCount;
-        eventsList = response.data.events;
-        upcomingHolidays = response.data.holidays;
+        eventsList = response.data.events ?? [];
+        upcomingHolidays = response.data.holidays ?? [];
         //storage.write(KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs ?? '');
         storage.write(KStorageKey.tWorkingHrsInTHisMonth,
             totalWorkingHrs.toString() ?? '');
         storage.write(KStorageKey.leaveTakenInThisMonth, leaveTaken ?? '');
-
+        if (eventsList.isNotEmpty) {
+          eventsList.sort((a, b) {
+            try {
+              return formatter
+                  .parse(a.eventDate)
+                  .compareTo(formatter.parse(b.eventDate));
+            } catch (_) {
+              return 0;
+            }
+          });
+        }
         print("#Whrs:$totalWorkingHrs");
       });
     }
@@ -1145,7 +1193,11 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                   SizedBox(
                                     height: 5,
                                   ),
-                                  Text(item.eventName ?? '',
+                                  Text(
+                                      formatEventDate(item.eventDate) +
+                                              " , " +
+                                              item.eventName ??
+                                          '',
                                       style: KFonts.thin),
                                 ],
                               ),
@@ -1194,6 +1246,11 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     );
   }
 
+  String formatEventDate(String date) {
+    final DateTime parsedDate = DateTime.parse(date);
+    return DateFormat('d MMMM yyyy').format(parsedDate);
+  }
+
   /// --- show total working hrs,leave taken this month and pending time log
   Widget _showWorkingHrsAnd() {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -1215,12 +1272,16 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                   const SizedBox(
                     height: 10,
                   ),
-                  Text(
-                    _formatWorkingHours(totalWorkingHrs + " hrs".toString()) ??
-                        '',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
+                  Flexible(
+                    child: Text(
+                      _formatWorkingHours(totalWorkingHrs + "".toString()) ??
+                          '',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
                     ),
                   ),
                   /*Text(
@@ -1239,6 +1300,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         color: KColors.textColorGray,
+                        fontFamily: "Poppins",
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -1279,6 +1341,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                         style: TextStyle(
                           color: KColors.textColorGray,
                           fontSize: 10,
+                          fontFamily: "Poppins",
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
@@ -1322,6 +1385,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                           color: KColors.textColorGray,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
+                          fontFamily: "Poppins",
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -1466,28 +1530,11 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
     );
   }
 
-  bool shouldShowCard() {
-    final lastCheckInStr = storage.read('lastCheckInDate') ?? '';
-    if (lastCheckInStr.isEmpty) return true; // No check-in yet
-
-    try {
-      final lastCheckIn = DateTime.parse(lastCheckInStr);
-      final now = DateTime.now();
-
-      // Hide card if last check-in is today
-      return !(lastCheckIn.year == now.year &&
-          lastCheckIn.month == now.month &&
-          lastCheckIn.day == now.day);
-    } catch (e) {
-      print("Error parsing lastCheckInDate: $e");
-      return true;
-    }
-  }
-
+  //Check-out And Check- In Time
   Widget _checkOutForToadyCard() {
     return Visibility(
-      visible:
-      shouldShowCard(),
+      visible: allCheckInOut.isNotEmpty &&
+          isTodayCheckIn(allCheckInOut[0].checkInTime),
       child: Padding(
         padding: const EdgeInsets.only(top: 20, right: 15, left: 15),
         child: SizedBox(
@@ -1564,15 +1611,19 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
       employeeData = dataList[0];
 
       storage.write(KStorageKey.employeeName, employeeData?.employeeName ?? '');
-      storage.write(KStorageKey.employeeGender, employeeData?.employeeGender ?? '');
-      storage.write(KStorageKey.employeeMobile, employeeData?.employeePhone ?? '');
-      storage.write(KStorageKey.employeeEmail, employeeData?.employeeEmail ?? '');
+      storage.write(
+          KStorageKey.employeeGender, employeeData?.employeeGender ?? '');
+      storage.write(
+          KStorageKey.employeeMobile, employeeData?.employeePhone ?? '');
+      storage.write(
+          KStorageKey.employeeEmail, employeeData?.employeeEmail ?? '');
       storage.write(KStorageKey.employeeDOB, employeeData?.employeeDob ?? '');
       storage.write(
         KStorageKey.employeeAnniversary,
         employeeData?.employeeAnniversaryDate ?? '',
       );
-      storage.write(KStorageKey.employeeAddress, employeeData?.employeeAddress ?? '');
+      storage.write(
+          KStorageKey.employeeAddress, employeeData?.employeeAddress ?? '');
     } else {
       debugPrint("Unexpected response type");
     }
