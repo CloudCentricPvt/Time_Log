@@ -79,10 +79,10 @@ class _CustomMonthlyChartState extends State<KAnnualLeaveGraph> {
       int index = fullMonthNames.indexOf(detail.strMonthName);
       if (index == -1) continue;
 
-      monthly[index] = (detail.intLeaveCount ?? 0).clamp(0, 40).toDouble();
-      annual[index] = (detail.intCumulativeLeaveCount ?? 0).clamp(0, 40).toDouble();
-      compOff[index] = (detail.intCompOffCount ?? 0).clamp(0, 40).toDouble();
-      wfh[index] = (detail.intWfhCount ?? 0).clamp(0, 40).toDouble();
+      monthly[index] = (detail.intLeaveCount ?? 0).clamp(0, 20).toDouble();
+      annual[index] = (detail.intCumulativeLeaveCount ?? 0).clamp(0, 20).toDouble();
+      compOff[index] = (detail.intCompOffCount ?? 0).clamp(0, 20).toDouble();
+      wfh[index] = (detail.intWfhCount ?? 0).clamp(0, 20).toDouble();
     }
 
     setState(() {
@@ -120,7 +120,7 @@ class _CustomMonthlyChartState extends State<KAnnualLeaveGraph> {
                   minX: 0,
                   maxX: 11,
                   minY: 0,
-                  maxY: 40,
+                  maxY: 20,
                   gridData: FlGridData(show: true),
                   borderData: FlBorderData(show: false),
                   lineBarsData: [
