@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_settings/app_settings.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +11,7 @@ import 'package:time_log/models/upcoming_holidays_res.dart';
 import 'package:time_log/utils/constants/k_date_and_time.dart';
 import 'package:time_log/utils/constants/k_storage_key.dart';
 import 'package:time_log/utils/reusable_widgit/k_elevated_button.dart';
+import 'package:time_log/views/chatbot/screen/chat_screen.dart';
 import '../../models/chech_in_out_details_res.dart';
 import '../../models/dashboard_res.dart';
 import '../../models/profile_details_res.dart';
@@ -51,6 +54,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   String pendingCount = '';
   String leaveTaken = '';
   String totalWorkingHrs = '';
+  StreamSubscription<LocationData>? _locationSubscription;
   final formatter = DateFormat('dd-MM-yyyy');
 
   @override
@@ -110,7 +114,6 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: KCustomDrawer.customDrawer(
         context: context,
@@ -119,8 +122,33 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
         hello: true,
         subtitle: "Welcome to Ressourcia",
         showBellIcon: true,
-        // Show Bell Icon
-        showProfileIcon: true, // Hide Profile Icon
+        showProfileIcon: true,
+      ),
+      floatingActionButton: GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            useSafeArea: true,
+            builder: (context) {
+              return const ChatScreen();
+            },
+          );
+        },
+        child: Container(
+          height: 60,
+          width: 60,
+          decoration: BoxDecoration(
+              color: KColors.appPrimary,
+              border: Border.all(width: 1, color: KColors.appColorWhite),
+              borderRadius: BorderRadius.circular(50)),
+          child: Center(
+            child: Icon(
+              Icons.chat_bubble_sharp,
+              color: KColors.appColorWhite,
+            ),
+          ),
+        ),
       ),
       drawer: CustomDrawerMenu(
         context: context,
@@ -236,6 +264,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                     {
                                       "color": Colors.blue,
                                       "text": "Working Hours"
+
                                     },
                                     {
                                       "color": Colors.yellow,
@@ -298,37 +327,33 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
   /// --- get current location
   void _getUserLocation() async {
     Location location = Location();
-    bool _serviceEnable;
-    PermissionStatus _permissionGranted;
-    _serviceEnable = await location.serviceEnabled();
-    if (!_serviceEnable) {
-      _serviceEnable = await location.requestService();
-      if (!_serviceEnable) {
-        normalConfirmationDialog(
-            'Location is Disable App want to access  your location',
-            'Please Enable your Location',
-            'Enable Location');
-        return;
-      }
+    bool serviceEnable = await location.serviceEnabled();
+    if (!serviceEnable) {
+      serviceEnable = await location.requestService();
+      if (!serviceEnable) return;
     }
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
 
-      if (_permissionGranted != PermissionStatus.granted) {
-        normalConfirmationDialog(
-            'Denied the location permission, please go to setting and give access',
-            'Location permission denied',
-            'Open Setting');
-        return;
-      }
+    PermissionStatus permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) return;
     }
-    location.onLocationChanged.listen((LocationData CurrentLocation) async {
-      setState(() {
-        lat = CurrentLocation.latitude!;
-        long = CurrentLocation.longitude!;
-      });
-    });
+
+    _locationSubscription =
+        location.onLocationChanged.listen((LocationData currentLocation) {
+          if (!mounted) return; // ✅ important
+
+          setState(() {
+            lat = currentLocation.latitude!;
+            long = currentLocation.longitude!;
+          });
+        });
+  }
+
+  @override
+  void dispose() {
+    _locationSubscription?.cancel();
+    super.dispose();
   }
 
   ///--- Start Check In
@@ -1010,7 +1035,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
         leaveTaken = response.data.totalLeavesTaken;
         pendingCount = response.data.pendingTimeLogEntryCount;
         eventsList = response.data.events ?? [];
-        upcomingHolidays = response.data.holidays??[];
+        upcomingHolidays = response.data.holidays ?? [];
         //storage.write(KStorageKey.tWorkingHrsInTHisMonth, totalWorkingHrs ?? '');
         storage.write(KStorageKey.tWorkingHrsInTHisMonth,
             totalWorkingHrs.toString() ?? '');
@@ -1249,11 +1274,11 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                   ),
                   Flexible(
                     child: Text(
-                      _formatWorkingHours(
-                              totalWorkingHrs + " hrs".toString()) ??
+                      _formatWorkingHours(totalWorkingHrs + "".toString()) ??
                           '',
                       style: const TextStyle(
                         fontSize: 22,
+                        fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
                       ),
                       maxLines: 1,
@@ -1275,6 +1300,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         color: KColors.textColorGray,
+                        fontFamily: "Poppins",
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -1315,6 +1341,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                         style: TextStyle(
                           color: KColors.textColorGray,
                           fontSize: 10,
+                          fontFamily: "Poppins",
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
@@ -1358,6 +1385,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                           color: KColors.textColorGray,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
+                          fontFamily: "Poppins",
                         ),
                         textAlign: TextAlign.center,
                       ),

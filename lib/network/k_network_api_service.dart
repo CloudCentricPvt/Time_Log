@@ -167,22 +167,27 @@ class KNetworkApiServices extends KBaseApiServices {
         if (!isSessionExpiredHandled) {
           isSessionExpiredHandled = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) return;
             KMaterialDialogs.sessionTimeOut(
               context,
               TextButton(
                 onPressed: () {
                   isSessionExpiredHandled = false;
                   localStorage.remove("Auth_Token");
-                  Navigator.pop(context);
-                  Future.microtask(() {
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      '/login_screen',
-                          (route) => false,
-                    );
-                  });
+
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+
+                  if (!context.mounted) return;
+
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/login_screen',
+                        (route) => false,
+                  );
                 },
-                child: Text("OK", style: TextStyle(color: Colors.red)),
+                child: const Text("OK", style: TextStyle(color: Colors.red,fontFamily: 'Poppins')),
               ),
               "Session Expired",
               "Your session has expired. Please login again.",

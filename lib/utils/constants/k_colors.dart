@@ -27,6 +27,7 @@ class KColors {
   static const orangeColor = Color(0xFFFF9538);
   static const pinkColor = Color(0xFFFF38BD);
   static const grayLight = Color(0xFFCBC8CA);
+  static const lightGray = Color(0xFFF6F4FC);
 
 
 

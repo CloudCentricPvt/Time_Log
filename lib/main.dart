@@ -10,6 +10,7 @@ import 'package:time_log/views/all_privacy/privacy_policies_screen.dart';
 import 'package:time_log/views/all_privacy/terms_and_condition_screen.dart';
 import 'package:time_log/views/authentication/change_password.dart';
 import 'package:time_log/views/authentication/login_screen.dart';
+import 'package:time_log/views/chatbot/pdf_reader/company_policy_loader.dart';
 import 'package:time_log/views/leaves/comp_off_history_screen.dart';
 import 'package:time_log/views/leaves/request_comp_off_screen.dart';
 import 'package:time_log/views/dashBoard/check_in_check_out.dart';
@@ -33,20 +34,23 @@ import 'package:time_log/views/upcoming/upcoming_events.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Permission.microphone.request();
   await GetStorage.init();
-  await dotenv.load(fileName: ".env");
+  runApp(const MyApp());
+  _initApp();
+}
 
-  final storage = GetStorage();
-  final isActive = storage.read('Is_Active') ?? false;
+Future<void> _initApp() async {
+  await Future.wait([
+    dotenv.load(fileName: ".env"),
+    CompanyPolicyLoader.load(),
+    Permission.microphone.request()
+  ]);
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Color(0xFF84DBFF),
     ),
   );
-
-  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

@@ -101,47 +101,44 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                 )
               : RefreshIndicator(
                   onRefresh: _refreshData,
-                  child: SingleChildScrollView(
-                    physics: AlwaysScrollableScrollPhysics(),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Visibility(
-                              visible: todayEvents.isEmpty ? false : true,
-                              child: Text(
-                                'Today Events',
-                                style: KFonts.normalBold,
-                              )),
-                          SizedBox(
-                            height: 10,
-                          ),
-
-                          _showTodayEvents(),
-
-                          /// ---- Leave balance List UI
-                          Visibility(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Visibility(
                             visible: todayEvents.isEmpty ? false : true,
-                            child: SizedBox(
-                              height: 10,
-                            ),
-                          ),
+                            child: Text(
+                              'Today Events',
+                              style: KFonts.normalBold,
+                            )),
+                        const SizedBox(
+                          height: 10,
+                        ),
 
-                          Visibility(
-                              visible: eventsList.isEmpty ? false : true,
-                              child: Text(
-                                'Upcoming Birthday & Anniversary',
-                                style: KFonts.normalBold,
-                              )),
+                        _showTodayEvents(),
 
-                          //_showUpcomingBirthdayAndAnniversary(),
-                          SizedBox(
+                        /// ---- Leave balance List UI
+                        Visibility(
+                          visible: todayEvents.isEmpty ? false : true,
+                          child: SizedBox(
                             height: 10,
                           ),
-                          _upcomingBirthdayAndAnniversary()
-                        ],
-                      ),
+                        ),
+
+                        Visibility(
+                            visible: eventsList.isEmpty ? false : true,
+                            child: Text(
+                              'Upcoming Birthday & Anniversary',
+                              style: KFonts.normalBold,
+                            )),
+
+                        //_showUpcomingBirthdayAndAnniversary(),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        _upcomingBirthdayAndAnniversary()
+                      ],
                     ),
                   ),
                 ),
@@ -273,94 +270,101 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
 
   /// ---  show anniversary and birthday
   Widget _upcomingBirthdayAndAnniversary() {
-    return Visibility(
-      visible: eventsList.isNotEmpty,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: ListView.separated(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          // prevent inner scroll
-          itemCount: eventsList.length,
-          separatorBuilder: (context, index) => SizedBox(height: 10),
-          // space between cards
-          itemBuilder: (context, index) {
-            final item = eventsList[index];
-            return Container(
-              padding: const EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: KColors.appColorWhite,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: KColors.cardShadowColor,
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: SizedBox(
-                height: 65,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Center(
-                        child: Image.asset(
-                          item.eventName == "Birthday"
-                              ? KAssets.birthday_image
-                              : KAssets.anniversary,
-                          height: 40,
-                          width: 40,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 5),
-                    Expanded(
-                      flex: 6,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(item.personName ?? '',
-                              style: KFonts.normalHeading),
-                          SizedBox(height: 5),
-                          Text(formatEventDate(item.eventDate)+" , "+item.eventName ?? '', style: KFonts.thin),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Row(
-                        children: [
-                          Container(
-                              width: 2, height: 30, color: KColors.colorGray),
-                          SizedBox(width: 10),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                (item.remainingDays ?? '').toString(),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: KColors.appPrimary,
-                                  fontFamily: 'Poppins',
-                                ),
-                              ),
-                              Text('Days',style: TextStyle(fontFamily: 'Poppins'),),
-                            ],
-                          ),
-                        ],
-                      ),
+    return Expanded(
+      child: Visibility(
+        visible: eventsList.isNotEmpty,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: eventsList.length,
+            separatorBuilder: (context, index) => SizedBox(height: 10),
+            itemBuilder: (context, index) {
+              final item = eventsList[index];
+              return Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  color: KColors.appColorWhite,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: KColors.cardShadowColor,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),
-              ),
-            );
-          },
+                child: SizedBox(
+                  height: 65,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Center(
+                          child: Image.asset(
+                            item.eventName == "Birthday"
+                                ? KAssets.birthday_image
+                                : KAssets.anniversary,
+                            height: 40,
+                            width: 40,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        flex: 6,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(item.personName ?? '',
+                                style: KFonts.normalHeading),
+                            SizedBox(height: 5),
+                            Text(
+                                formatEventDate(item.eventDate) +
+                                        " , " +
+                                        item.eventName ??
+                                    '',
+                                style: KFonts.thin),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Row(
+                          children: [
+                            Container(
+                                width: 2, height: 30, color: KColors.colorGray),
+                            SizedBox(width: 10),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  (item.remainingDays ?? '').toString(),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: KColors.appPrimary,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                ),
+                                Text(
+                                  'Days',
+                                  style: TextStyle(fontFamily: 'Poppins'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -370,7 +374,6 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
     final DateTime parsedDate = DateTime.parse(date);
     return DateFormat('d MMMM yyyy').format(parsedDate);
   }
-
 }
 
 class UpcomingEventsList extends StatefulWidget {

@@ -116,8 +116,8 @@ class _CustomMonthlyChartState extends State<KWorkingHrsGraph> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final chartHeight = screenWidth > 600
-        ? MediaQuery.of(context).size.height * 0.40  // For tablets
-        : MediaQuery.of(context).size.height * 0.28; // For mobile
+        ? MediaQuery.of(context).size.height * 0.40
+        : MediaQuery.of(context).size.height * 0.28;
 
     return SizedBox(
       height: chartHeight,
@@ -152,7 +152,7 @@ class _CustomMonthlyChartState extends State<KWorkingHrsGraph> {
                       LineChartBarData(
                         spots: selfStudyHours,
                         isCurved: false,
-                        color: Colors.orange,
+                        color: Colors.yellow,
                         barWidth: 2,
                         dotData: FlDotData(show: true),
                       ),
