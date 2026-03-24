@@ -134,7 +134,7 @@ class _CustomMonthlyChartState extends State<KAnnualLeaveGraph> {
                     LineChartBarData(
                       spots: annuallyTakenLeave,
                       isCurved: false,
-                      color: Colors.yellow[800],
+                      color: Colors.yellow,
                       barWidth: 2,
                       dotData: FlDotData(show: true),
                     ),
