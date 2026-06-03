@@ -20,6 +20,8 @@ class KCustomDrawer {
   }) {
     return AppBar(
       backgroundColor: backgroundColor,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       leading: Builder(
         builder: (context) => IconButton(
           icon: Container(

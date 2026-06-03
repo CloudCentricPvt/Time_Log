@@ -111,6 +111,8 @@ class _HolidayListState extends State<HolidayList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
         backgroundColor: KColors.appPrimary,
         systemOverlayStyle: SystemUiOverlayStyle(
