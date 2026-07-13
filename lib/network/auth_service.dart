@@ -63,29 +63,31 @@ class AuthService {
 
   Future<Map<String, dynamic>?> login(String username, String password) async {
     try {
+      final localStorage = GetStorage();
+      final token = localStorage.read("Access_token") ?? "";
+
       var response = await http.post(
         Uri.parse(baseURL),
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode({
           "Username": username,
           "Password": password,
-        },
+        }),
       );
 
       if (response.statusCode == 200) {
-        final localStorage = GetStorage();
-
         var data = jsonDecode(response.body);
-        String token = data['access_token'];
-        localStorage.write("Access_token",token);
-        print("Token Received: ${data['access_token']}");
-        return data['access_token']; // Return the token
+        print("Login Response: $data");
+        return data;
       } else {
-        print("Error fetching token: ${response.body}");
+        print("Login Error: ${response.statusCode} - ${response.body}");
         return null;
       }
     } catch (e) {
-      print("Exception: $e");
+      print("Login Exception: $e");
       return null;
     }
   }

@@ -11,6 +11,8 @@ import 'package:time_log/views/all_privacy/terms_and_condition_screen.dart';
 import 'package:time_log/views/authentication/change_password.dart';
 import 'package:time_log/views/authentication/login_screen.dart';
 import 'package:time_log/views/chatbot/pdf_reader/company_policy_loader.dart';
+import 'package:time_log/views/expense/create_expense.dart';
+import 'package:time_log/views/expense/expense_list.dart';
 import 'package:time_log/views/leaves/comp_off_history_screen.dart';
 import 'package:time_log/views/leaves/request_comp_off_screen.dart';
 import 'package:time_log/views/dashBoard/check_in_check_out.dart';
@@ -82,6 +84,8 @@ class MyApp extends StatelessWidget {
         '/leave_policy_screen': (context) => const LeavesPolicyScreen(),
         '/privacy_policy_screen': (context) => const PrivacyPoliciesScreen(),
         '/payroll': (context) => const Payroll(),
+        '/expenses': (context) => const ExpenseList(),
+        '/create_expense': (context) => const CreateExpense(),
         '/terms_and_condition_screen': (context) =>
             const TermsAndConditionScreen(),
         '/posh_policy_screen': (context) => const PoshPolicy(),

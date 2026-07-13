@@ -96,7 +96,6 @@ class LoginController {
           showErrorMessage(context, response['message'] ?? "Login failed");
         }
       } else {
-        showSuccessMessage(context, response['message']?.toString() ?? 'No message');
         showErrorMessage(context, "No response from server.");
       }
     } catch (e) {
