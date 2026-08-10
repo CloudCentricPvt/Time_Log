@@ -22,13 +22,12 @@ class KColors {
   static const appStatusBarColor = Color(0xFF84DBFF);
 
   // other color
+  static const appBgColor = Color(0xFFFAFAFA);
   static const purpleColor = Color(0xFF8D27F9);
   static const greenColor = Color(0xFF00CA7C);
   static const orangeColor = Color(0xFFFF9538);
   static const pinkColor = Color(0xFFFF38BD);
   static const grayLight = Color(0xFFCBC8CA);
   static const lightGray = Color(0xFFF6F4FC);
-
-
 
 }

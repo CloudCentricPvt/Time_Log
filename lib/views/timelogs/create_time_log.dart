@@ -27,7 +27,8 @@ class CreateTimeLog extends StatefulWidget {
   State<CreateTimeLog> createState() => _CreateTimelogState();
 }
 
-class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProviderStateMixin{
+class _CreateTimelogState extends State<CreateTimeLog>
+    with SingleTickerProviderStateMixin {
   stt.SpeechToText _speech = stt.SpeechToText();
 
   bool _isListening = false;
@@ -37,7 +38,8 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
   late Animation<double> _animation;
 
   final TimeLogController _controller = TimeLogController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>(); // Form key for validation
+  final GlobalKey<FormState> _formKey =
+      GlobalKey<FormState>(); // Form key for validation
   List<Lstproject> assignProject = [];
   List<String> assignTask = [];
   String? selectedProjectId;
@@ -116,9 +118,12 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
           print('Recognized: ${result.recognizedWords}');
           setState(() {
             /// Combine previous text + current recognized words
-            _controller.descriptionController.text = '$_previousText ${result.recognizedWords}'.trim();
-            _controller.descriptionController.selection = TextSelection.fromPosition(
-              TextPosition(offset: _controller.descriptionController.text.length),
+            _controller.descriptionController.text =
+                '$_previousText ${result.recognizedWords}'.trim();
+            _controller.descriptionController.selection =
+                TextSelection.fromPosition(
+              TextPosition(
+                  offset: _controller.descriptionController.text.length),
             );
           });
         },
@@ -160,9 +165,10 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
           },
         ),
       ),
+      backgroundColor: KColors.appBgColor,
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(vertical: 22.0, horizontal: 24.0),
           child: Form(
             key: _formKey,
             child: Column(
@@ -172,17 +178,15 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
                   child: KInfoCard(
                     children: [
                       Column(
+                        spacing: 16.0,
                         children: [
                           /// --- Design for select project list
-                          KSizedBox.h20,
                           _selectProject(),
 
                           /// --- Design for select task list
-                          KSizedBox.h20,
                           _selectTask(),
 
                           /// --- Design for select Hours and Minutes
-                          KSizedBox.h20,
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -224,7 +228,6 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
                           ),
 
                           /// --- Design for select date
-                          KSizedBox.h20,
                           KTextInputFormField(
                             labelText: 'Date',
                             hintText: 'Select date',
@@ -249,7 +252,6 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
                           ),
 
                           /// --- Design for Time Log description
-                          KSizedBox.h20,
                           KTextInputFormField(
                             labelText: 'Description',
                             hintText: 'Enter description here..',
@@ -267,11 +269,9 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
                               return null;
                             },*/
                           ),
-                          KSizedBox.h10,
 
                           /// --- text voice reorganisation
                           _performSpeakAndSetTextInTextField(),
-                          KSizedBox.h10,
                         ],
                       )
                     ],
@@ -389,9 +389,9 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
           SvgPicture.asset(
             KAssets.voiceIcon,
           ),
+
           KSizedBox.w10,
-          const Text(
-            'Tap to add description by speaking.',
+          const Text('Tap to add description by speaking.',
             style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Poppins',
@@ -433,14 +433,18 @@ class _CreateTimelogState extends State<CreateTimeLog> with SingleTickerProvider
                 const SizedBox(height: 20),
                 const Text(
                   "Listening... Please speak",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500,color: KColors.appPrimary),
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: KColors.appPrimary),
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     _speech.stop();
                     _animationController.stop();
-                    Navigator.of(bottomSheetContext).pop(); // Close the bottom sheet
+                    Navigator.of(bottomSheetContext)
+                        .pop(); // Close the bottom sheet
                   },
                   child: const Text("Stop"),
                 )
