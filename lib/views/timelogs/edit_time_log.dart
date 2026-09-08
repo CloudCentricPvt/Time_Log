@@ -339,7 +339,7 @@ class _EditTimeLogState extends State<EditTimeLog> {
           label: RichText(
               text: TextSpan(
                 text: 'Select Task',
-                  style: KFonts.normal,
+                  style: KTextStyle.normal,
                 children: [
                   TextSpan(
                     text: ' *',

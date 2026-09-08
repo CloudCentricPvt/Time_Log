@@ -63,7 +63,7 @@ class _CustomDrawerMenuState extends State<CustomDrawerMenu> {
                               Text(
                                 storage.read(KStorageKey.userName ?? '') ?? '',
                                 style: TextStyle(
-                                  color: KColors.appBlackColor,
+                                  color: KColors.textGrey,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 1,

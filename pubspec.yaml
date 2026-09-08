@@ -45,7 +45,6 @@ dependencies:
   app_settings: ^6.1.0 # from 5.1.1
   webview_flutter: ^4.4.2
   timezone: ^0.9.2
-  path_provider: ^2.0.8
   syncfusion_flutter_pdfviewer: ^31.2.4
   connectivity_plus: ^5.0.2
   dropdown_search: ^5.0.6
@@ -59,6 +58,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   file_picker: ^8.1.2
+  image_picker: ^1.1.2       # Latest version
+  open_file: ^3.3.2          # For opening PDFs and other files
+  path_provider: ^2.0.8      # For getting temp directory
 
 dev_dependencies:
   flutter_test:

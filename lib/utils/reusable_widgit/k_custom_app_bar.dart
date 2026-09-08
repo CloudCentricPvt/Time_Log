@@ -1,7 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:time_log/utils/constants/k_colors.dart';
+
+import '../constants/k_fonts.dart';
 
 class KCustomAppBar extends StatelessWidget {
   final String screenTitle;
@@ -15,30 +16,23 @@ class KCustomAppBar extends StatelessWidget {
     this.showHistory = false,
     this.historyTitle = "History",
     this.onHistoryTap,
-
   });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
+      contentPadding: const EdgeInsets.only(left: 16.0, right: 0.0),
       dense: true,
       leading: GestureDetector(
         onTap: () {
           Navigator.of(context).pop();
         },
-        child: const Icon(Icons.arrow_back_ios, color: KColors.appColorWhite),
+        child: const Icon(
+            size: 24, Icons.arrow_back_ios, color: KColors.appColorWhite),
       ),
-      title: Text(
-        screenTitle,
-        style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-              color: KColors.appColorWhite,
-              fontSize: 20,
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w500,
-              letterSpacing: 1
-            ),
-      ),
+      title: Text(screenTitle,
+          style: KTextStyle.titleLarge
+              .copyWith(color: Colors.white, letterSpacing: 0.7, fontSize: 17)),
       trailing: showHistory
           ? GestureDetector(
               onTap: onHistoryTap, // Make it clickable
@@ -66,5 +60,3 @@ class KCustomAppBar extends StatelessWidget {
     );
   }
 }
-
-

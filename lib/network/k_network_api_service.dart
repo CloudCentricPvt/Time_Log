@@ -64,31 +64,63 @@ class KNetworkApiServices extends KBaseApiServices {
     final localStorage = GetStorage();
     var token = localStorage.read("Access_token") ?? "";
     var userId = localStorage.read("User_Id") ?? "";
+
     final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'Authorization': 'Bearer $token',
     };
+
     log("Token: $token");
     log("API_URL : $url");
     log("Payload : $data");
 
-    dynamic responseJson;
     try {
       final response = await https
-          .post(Uri.parse(url), body: jsonEncode(data), headers: headers)
+          .post(
+          Uri.parse(url),
+          body: jsonEncode(data),
+          headers: headers
+      )
           .timeout(const Duration(seconds: 10));
-      responseJson = returnApiResponse(response, context);
-    } on SocketException {
-      throw KSnackBarEvents.errorSnackBar(title: "Opps", message: "No internet found");
 
+      log("GetAPIStatusCode : ${response.statusCode}");
+      log("GetAPIResponse : ${response.body}");
+
+      // Parse the response
+      dynamic responseJson;
+      try {
+        if (response.body.isNotEmpty) {
+          responseJson = jsonDecode(response.body);
+        } else {
+          responseJson = {'success': true, 'message': 'Request successful'};
+        }
+      } catch (e) {
+        log("Error parsing JSON: $e");
+        responseJson = {'success': true, 'message': 'Request successful'};
+      }
+
+      // Handle different status codes
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return responseJson;
+      } else {
+        // For error responses, return the error JSON
+        return responseJson ?? {
+          'success': false,
+          'message': 'HTTP Error: ${response.statusCode}',
+          'statusCode': response.statusCode,
+        };
+      }
+    } on SocketException {
+      log("SocketException: No internet connection");
+      throw Exception('No internet connection found');
     } on TimeoutException {
-      throw KSnackBarEvents.errorSnackBar(title: "Opps", message: "Request timeout");
+      log("TimeoutException: Request timeout");
+      throw Exception('Request timeout - Please try again');
     } catch (e) {
       log("CatchError : $e");
-      throw KSnackBarEvents.errorSnackBar(title: "Error occurred network service", message: e.toString());
+      throw Exception('Error occurred: ${e.toString()}');
     }
-    return responseJson;
   }
 
   @override
@@ -121,7 +153,6 @@ class KNetworkApiServices extends KBaseApiServices {
     }
     return responseJson;
   }
-
 
   @override
   Future<Map<String, dynamic>> httpPost(var data, String url, BuildContext context) async {

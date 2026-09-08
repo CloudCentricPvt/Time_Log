@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:time_log/utils/constants/api_container.dart';
+import 'package:time_log/utils/constants/k_colors.dart';
 import 'package:time_log/views/all_privacy/help_and_support.dart';
 import 'package:time_log/views/all_privacy/leaves_policy_screen.dart';
 import 'package:time_log/views/all_privacy/posh_policy.dart';
@@ -34,11 +36,16 @@ import 'package:time_log/views/timelogs/edit_time_log.dart';
 import 'package:time_log/views/timelogs/time_logs_screen.dart';
 import 'package:time_log/views/upcoming/upcoming_events.dart';
 
+import 'network/salesforce_api_service.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
-  runApp(const MyApp());
+
   _initApp();
+  //_initSalesforceService();
+
+  runApp(const MyApp());
 }
 
 Future<void> _initApp() async {
@@ -48,12 +55,30 @@ Future<void> _initApp() async {
     Permission.microphone.request()
   ]);
 
+  // -- Set default status bar (will be overridden by screens)
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor: Color(0xFF84DBFF),
+      statusBarColor: Colors.transparent, // Transparent by default
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.light,
     ),
   );
+
 }
+
+/*Future<void> _initSalesforceService() async {
+  // Initialize Salesforce Service
+  final salesforceService = SalesforceAPIService();
+  final localStorage = GetStorage();
+  var baseUrl = KApiEndPoints.baseUrl;
+  var token = localStorage.read("Access_token") ?? "";
+
+  salesforceService.initialize(
+    instanceUrl: baseUrl,
+    accessToken: token,
+  );
+}*/
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

@@ -342,16 +342,16 @@ class BalanceLeave extends StatelessWidget {
                   Row(
                     children: [
                       Text(type == 'Work From Home' ? 'WFH' : 'WFH',
-                          style: KFonts.normalHeading),
+                          style: KTextStyle.normalHeading),
                       const SizedBox(
                         width: 2,
                       ),
-                      const Text('|', style: KFonts.normalHeading),
+                      const Text('|', style: KTextStyle.normalHeading),
                       const SizedBox(
                         width: 2,
                       ),
                       Text('${double.parse(day).toInt()} Day',
-                          style: KFonts.normalHeading),
+                          style: KTextStyle.normalHeading),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -360,14 +360,14 @@ class BalanceLeave extends StatelessWidget {
                     runSpacing: 2, // space between lines if wrapped
                     children: [
                       Text(KDateAndTime().getDay(startDate ?? ""),
-                          style: KFonts.normalBold),
+                          style: KTextStyle.normalBold),
                       Text(KDateAndTime().getMonthYear(startDate ?? ""),
-                          style: KFonts.normal),
-                      Text('to', style: KFonts.normal),
+                          style: KTextStyle.normal),
+                      Text('to', style: KTextStyle.normal),
                       Text(KDateAndTime().getDay(endDate ?? ""),
-                          style: KFonts.normalBold),
+                          style: KTextStyle.normalBold),
                       Text(KDateAndTime().getMonthYear(endDate ?? ""),
-                          style: KFonts.normal),
+                          style: KTextStyle.normal),
                     ],
                   ),
                 ],
@@ -381,7 +381,7 @@ class BalanceLeave extends StatelessWidget {
               color: statusColor, // Set background color dynamically
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Text(status, style: KFonts.normalWithWhiteColor),
+                child: Text(status, style: KTextStyle.normalWithWhiteColor),
               ),
             ),
           ],

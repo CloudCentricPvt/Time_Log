@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:time_log/utils/constants/k_colors.dart';
 
-class KFonts {
-  KFonts._(); // Private constructor to prevent instantiation
+class KTextStyle {
+  KTextStyle._(); // Private constructor to prevent instantiation
 
   static const String poppins = "Poppins"; // Define font family
-
   static  const TextStyle heading = TextStyle(
     fontFamily: poppins,
     fontSize: 18,
     fontWeight: FontWeight.w600,
     color: KColors.textHeadingColor,
   );
-
   static const TextStyle body = TextStyle(
     fontFamily: poppins,
     fontSize: 16,
@@ -43,22 +41,19 @@ class KFonts {
     fontWeight: FontWeight.w600,
     color: KColors.appColorWhite,
   );
-
   static const TextStyle profileTextBold = TextStyle(
     fontFamily: poppins,
     fontSize: 13,
     fontWeight: FontWeight.w600,
-    color: KColors.appBlackColor,
+    color: KColors.textGrey,
   );
   static const TextStyle profileTextNormal = TextStyle(
     fontFamily: poppins,
     fontSize: 13,
     fontWeight: FontWeight.w500,
-    color: KColors.appBlackColor,
+    color: KColors.textGrey,
     letterSpacing: 0.12,
   );
-
-
   static const TextStyle normalBoldWithBlueColor = TextStyle(
     fontFamily: poppins,
     fontSize: 14,
@@ -121,11 +116,69 @@ class KFonts {
     fontWeight: FontWeight.w600,
     color: KColors.textColorGray,
   );
-
   static const TextStyle button = TextStyle(
     fontFamily: poppins,
     fontSize: 16,
     fontWeight: FontWeight.w500,
     color: Colors.white,
   );
+
+  static const TextStyle labelSmall = TextStyle(
+    fontFamily: poppins,
+    fontSize: 11,
+    fontWeight: FontWeight.w400,
+    color: Colors.white,
+  );
+  static const TextStyle labelMedium = TextStyle(
+    fontFamily: poppins,
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    color: Colors.white,
+  );
+  static const TextStyle labelLarge = TextStyle(
+    fontFamily: poppins,
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: Colors.white,
+  );
+
+  static const TextStyle bodySmall = TextStyle(
+    fontFamily: poppins,
+    fontSize: 13,
+    fontWeight: FontWeight.w400,
+    color: Colors.black,
+  );
+  static const TextStyle bodyMedium = TextStyle(
+    fontFamily: poppins,
+    fontSize: 13,
+    fontWeight: FontWeight.w500,
+    color: Colors.black,
+  );
+  static const TextStyle bodyLarge = TextStyle(
+    fontFamily: poppins,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: Colors.white,
+  );
+
+  static const TextStyle titleSmall = TextStyle(
+    fontFamily: poppins,
+    fontSize: 15,
+    fontWeight: FontWeight.w400,
+    color: Colors.white,
+  );
+  static const TextStyle titleMedium = TextStyle(
+    fontFamily: poppins,
+    fontSize: 15,
+    fontWeight: FontWeight.w500,
+    color: Colors.black,
+  );
+  static const TextStyle titleLarge = TextStyle(
+    fontFamily: poppins,
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    color: Colors.white,
+  );
+
+
 }

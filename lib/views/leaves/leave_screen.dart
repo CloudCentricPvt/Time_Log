@@ -239,7 +239,7 @@ class LeaveScreenState extends State<LeaveScreen> {
       appBar: KCustomDrawer.customDrawer(
         context: context,
         title: "Leaves Details & Apply",
-        titleColor: KColors.appBlackColor,
+        titleColor: KColors.textGrey,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         showBellIcon: true,
         // Show Bell Icon
@@ -757,14 +757,14 @@ class LeaveScreenState extends State<LeaveScreen> {
                                 Text(
                                   item.holidayTitle ?? '',
                                   maxLines: 1,
-                                  style: KFonts.normalBoldWithWhite,
+                                  style: KTextStyle.normalBoldWithWhite,
                                 ),
                                 SizedBox(
                                   height: 2,
                                 ),
                                 Text(
                                   item.holidayDescription ?? '',
-                                  style: KFonts.thinWithWhite,
+                                  style: KTextStyle.thinWithWhite,
                                   maxLines: 2,
                                 ),
                                 SizedBox(
@@ -772,7 +772,7 @@ class LeaveScreenState extends State<LeaveScreen> {
                                 ),
                                 Text(
                                   item.formattedDate ?? '',
-                                  style: KFonts.thinWithWhite,
+                                  style: KTextStyle.thinWithWhite,
                                   maxLines: 1,
                                 ),
                               ],

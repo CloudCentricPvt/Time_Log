@@ -170,7 +170,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
       appBar: KCustomDrawer.customDrawer(
         context: context,
         title: "Time Log",
-        titleColor: KColors.appBlackColor,
+        titleColor: KColors.textGrey,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         showBellIcon: true,
         // Show Bell Icon
@@ -1046,12 +1046,10 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                             projectId: project.projectId,
                             project: project.projectName,
                             task: project.taskName,
-                            date: KDateAndTime()
-                                .getDay(project.formattedDate ?? ""),
+                            date: KDateAndTime().getDay(project.formattedDate ?? ""),
                             des: project.description,
                             remarks: project.remarks,
-                            monthYear: KDateAndTime()
-                                .getMonthYear(project.formattedDate ?? ""),
+                            monthYear: KDateAndTime().getMonthYear(project.formattedDate ?? ""),
                             hrs: project.hours.toString(),
                             min: project.minutes.toString(),
                             status: project.status ?? "",
@@ -1097,7 +1095,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                         children: [
                                           Text(
                                             project.projectName ?? "No Project",
-                                            style: KFonts.normalBold,
+                                            style: KTextStyle.normalBold,
                                           ),
                                           SizedBox(height: 5),
                                           Padding(
@@ -1118,7 +1116,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                                   project.taskName ?? "Null",
                                                   maxLines: 1,
                                                   style:
-                                                      KFonts.normalWithWithText,
+                                                      KTextStyle.normalWithWithText,
                                                 ),
                                               ),
                                             ),
@@ -1156,7 +1154,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                             Text(
                                               KDateAndTime().getMonthYear(
                                                   project.formattedDate ?? ""),
-                                              style: KFonts.normalBoldWithGray,
+                                              style: KTextStyle.normalBoldWithGray,
                                             ),
                                           ],
                                         )),
@@ -1173,7 +1171,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                           Text(
                                             project.description ??
                                                 "No Description",
-                                            style: KFonts.thin,
+                                            style: KTextStyle.thin,
                                             maxLines: 2,
                                           ),
                                           SizedBox(height: 5),
@@ -1208,7 +1206,7 @@ class TimeLogsScreenState extends State<TimeLogsScreen> {
                                             ),
                                             Text(
                                               'Hours',
-                                              style: KFonts.normalBoldWithGray,
+                                              style: KTextStyle.normalBoldWithGray,
                                             ),
                                           ],
                                         )),
@@ -1287,18 +1285,18 @@ class DetailDialog extends StatelessWidget {
                   children: [
                     Text(
                       "Status :",
-                      style: KFonts.normalHeading,
+                      style: KTextStyle.normalHeading,
                     ),
                     Card(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(2)),
                       shadowColor: KColors.cardShadowColor,
-                      color: getStatusColor1(status),
+                      color: getStatusColor(status),
                       child: Padding(
                         padding: const EdgeInsets.only(left: 6, right: 6),
                         child: Text(
                           status ?? "",
-                          style: KFonts.normalBoldWithWhite,
+                          style: KTextStyle.normalBoldWithWhite,
                         ),
                       ),
                     ),
@@ -1323,7 +1321,7 @@ class DetailDialog extends StatelessWidget {
                                     width: 18,
                                     child: SvgPicture.asset(
                                       'assets/icons/edit_profile.svg',
-                                      color: getStatusColor1(status),
+                                      color: getStatusColor(status),
                                     ),
                                   ),
                                   SizedBox(
@@ -1331,7 +1329,7 @@ class DetailDialog extends StatelessWidget {
                                   ),
                                   Text(
                                     "Edit",
-                                    style: KFonts.normal,
+                                    style: KTextStyle.normal,
                                   ),
                                 ],
                               ),
@@ -1390,12 +1388,12 @@ class DetailDialog extends StatelessWidget {
               children: [
                 Text(
                   "Project: ",
-                  style: KFonts.normalBold,
+                  style: KTextStyle.normalBold,
                 ),
                 Expanded(
                   child: Text(
                     project ?? "",
-                    style: KFonts.normal,
+                    style: KTextStyle.normal,
                     maxLines: 2,
                     softWrap: true,
                   ),
@@ -1409,11 +1407,11 @@ class DetailDialog extends StatelessWidget {
               children: [
                 Text(
                   "Task: ",
-                  style: KFonts.normalBold,
+                  style: KTextStyle.normalBold,
                 ),
                 Text(
                   task ?? "",
-                  style: KFonts.normal,
+                  style: KTextStyle.normal,
                 ),
               ],
             ),
@@ -1431,22 +1429,22 @@ class DetailDialog extends StatelessWidget {
                         children: [
                           Text(
                             "Description: ",
-                            style: KFonts.normalBold,
+                            style: KTextStyle.normalBold,
                           ),
                           Text(
                             des ?? "",
-                            style: KFonts.thin,
+                            style: KTextStyle.thin,
                           ),
                           SizedBox(
                             height: 5,
                           ),
                           Text(
                             "Remarks: ",
-                            style: KFonts.normalBold,
+                            style: KTextStyle.normalBold,
                           ),
                           Text(
                             remarks ?? "",
-                            style: KFonts.thin,
+                            style: KTextStyle.thin,
                           )
                         ],
                       )),
@@ -1470,10 +1468,10 @@ class DetailDialog extends StatelessWidget {
                                   style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      color: getStatusColor1(status))),
+                                      color: getStatusColor(status))),
                               Text(
                                 monthYear ?? "",
-                                style: KFonts.normal,
+                                style: KTextStyle.normal,
                               ),
                             ],
                           )
@@ -1496,10 +1494,10 @@ class DetailDialog extends StatelessWidget {
                                   style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      color: getStatusColor1(status))),
+                                      color: getStatusColor(status))),
                               Text(
                                 'Hours',
-                                style: KFonts.normal,
+                                style: KTextStyle.normal,
                               ),
                             ],
                           ),
@@ -1519,7 +1517,7 @@ class DetailDialog extends StatelessWidget {
     );
   }
 
-  Color getStatusColor1(String? status) {
+  Color getStatusColor(String? status) {
     return status == "Pending"
         ? KColors.orangeColor
         : status == "Approved"

@@ -72,12 +72,12 @@ class _KUpcomingEventsState extends State<KUpcomingEvents> {
                     children: [
                       Text(
                         item.personName ?? '',
-                        style: KFonts.normalHeading,
+                        style: KTextStyle.normalHeading,
                       ),
                       SizedBox(height: 5,),
                       Text(
                         item.eventName ?? '',
-                        style: KFonts.thin
+                        style: KTextStyle.thin
                       ),
                     ],
                   ),

@@ -68,7 +68,7 @@ class _ChatScreenState extends State<ChatScreen> {
         titleSpacing: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new,
-              color: KColors.appBlackColor, size: 20),
+              color: KColors.textGrey, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
@@ -87,7 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   "Support Assistant",
                   style: TextStyle(
                     fontFamily: 'Poppins',
-                    color: KColors.appBlackColor,
+                    color: KColors.textGrey,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -177,7 +177,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             style: TextStyle(
                               color: msg.isUser
                                   ? Colors.white
-                                  : KColors.appBlackColor,
+                                  : KColors.textGrey,
                               fontFamily: 'Poppins',
                               fontSize: 14,
                               height: 1.4,
@@ -253,7 +253,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   fontFamily: 'Poppins',
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: KColors.appBlackColor,
+                  color: KColors.textGrey,
                 ),
               ),
               const SizedBox(height: 8),
@@ -276,7 +276,7 @@ class _ChatScreenState extends State<ChatScreen> {
               fontFamily: 'Poppins',
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: KColors.appBlackColor,
+              color: KColors.textGrey,
             ),
           ),
           const SizedBox(height: 16),
@@ -324,7 +324,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     fontFamily: 'Poppins',
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: KColors.appBlackColor,
+                    color: KColors.textGrey,
                   ),
                 ),
               ),

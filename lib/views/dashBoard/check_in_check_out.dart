@@ -220,7 +220,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                   ),
                                   const Text(
                                     "Annual Leave Details",
-                                    style: KFonts.normalBold,
+                                    style: KTextStyle.normalBold,
                                   ),
                                   const SizedBox(
                                     height: 10,
@@ -255,7 +255,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                   const SizedBox(height: 20),
                                   const Text(
                                     "Working Hours Details",
-                                    style: KFonts.normalBold,
+                                    style: KTextStyle.normalBold,
                                   ),
                                   const SizedBox(
                                     height: 10,
@@ -1122,7 +1122,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
               children: [
                 const Text(
                   "Upcoming Events",
-                  style: KFonts.normalBold,
+                  style: KTextStyle.normalBold,
                 ),
                 InkWell(
                   child: const Text(
@@ -1188,7 +1188,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                 children: [
                                   Text(
                                     item.personName ?? '',
-                                    style: KFonts.normalHeading,
+                                    style: KTextStyle.normalHeading,
                                   ),
                                   SizedBox(
                                     height: 5,
@@ -1198,7 +1198,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                               " , " +
                                               item.eventName ??
                                           '',
-                                      style: KFonts.thin),
+                                      style: KTextStyle.thin),
                                 ],
                               ),
                             ),
@@ -1409,7 +1409,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
           children: [
             const Text(
               "Your Upcoming Leaves",
-              style: KFonts.normalBold,
+              style: KTextStyle.normalBold,
             ),
             SizedBox(
               height: 8,
@@ -1451,7 +1451,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
               children: [
                 const Text(
                   "Upcoming Holidays",
-                  style: KFonts.normalBold,
+                  style: KTextStyle.normalBold,
                 ),
                 InkWell(
                   child: const Text(
@@ -1498,14 +1498,14 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                   Text(
                                     item.holidayTitle ?? '',
                                     maxLines: 1,
-                                    style: KFonts.normalBoldWithWhite,
+                                    style: KTextStyle.normalBoldWithWhite,
                                   ),
                                   SizedBox(
                                     height: 2,
                                   ),
                                   Text(
                                     item.holidayDescription ?? '',
-                                    style: KFonts.thinWithWhite,
+                                    style: KTextStyle.thinWithWhite,
                                     maxLines: 2,
                                   ),
                                   SizedBox(
@@ -1513,7 +1513,7 @@ class CheckInCheckOutState extends State<CheckInCheckOut> {
                                   ),
                                   Text(
                                     item.formattedDate ?? '',
-                                    style: KFonts.thinWithWhite,
+                                    style: KTextStyle.thinWithWhite,
                                     maxLines: 1,
                                   ),
                                 ],

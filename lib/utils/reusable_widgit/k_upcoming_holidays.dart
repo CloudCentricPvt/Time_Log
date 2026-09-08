@@ -54,18 +54,18 @@ class _KUpcomingHolidaysState extends State<KUpcomingHolidays> {
                     Text(
                       item.holidayTitle ?? '',
                       maxLines: 1,
-                      style: KFonts.normalBoldWithWhite,
+                      style: KTextStyle.normalBoldWithWhite,
                     ),
                     SizedBox(height: 2,),
                     Text(
                         item.holidayDescription ?? '',
-                        style: KFonts.thinWithWhite,
+                        style: KTextStyle.thinWithWhite,
                       maxLines: 2,
                     ),
                     SizedBox(height: 10,),
                     Text(
                         item.formattedDate ?? '',
-                        style: KFonts.thinWithWhite,
+                        style: KTextStyle.thinWithWhite,
                       maxLines: 1,
                     ),
                   ],

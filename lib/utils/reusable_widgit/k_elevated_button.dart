@@ -41,7 +41,7 @@ class CustomElevatedButton extends StatelessWidget {
         onPressed: onPressed,
         child: Text(
           text,
-          style: KFonts.button,
+          style: KTextStyle.button,
         ),
       ),
     );
@@ -87,7 +87,7 @@ class CustomElevatedButtonCheckInOut extends StatelessWidget {
         onPressed: onPressed,
         child: Text(
           text,
-          style: KFonts.button,
+          style: KTextStyle.button,
         ),
       ),
     );

@@ -18,7 +18,7 @@ class KColors {
   static const appColorWhite = Color(0xFFFFFFFF);
   static const cardShadowColor = Color(0x0D000000);
   static const textColor = Color(0xFF585858);
-  static const appBlackColor = Color(0xFF333333);
+  static const textGrey = Color(0xFF333333);
   static const appStatusBarColor = Color(0xFF84DBFF);
 
   // other color

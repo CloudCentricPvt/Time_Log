@@ -97,11 +97,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
               children: [
                 Text(
                   'Today',
-                  style: KFonts.normalBold,
+                  style: KTextStyle.normalBold,
                 ),
                 Text(
                   'Mark All Read',
-                  style: KFonts.normalBoldWithBlueColor,
+                  style: KTextStyle.normalBoldWithBlueColor,
                 ),
               ],
             ),
@@ -121,7 +121,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             /// ---- last months notification
             Text(
               'Last Month',
-              style: KFonts.normalBold,
+              style: KTextStyle.normalBold,
             ),
 
             Expanded(
@@ -224,16 +224,16 @@ class CustomNotificationCard extends StatelessWidget {
                   children: [
                     Text(
                       type,
-                      style: KFonts.normal,
+                      style: KTextStyle.normal,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       softWrap: true,
                     ),
-                    Text('Approved by: Rakesh', style: KFonts.normal),
+                    Text('Approved by: Rakesh', style: KTextStyle.normal),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('No. of days: 1', style: KFonts.normal),
+                        Text('No. of days: 1', style: KTextStyle.normal),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(

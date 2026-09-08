@@ -25,6 +25,7 @@ class CreateExpenseReq {
 
 class ExpensePayload {
   String? employeeId;
+  String? userName;
   String? date;
   String? expenseType;
   double? expenseAmount;
@@ -45,6 +46,7 @@ class ExpensePayload {
 
   ExpensePayload({
     this.employeeId,
+    this.userName,
     this.date,
     this.expenseType,
     this.expenseAmount,
@@ -66,6 +68,7 @@ class ExpensePayload {
 
   factory ExpensePayload.fromJson(Map<String, dynamic> json) => ExpensePayload(
     employeeId: json["employeeId"],
+    userName: json["userName"],
     date: json["date"],
     expenseType: json["expenseType"],
     expenseAmount: (json["expenseAmount"] as num?)?.toDouble(),
@@ -87,6 +90,7 @@ class ExpensePayload {
 
   Map<String, dynamic> toJson() => {
     "employeeId": employeeId,
+    "userName": userName,
     "date": date,
     "expenseType": expenseType,
     "expenseAmount": expenseAmount,

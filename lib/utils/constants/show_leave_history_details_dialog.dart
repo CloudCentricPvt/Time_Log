@@ -56,7 +56,7 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(leaveType!.isEmpty ? '' : leaveType!,
-                          style: KFonts.normalHeading),
+                          style: KTextStyle.normalHeading),
                       Row(
                         children: [
                           Text('Status: '),
@@ -69,7 +69,7 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 6),
                               child: Text(status ?? "Pending",
-                                  style: KFonts.normalWithWithText),
+                                  style: KTextStyle.normalWithWithText),
                             ),
                           ),
                         ],
@@ -194,7 +194,7 @@ class ShowLeaveHistoryDetailsDialog extends StatelessWidget {
               (des ?? '')
                   .replaceAll(RegExp(r'<[^>]*>'), '')
                   .trim(),
-              style: KFonts.thin,
+              style: KTextStyle.thin,
             )
 
             //Text(des ?? "", style: KFonts.thin),

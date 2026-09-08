@@ -23,7 +23,6 @@ class _SplashScreenState extends State<SplashScreen> {
     bool isActive = (storage.read('Is_Active') as bool?) ?? false;
 
     Timer(const Duration(seconds: 3), () {
-
         // Debug log
         if (isActive == true) {
           Navigator.pushReplacementNamed(context, '/home_screen');
@@ -43,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Center(child: Image.asset(KAssets.appLogo,height: 950,),
+              child: Center(child: Image.asset(KAssets.appLogo,height: 320, width: 260,),
               ),
             ),
           ),
@@ -51,13 +50,12 @@ class _SplashScreenState extends State<SplashScreen> {
           const Text(
             'A CloudCentric Product',
             style: TextStyle(
-                fontSize: 18,
+                fontSize: 14,
                 fontFamily: 'Poppins',
-                fontWeight:FontWeight.w400
+                fontWeight:FontWeight.w500
             ),
           ),
-          const SizedBox(height: 10,)
-
+          const SizedBox(height: 18,)
         ],
       ),
     );

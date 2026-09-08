@@ -292,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 35,
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
               decoration: BoxDecoration(
-                color: isSelected ? KColors.appBlackColor : Colors.transparent,
+                color: isSelected ? KColors.textGrey : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -325,7 +325,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // ✅ Increased padding
         decoration: BoxDecoration(
-          color: isSelected ? KColors.appBlackColor : Colors.transparent,
+          color: isSelected ? KColors.textGrey : Colors.transparent,
           borderRadius: BorderRadius.circular(25),
         ),
         child: Row(
@@ -367,12 +367,12 @@ class _HomeScreenState extends State<HomeScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? KColors.appBlackColor : Colors.transparent,
+          color: isSelected ? KColors.textGrey : Colors.transparent,
           borderRadius: BorderRadius.circular(25),
           boxShadow: isSelected
               ? [
             BoxShadow(
-              color: KColors.appBlackColor.withOpacity(0.2),
+              color: KColors.textGrey.withOpacity(0.2),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -425,7 +425,7 @@ class _HomeScreenState extends State<HomeScreen> {
             content: const Text("Are you sure you want to exit?",
                 style: TextStyle(
                     fontFamily: 'Poppins',
-                    color: KColors.appBlackColor,
+                    color: KColors.textGrey,
                     fontSize: 16,fontWeight: FontWeight.w500)),
             actions: [
               TextButton(
@@ -433,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: const Text("No",
                     style: TextStyle(
                         fontFamily: 'Poppins',
-                        color: KColors.appBlackColor,
+                        color: KColors.textGrey,
                         fontSize: 16,fontWeight: FontWeight.w600)),
               ),
               TextButton(

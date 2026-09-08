@@ -93,7 +93,7 @@ class ProfileScreenState extends State<ProfileScreen> {
       appBar: KCustomDrawer.customDrawer(
         context: context,
         title: "Profile",
-        titleColor: KColors.appBlackColor,
+        titleColor: KColors.textGrey,
         backgroundColor: KColors.lightGray,
         showBellIcon: true,
         // Show Bell Icon
@@ -134,7 +134,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                         height: 10,
                       ),
                       Text(employeeData?.employeeName ?? '',
-                          style: KFonts.heading),
+                          style: KTextStyle.heading),
                       Text(
                         '${employeeData?.employeeDesignation ?? ''} | ${employeeData?.employeeCode ?? ''}',
                         style: TextStyle(
@@ -262,7 +262,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           buildRowForProfile("Name:",
                               employeeData?.employeeName ?? '', context,
-                              color: KColors.appBlackColor,
+                              color: KColors.textGrey,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Poppins'),
                           buildRowForProfile(
@@ -334,7 +334,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           buildRowForCompany("Department:",
                               employeeData?.employeeDepartment ?? '', context,
-                              color: KColors.appBlackColor,
+                              color: KColors.textGrey,
                               fontFamily: 'Poppins'),
                           buildRowForCompany("Employee Id:",
                               employeeData?.employeeCode ?? '', context,

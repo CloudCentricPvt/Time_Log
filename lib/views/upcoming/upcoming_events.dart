@@ -110,7 +110,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                             visible: todayEvents.isEmpty ? false : true,
                             child: Text(
                               'Today Events',
-                              style: KFonts.normalBold,
+                              style: KTextStyle.normalBold,
                             )),
                         const SizedBox(
                           height: 10,
@@ -130,7 +130,7 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                             visible: eventsList.isEmpty ? false : true,
                             child: Text(
                               'Upcoming Birthday & Anniversary',
-                              style: KFonts.normalBold,
+                              style: KTextStyle.normalBold,
                             )),
 
                         //_showUpcomingBirthdayAndAnniversary(),
@@ -320,14 +320,14 @@ class _UpcomingEventsState extends State<UpcomingEvents> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(item.personName ?? '',
-                                style: KFonts.normalHeading),
+                                style: KTextStyle.normalHeading),
                             SizedBox(height: 5),
                             Text(
                                 formatEventDate(item.eventDate) +
                                         " , " +
                                         item.eventName ??
                                     '',
-                                style: KFonts.thin),
+                                style: KTextStyle.thin),
                           ],
                         ),
                       ),

@@ -9,6 +9,8 @@ class KApiContainer {
 
 class KApiEndPoints {
 
+  static String baseUrl = "${KApiContainer.BASE_URL}";
+
   /// -- Authentication
   static String login = "${KApiContainer.BASE_URL}apexrest/ValidateCredentials";
   static String checkIn = "${KApiContainer.BASE_URL}apexrest/CheckIn";
@@ -33,6 +35,7 @@ class KApiEndPoints {
   static String wfhHistory = "${KApiContainer.BASE_URL}apexrest/AppliedWFHDetails";
   static String getExpenses = "${KApiContainer.BASE_URL}apexrest/GetExpenses/";
   static String createExpense = "${KApiContainer.BASE_URL}apexrest/CreateExpense";
+  static String createExpenseNew = "${KApiContainer.BASE_URL}apexrest/expense";
   static String updateExpense = "${KApiContainer.BASE_URL}apexrest/UpdateExpense";
   static String submitExpenseApproval = "${KApiContainer.BASE_URL}apexrest/SubmitExpenseApproval";
   //static String getAnnualLeaveDetails = "${KApiContainer.BASE_URL}apexrest/AnnualLeaveDetailsAPI";
@@ -43,5 +46,6 @@ class KApiEndPoints {
   static String getOfficialHolidays = "${KApiContainer.BASE_URL}apexrest/HolidayList";
   static String getProfileDetails = "${KApiContainer.BASE_URL}apexrest/ProfileDetailsAPI";
   static String updateProfile = "${KApiContainer.BASE_URL}apexrest/ProfileDetailsUpdateAPI";
+  static String uploadFile = "${KApiContainer.BASE_URL}data/v65.0/sobjects/ContentVersion/";
 
 }

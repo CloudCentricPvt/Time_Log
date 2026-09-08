@@ -1,18 +1,18 @@
 import 'dart:convert';
 
-ExpenseListResponse expenseListResponseFromJson(String str) =>
-    ExpenseListResponse.fromJson(json.decode(str));
+ExpenseListRes expenseListResponseFromJson(String str) =>
+    ExpenseListRes.fromJson(json.decode(str));
 
-class ExpenseListResponse {
+class ExpenseListRes {
   bool? status;
   String? message;
   List<MonthlyExpenseGroup>? data;
   int? code;
 
-  ExpenseListResponse({this.status, this.message, this.data, this.code});
+  ExpenseListRes({this.status, this.message, this.data, this.code});
 
-  factory ExpenseListResponse.fromJson(Map<String, dynamic> json) =>
-      ExpenseListResponse(
+  factory ExpenseListRes.fromJson(Map<String, dynamic> json) =>
+      ExpenseListRes(
         status: json["status"],
         message: json["message"],
         code: json["code"],
